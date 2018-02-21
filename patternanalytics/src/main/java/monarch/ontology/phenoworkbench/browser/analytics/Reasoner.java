@@ -1,4 +1,4 @@
-package monarch.ontology.phenoworkbench.analytics;
+package monarch.ontology.phenoworkbench.browser.analytics;
 
 import org.semanticweb.HermiT.ReasonerFactory;
 import org.semanticweb.elk.owlapi.ElkReasonerFactory;

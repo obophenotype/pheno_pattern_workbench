@@ -1,4 +1,4 @@
-package monarch.ontology.phenoworkbench.util;
+package monarch.ontology.phenoworkbench.browser.util;
 
 import java.util.ArrayList;
 import java.util.List;

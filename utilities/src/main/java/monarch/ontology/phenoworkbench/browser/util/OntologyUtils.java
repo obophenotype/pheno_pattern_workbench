@@ -1,6 +1,7 @@
-package monarch.ontology.phenoworkbench.util;
+package monarch.ontology.phenoworkbench.browser.util;
 
 import org.semanticweb.owlapi.apibinding.OWLManager;
+import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
 import org.semanticweb.owlapi.search.EntitySearcher;
 import org.semanticweb.owlapi.util.OWLObjectTransformer;

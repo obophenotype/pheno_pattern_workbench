@@ -1,6 +1,6 @@
-package monarch.ontology.phenoworkbench.analytics;
+package monarch.ontology.phenoworkbench.browser.analytics;
 
-import ebi.ontology.utilities.*;
+import monarch.ontology.phenoworkbench.browser.util.*;
 import org.apache.commons.io.FileUtils;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.formats.RDFXMLDocumentFormat;
@@ -20,7 +20,7 @@ import java.util.*;
 
 public class PatternExtractor {
 
-    Timer timer = new Timer();
+    monarch.ontology.phenoworkbench.browser.analytics.Timer timer = new monarch.ontology.phenoworkbench.browser.analytics.Timer();
     private final String EBIBASE = "http://ebi.ac.uk#";
     private final int SAMPLESIZE;
     private OWLDataFactory df = OWLManager.createOWLOntologyManager().getOWLDataFactory();

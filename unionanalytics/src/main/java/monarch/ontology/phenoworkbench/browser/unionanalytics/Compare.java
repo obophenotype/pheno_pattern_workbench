@@ -1,4 +1,4 @@
-package monarch.ontology.phenoworkbench.unionanalytics;
+package monarch.ontology.phenoworkbench.browser.unionanalytics;
 
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.formats.TurtleDocumentFormat;

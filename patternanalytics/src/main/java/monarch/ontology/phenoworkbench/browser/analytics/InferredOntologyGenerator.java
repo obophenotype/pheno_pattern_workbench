@@ -1,4 +1,4 @@
-package monarch.ontology.phenoworkbench.analytics;
+package monarch.ontology.phenoworkbench.browser.analytics;
 
 /***
  * TODO REPLACE THIS CLASS WHEN FIXED IN OWLAPI

@@ -1,9 +1,10 @@
-package monarch.ontology.phenoworkbench.unionanalytics;
+package monarch.ontology.phenoworkbench.browser.unionanalytics;
 
-import ebi.ontology.utilities.OntologyDebugReport;
-import ebi.ontology.utilities.OntologyUtils;
+import monarch.ontology.phenoworkbench.browser.util.OntologyDebugReport;
+import monarch.ontology.phenoworkbench.browser.util.OntologyUtils;
 import org.apache.commons.io.FileUtils;
 import org.semanticweb.owlapi.apibinding.OWLManager;
+import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.model.parameters.Imports;
 
 import java.io.File;

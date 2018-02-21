@@ -1,4 +1,4 @@
-package monarch.ontology.phenoworkbench.analytics;
+package monarch.ontology.phenoworkbench.browser.analytics;
 
 public class ELKSubClassOfRetrieval {
     public static void main(String[] args) {

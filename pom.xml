@@ -9,7 +9,7 @@
     <packaging>pom</packaging>
     <version>0.0.1</version>
     <modules>
-        <module>analytics</module>
+        <module>patternanalytics</module>
         <module>browser</module>
         <module>utilities</module>
         <module>unionanalytics</module>

@@ -1,7 +1,7 @@
-package monarch.ontology.phenoworkbench.analytics;
+package monarch.ontology.phenoworkbench.browser.analytics;
 
 import com.google.common.collect.Sets;
-import ebi.ontology.utilities.RenderManager;
+import monarch.ontology.phenoworkbench.browser.util.RenderManager;
 import org.apache.commons.io.FileUtils;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;

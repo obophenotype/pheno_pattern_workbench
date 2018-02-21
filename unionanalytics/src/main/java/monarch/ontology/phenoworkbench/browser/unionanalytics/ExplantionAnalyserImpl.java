@@ -1,6 +1,6 @@
-package monarch.ontology.phenoworkbench.unionanalytics;
+package monarch.ontology.phenoworkbench.browser.unionanalytics;
 
-import ebi.ontology.utilities.RenderManager;
+import monarch.ontology.phenoworkbench.browser.util.RenderManager;
 import org.semanticweb.elk.owlapi.ElkReasonerFactory;
 import org.semanticweb.owl.explanation.api.Explanation;
 import org.semanticweb.owlapi.apibinding.OWLManager;

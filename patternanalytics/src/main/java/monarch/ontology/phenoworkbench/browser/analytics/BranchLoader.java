@@ -1,6 +1,6 @@
-package monarch.ontology.phenoworkbench.analytics;
+package monarch.ontology.phenoworkbench.browser.analytics;
 
-import ebi.ontology.utilities.OntologyUtils;
+import monarch.ontology.phenoworkbench.browser.util.OntologyUtils;
 import org.apache.commons.io.FileUtils;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.IRI;

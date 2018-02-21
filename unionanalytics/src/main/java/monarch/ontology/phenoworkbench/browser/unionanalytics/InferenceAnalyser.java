@@ -1,9 +1,9 @@
-package monarch.ontology.phenoworkbench.unionanalytics;
+package monarch.ontology.phenoworkbench.browser.unionanalytics;
 
-import ebi.ontology.utilities.OntologyDebugReport;
-import ebi.ontology.utilities.OntologyFileExtension;
-import ebi.ontology.utilities.OntologyUtils;
-import ebi.ontology.utilities.RenderManager;
+import monarch.ontology.phenoworkbench.browser.util.OntologyDebugReport;
+import monarch.ontology.phenoworkbench.browser.util.OntologyFileExtension;
+import monarch.ontology.phenoworkbench.browser.util.OntologyUtils;
+import monarch.ontology.phenoworkbench.browser.util.RenderManager;
 import org.apache.commons.io.FileUtils;
 import org.semanticweb.HermiT.ReasonerFactory;
 import org.semanticweb.elk.owlapi.ElkReasonerFactory;
