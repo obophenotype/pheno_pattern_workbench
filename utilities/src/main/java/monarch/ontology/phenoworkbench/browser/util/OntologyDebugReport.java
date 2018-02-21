@@ -11,6 +11,10 @@ public class OntologyDebugReport {
         lines.add(vio.toString());
     }
 
+    public void clear() {
+        lines.clear();
+    }
+
     public void addEmptyLine() {
         lines.add("");
     }

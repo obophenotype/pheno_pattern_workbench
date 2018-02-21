@@ -1,58 +1,79 @@
 package monarch.ontology.phenoworkbench.browser;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.servlet.annotation.WebServlet;
 
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
+import com.vaadin.navigator.Navigator;
+import com.vaadin.navigator.View;
+import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.server.Resource;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Notification;
+import com.vaadin.ui.Layout;
+import com.vaadin.ui.MenuBar;
+import com.vaadin.ui.MenuBar.MenuItem;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 @Theme("valo")
 @SuppressWarnings("serial")
 public class PhenoUI extends UI {
+	
+	public static String PATTERNANALYTICSVIEW = "Phenotype Pattern Analytics";
+	public static String UNIONANALYTICSVIEW = "Ontology Union Analysis";
+	Map<String,Layout> views = new HashMap<>();
+	
 
-    private int clickCounter = 0;
-    private Label clickCounterLabel;
-
-    @WebServlet(value = "/*", asyncSupported = true)
-    @VaadinServletConfiguration(productionMode = false, ui = PhenoUI.class)
-    public static class Servlet extends VaadinServlet {
-    }
-
-    @Override
+	@Override
     protected void init(VaadinRequest request) {
-        final VerticalLayout layout = new VerticalLayout();
-        layout.setMargin(true);
-        layout.setSpacing(true);
-        setContent(layout);
+        // The root of the component hierarchy
+        VerticalLayout main = new VerticalLayout();
+        setContent(main);  
+        MenuBar barmenu = new MenuBar();
+        main.addComponent(barmenu);
+        
+        final Layout selection = new VerticalLayout();
+    	main.addComponent(selection);
 
-        layout.addComponent(new Label("Hello World!"));
-        layout.addComponent(new Label("Greetings from server."));
-        layout.addComponent(new Label("I have "
-                + Runtime.getRuntime().availableProcessors()
-                + " processors and "
-                + (Runtime.getRuntime().totalMemory() / 1000000)
-                + " MB total memory."));
+    	// Define a common menu command for all the menu items.
+    	MenuBar.Command mycommand = new MenuBar.Command() {
+    	    public void menuSelected(MenuItem selectedItem) {
+    	        String menuitem = selectedItem.getText();
+    	        if(menuitem.equals(PATTERNANALYTICSVIEW)) {
+    	        		selection.removeAllComponents();
+    	        		if(!views.containsKey(PATTERNANALYTICSVIEW)) {
+    	        			views.put(PATTERNANALYTICSVIEW, new PatternAnalyserView());
+    	        		}
+    	        		selection.addComponent(views.get(PATTERNANALYTICSVIEW));
+    	        } else if(menuitem.equals(UNIONANALYTICSVIEW)) {
+	        		selection.removeAllComponents();
+	        		if(!views.containsKey(UNIONANALYTICSVIEW)) {
+	        			views.put(UNIONANALYTICSVIEW, new UnionAnalyserView(PhenoUI.this));
+	        		}
+	        		selection.addComponent(views.get(UNIONANALYTICSVIEW));
+	        }
+    	    }
+    	};
+        
+    		MenuItem phenotypepatterns = barmenu.addItem(PATTERNANALYTICSVIEW, null, mycommand);
 
-        Button button = new Button("Click Me");
-        button.addClickListener(new Button.ClickListener() {
+    		MenuItem unionpatterns = barmenu.addItem(UNIONANALYTICSVIEW, null, mycommand);
 
-            @Override
-            public void buttonClick(ClickEvent event) {
-                clickCounter++;
-                clickCounterLabel.setValue("Clicks: " + clickCounter);
-                Notification.show("Thank you for clicking.");
-            }
-        });
 
-        layout.addComponent(button);
-        layout.addComponent(clickCounterLabel = new Label("Clicks: 0"));
+
     }
-
+	
+	@WebServlet(urlPatterns = "/*", name = "PhenoUIServlet", asyncSupported = true)
+    @VaadinServletConfiguration(ui = PhenoUI.class, productionMode = false)
+    public static class MyUIServlet extends VaadinServlet {
+    }
+	
 }

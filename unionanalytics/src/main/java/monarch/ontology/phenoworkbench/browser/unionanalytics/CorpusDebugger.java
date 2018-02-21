@@ -42,7 +42,7 @@ public class CorpusDebugger {
     private final Map<IRI, OWLOntology> allAxiomsAcrossOntologies = new HashMap<>();
     private final Map<OWLAxiom, Set<IRI>> allOntologiesAcrossAxioms = new HashMap<>();
 
-    private CorpusDebugger(File pd, String reasoner, boolean imports, int maxunsat,int maxexplunsat) {
+    public CorpusDebugger(File pd, String reasoner, boolean imports, int maxunsat,int maxexplunsat) {
         this.pd = pd;
         this.reasoner = reasoner;
         this.MAXUNSAT = maxunsat;
@@ -69,14 +69,16 @@ public class CorpusDebugger {
 
     }
 
-    private void run() {
+    public void run() {
         for (File ourl : pd.listFiles(new OntologyFileExtension())) {
             //if(ourl.endsWith("hp.owl"))
             processOntology(imports, ourl);
         }
+        preparePrint();
     }
 
-    private void printResults(File out) throws IOException {
+    private void preparePrint() {
+        report.clear();
         report.addLine("[[Compatibility analysis of corpus "+pd.getPath()+"]]");
         report.addEmptyLine();
         report.addLine("# Analysing individual ontologies for ");
@@ -92,6 +94,9 @@ public class CorpusDebugger {
 
         analyseOntologyCompatibilityIssues();
 
+    }
+
+    public void printResults(File out) throws IOException {
         FileUtils.writeLines(new File(out,"report_corpus_debugger.md"), report.getLines());
     }
 
@@ -273,4 +278,7 @@ public class CorpusDebugger {
 
         }
 
+    public List<String> getReportLines() {
+        return report.getLines();
+    }
 }

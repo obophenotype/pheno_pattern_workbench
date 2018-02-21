@@ -2,3 +2,6 @@
 */target/*
 
 *.iml
+browser/.classpath
+browser/.project
+*.settings/
