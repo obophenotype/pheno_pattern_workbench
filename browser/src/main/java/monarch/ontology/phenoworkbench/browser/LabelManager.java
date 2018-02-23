@@ -6,11 +6,15 @@ import com.vaadin.ui.Label;
 public class LabelManager {
 	
 	public static Label labelH1(String s) {
-		return new Label("<h1>"+s+"<h1>",ContentMode.HTML);
+		return htmlLabel("<h1>"+s+"<h1>");
 	}
 	
 	public static Label labelH2(String s) {
-		return new Label("<h2>"+s+"<h2>",ContentMode.HTML);
+		return htmlLabel("<h2>"+s+"<h2>");
+	}
+
+	public static Label htmlLabel(String s) {
+		return new Label(s,ContentMode.HTML);
 	}
 
 }

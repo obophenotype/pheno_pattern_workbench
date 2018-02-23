@@ -24,7 +24,7 @@ import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-
+import monarch.ontology.phenoworkbench.browser.util.Timer;
 
 public class CorpusDebugger {
 
@@ -32,7 +32,7 @@ public class CorpusDebugger {
     private RenderManager render = new RenderManager();
     private String BASE = "http://ebi.debug.owl#";
     private OntologyDebugReport report = new OntologyDebugReport();
-    private final long start = System.currentTimeMillis();
+    Timer timer = new Timer();
 
     private final File pd;
     private final String reasoner;
@@ -79,12 +79,11 @@ public class CorpusDebugger {
 
     private void preparePrint() {
         report.clear();
-        report.addLine("[[Compatibility analysis of corpus "+pd.getPath()+"]]");
-        report.addEmptyLine();
-        report.addLine("# Analysing individual ontologies for ");
+        report.addLine("# Compatibility analysis of corpus "+pd.getPath());
+        report.addLine("## Analysing individual ontologies for Profile violations");
         for (IRI iri : allAxiomsAcrossOntologies.keySet()) {
             OntologyUtils.p("Analysing: "+iri+printTime());
-            report.addLine("## Ontology: " + iri);
+            report.addLine("### Ontology: " + iri);
             OWLOntology o = allAxiomsAcrossOntologies.get(iri);
             checkProfileCompliance(o);
             checkConsistency(o);
@@ -101,7 +100,11 @@ public class CorpusDebugger {
     }
 
     private void analyseOntologyCompatibilityIssues() {
-        report.addLine("# Analyse Incompatibilites of Union");
+        report.addLine("## Analyse Incompatibilites of Union");
+        report.addLine("* Unsatisfiable classes are marked with {}, Named anonymous classes are marked with [] and the class in questions is marked with ()");
+        report.addLine("* The explanation class hierarchies only includes top level classes that have at least one child.");
+        report.addLine("  * (Only those can be potentially relevant for debugging).");
+
         OntologyUtils.p("Analysing Compatibility issues:"+printTime());
         OWLOntologyManager man = OWLManager.createOWLOntologyManager();
         try {
@@ -130,25 +133,23 @@ public class CorpusDebugger {
 
             HashMap<OWLAxiom, Integer> countaxiomsinannotations = new HashMap<>();
             report.addEmptyLine();
-            report.addLine("## Explanations");
+            report.addLine("### Explanations");
             OntologyUtils.p("Generating explanations:"+printTime());
             for (OWLClass unsat : unsatisfiable) {
                 i++;
                 OWLAxiom entailment = df.getOWLEquivalentClassesAxiom(df.getOWLNothing(), unsat);
                 Set<Explanation<OWLAxiom>> expl = gen.getExplanations(entailment, MAXEXPLANATIONPERUNSAT);
                 report.addLine("");
-                report.addLine("## Explanations for unsatistifiable class: " + render.getLabel(unsat));
+                report.addLine("#### Explanations for unsatistifiable " + render.getLabel(unsat));
                 report.addLine("* IRI: " + unsat.getIRI());
 
                 countAxiomsAcrossExplanations(countaxiomsinannotations, expl);
-
-                report.addLine("### All explanations for "+render.getLabel(unsat));
                 int ct = 1;
                 for (Explanation<OWLAxiom> ex : expl) {
 
-                    report.addLine("#### Explanation "+ct);
+                    report.addLine("  * Explanation "+ct);
                     ExplanationAnalyser analyser = new ExplantionAnalyserImpl(ex, Collections.singleton(unsat), render);
-                    report.addLines(analyser.getReport(countaxiomsinannotations, allOntologiesAcrossAxioms));
+                    report.addLines(analyser.getReport(countaxiomsinannotations, allOntologiesAcrossAxioms,"    "));
                     ct++;
                 }
 
@@ -162,11 +163,11 @@ public class CorpusDebugger {
             report.addEmptyLine();
             report.addLine("## Frequently used axioms across unsatisfiability explanations");
             for(Map.Entry e:map.entrySet()) {
-                report.addLine("### "+ render.renderManchester((OWLAxiom) e.getKey()) + " (" + e.getValue()+")");
-                report.addLine("Used in: ");
+                report.addLine("* "+ render.renderManchester((OWLAxiom) e.getKey()) + " (" + e.getValue()+")");
+                report.addLine("  * Used in: ");
                 report.addEmptyLine();
                 for(IRI iri:allOntologiesAcrossAxioms.get(e.getKey())) {
-                    report.addLine("* "+iri);
+                    report.addLine("    * "+iri);
                 }
             }
 
@@ -188,9 +189,7 @@ public class CorpusDebugger {
     }
 
     private String printTime() {
-        long current = System.currentTimeMillis();
-        long duration = current - start;
-        return " ("+(duration/1000)+" sec)";
+       return timer.getTimeElapsed();
     }
 
     private void processOntology(Imports imports, File ofile) {
@@ -219,13 +218,13 @@ public class CorpusDebugger {
     }
 
     private void checkConsistency(OWLOntology o) {
-        report.addLine("### Consistency analysis");
+        report.addLine("* Consistency analysis");
         try {
             OWLReasoner rr = createReasoner(o);
-            Set<OWLClass> unsat = new HashSet<>(rr.getUnsatisfiableClasses().getEntities());
-            report.addLine("* Consistent:" + rr.isConsistent());
-            report.addLine("* Unsatisfiable Classes: "+unsat.size());
-            unsat.forEach(sat -> report.addLine("  * "+render.getLabel(sat)));
+            Set<OWLClass> unsat = new HashSet<>(rr.getUnsatisfiableClasses().getEntitiesMinus(df.getOWLNothing()));
+            report.addLine("  * Consistent:" + rr.isConsistent());
+            report.addLine("  * Unsatisfiable Classes: "+unsat.size());
+            unsat.forEach(sat -> report.addLine("    * "+render.getLabel(sat)));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -233,8 +232,7 @@ public class CorpusDebugger {
     }
 
     private void checkProfileCompliance(OWLOntology o) {
-        report.addLine("### Profile Conformance");
-        report.addLine("This report does not show undeclared entity violations.");
+        report.addLine("* Profile Conformance");
         OWL2DLProfile prof = new OWL2DLProfile();
         OWLProfileReport preport = prof.checkOntology(o);
         Map<String,Set<OWLProfileViolation>> vioMap = new HashMap<>();
@@ -252,18 +250,16 @@ public class CorpusDebugger {
         }
 
         for(String viogroup:vioMap.keySet()) {
-            report.addLine("#### "+viogroup);
+            report.addLine("  * "+viogroup);
             for (OWLProfileViolation vio : vioMap.get(viogroup)) {
                 if (!(vio instanceof UndeclaredEntityViolation)) {
-                    report.addLine("* " + vio.toString());
-                    report.addLine("  * Expression: " + vio.getExpression());
-                    report.addLine("  * Axiom: " + vio.getAxiom());
+                    report.addLine("    * " + vio.toString());
+                    report.addLine("    * Expression: " + vio.getExpression());
+                    report.addLine("    * Axiom: " + vio.getAxiom());
                 }
             }
         }
-        report.addLine("#### Undeclared Entities");
-        report.addLine("* Nr of undeclared entity violations: "+ctundeclared);
-        report.addEmptyLine();
+        report.addLine("  * Undeclared Entities: "+ctundeclared);
     }
 
     private OWLReasoner createReasoner(OWLOntology o) {

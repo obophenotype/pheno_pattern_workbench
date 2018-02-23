@@ -4,9 +4,12 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.ProgressBar;
-import com.vaadin.ui.VerticalLayout;
 
 public class RunAnalysisComponent extends HorizontalLayout {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2148045102477118777L;
 	ProgressBar bar = new ProgressBar(0.0f);
 	Layout vl_barcomponent = new HorizontalLayout();
 	Button bt_runanalysis = new Button("Run analysis");
@@ -18,11 +21,10 @@ public RunAnalysisComponent() {
 	vl_barcomponent.setWidth("50%");
 	vl_barcomponent.setHeight("100%");
 	
-	Layout vl_runanalysis = new HorizontalLayout();
-	vl_runanalysis.setWidth("500px");
-	vl_runanalysis.setHeight("100px");
-	vl_runanalysis.addComponent(bt_runanalysis);
-	vl_runanalysis.addComponent(vl_barcomponent);
+	setWidth("500px");
+	setHeight("100px");
+	addComponent(bt_runanalysis);
+	addComponent(vl_barcomponent);
 }
 
 

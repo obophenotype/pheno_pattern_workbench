@@ -1,6 +1,7 @@
 package monarch.ontology.phenoworkbench.browser.analytics;
 
 import monarch.ontology.phenoworkbench.browser.util.*;
+import monarch.ontology.phenoworkbench.browser.util.Timer;
 import org.apache.commons.io.FileUtils;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.formats.RDFXMLDocumentFormat;
@@ -20,7 +21,7 @@ import java.util.*;
 
 public class PatternExtractor {
 
-    monarch.ontology.phenoworkbench.browser.analytics.Timer timer = new monarch.ontology.phenoworkbench.browser.analytics.Timer();
+    Timer timer = new Timer();
     private final String EBIBASE = "http://ebi.ac.uk#";
     private final int SAMPLESIZE;
     private OWLDataFactory df = OWLManager.createOWLOntologyManager().getOWLDataFactory();
@@ -49,7 +50,7 @@ public class PatternExtractor {
     private final Imports imports;
     private final boolean addsubclasses;
 
-    private PatternExtractor(File pd, File branchfile, boolean imports, boolean addsubclasses, int samplesize) {
+    public PatternExtractor(File pd, File branchfile, boolean imports, boolean addsubclasses, int samplesize) {
         this.pd = pd;
         this.branchfile = branchfile;
         this.imports = imports ? Imports.INCLUDED : Imports.EXCLUDED;
@@ -72,7 +73,7 @@ public class PatternExtractor {
         p.printResults(outdir);
     }
 
-    private void run() {
+    public void run() {
         OntologyUtils.p("Process Ontologies" + timer.getTimeElapsed());
         processOntologies();
         OWLOntology uberontology = getUberOntology();
@@ -92,6 +93,7 @@ public class PatternExtractor {
 
 
 
+
     private void processOntologies() {
         for (File ofile : pd.listFiles(new OntologyFileExtension())) {
             OntologyUtils.p(ofile.getName());
@@ -100,8 +102,14 @@ public class PatternExtractor {
         }
     }
 
+    Map<String,String> map_oid_name = new HashMap<>();
+    int o_ct = 1;
+
     private void processOntology(Imports imports, File ofile) {
-        String oid = ofile.getName();
+        String name = ofile.getName();
+        String oid = "o"+o_ct;
+        o_ct++;
+        map_oid_name.put(oid,name);
 
         try {
             OWLOntology o = OWLManager.createOWLOntologyManager().loadOntologyFromOntologyDocument(ofile);
@@ -126,8 +134,6 @@ public class PatternExtractor {
             e.printStackTrace();
         }
     }
-
-
 
     private void processAxioms() {
         allOntologiesAcrossAxioms.keySet().forEach(this::processAxiom);
@@ -192,7 +198,12 @@ public class PatternExtractor {
     /*
     Prining report
      */
-    private void printResults(File out) {
+    public void printResults(File out) {
+        report.addLine("# Pattern Analysis Results");
+        report.addLine("* Ontology ids: ");
+        for(String oid:map_oid_name.keySet()) {
+            report.addLine("  * "+oid+":"+map_oid_name.get(oid));
+        }
         OntologyUtils.p("Print Definition Impact" + timer.getTimeElapsed());
         printDefinitionImpact(out);
         OntologyUtils.p("Print Relation to Definition" + timer.getTimeElapsed());
@@ -203,6 +214,7 @@ public class PatternExtractor {
         printEntityCounts(out);
         OntologyUtils.p("Print Definition Analysis" + timer.getTimeElapsed());
         printDefinitionAnalysis();
+
         try {
             FileUtils.writeLines(new File(out, "report_patternextractor.md"), report.getLines());
         } catch (IOException e) {
@@ -212,7 +224,7 @@ public class PatternExtractor {
 
     private void printDefinitionImpact(File out) {
         report.addLine("");
-        report.addLine("# Definitions Impact");
+        report.addLine("## Definitions Impact");
         report.addLine("Report only considers patterns with at least 100 indirect instances.");
         report.addLine("See generated dataset for complete view of the data.");
         report.addEmptyLine();
@@ -781,7 +793,7 @@ ontologies at all.
 
     private void printRelationsToDefinition() {
         report.addEmptyLine();
-        report.addLine("# Prominent relations used across definitions");
+        report.addLine("## Prominent relations used across definitions");
         report.addEmptyLine();
         Map<String, Set<OWLEntity>> labelmapping = new HashMap<>();
         HashMap<String, Integer> countRel = new HashMap<>();
@@ -817,18 +829,15 @@ ontologies at all.
             String label = (String) o;
 
             report.addLine("");
-            report.addLine("## " + label + " (label)");
-            report.addLine("* Number of distinct definitions using this label: " + sortedMap.get(o));
+            report.addLine("### " + label + " (label)");
+            report.addLine("* Number of distinct definitions using this label: " + countRel.get(o));
             report.addLine("* Ontologies make use of this relation: " + ontRels.get(label));
             report.addLine("* Relations used for this label: " + labelmapping.get(label));
 
             for (OWLEntity e : labelmapping.get(label)) {
-                report.addLine("### " + e.getIRI());
+                report.addLine("  * " + e.getIRI());
                 for (OWLAxiom ax : relationsToDefinitions.get(e).keySet()) {
-                    report.addLine("* " + render.renderForMarkdown(ax));
-                    for (String oid : relationsToDefinitions.get(e).get(ax)) {
-                        report.addLine("  * " + oid);
-                    }
+                    report.addLine("    * " + render.renderForMarkdown(ax)+" "+relationsToDefinitions.get(e).get(ax));
                 }
             }
         }
@@ -837,22 +846,20 @@ ontologies at all.
 
     private void printClassesToDefinition() {
         report.addLine("");
-        report.addLine("# Prominent classes used across definitions");
-        report.addLine("Omitting classes that only occur in one definition");
+        report.addLine("## Prominent classes used across definitions");
+        report.addLine("* Omitting classes that only occur in one definition");
         for (OWLClass e : classesToDefinitions.keySet()) {
             Integer defs = classesToDefinitions.get(e).keySet().size();
             if (defs > 1) {
                 report.addLine("");
-                report.addLine("## " + getLabel(e));
+                report.addLine("### " + getLabel(e));
                 Set<String> onts = new HashSet<>();
                 classesToDefinitions.get(e).keySet().forEach(ax -> onts.addAll(classesToDefinitions.get(e).get(ax)));
                 report.addLine("* Ontologies make use of this relation: " + onts);
-                report.addLine("### " + e.getIRI());
+                report.addLine("* Definitions by relation:");
+                report.addLine("  * " + e.getIRI());
                 for (OWLAxiom ax : classesToDefinitions.get(e).keySet()) {
-                    report.addLine("* " + render.renderForMarkdown(ax));
-                    for (String oid : classesToDefinitions.get(e).get(ax)) {
-                        report.addLine("  * " + oid);
-                    }
+                    report.addLine("    * " + render.renderForMarkdown(ax)+" "+classesToDefinitions.get(e).get(ax));
                 }
             }
         }
@@ -860,7 +867,7 @@ ontologies at all.
 
     private void printDefinitionAnalysis() {
         report.addLine("");
-        report.addLine("# Definition Analysis: Grammar and constructs");
+        report.addLine("## Definition Analysis: Grammar and constructs");
         Map<ClassExpressionType, Integer> types = new HashMap<>();
 
         for (OWLAxiom ax : definitions.keySet()) {
@@ -886,7 +893,7 @@ ontologies at all.
 
     private void printEntityCounts(File outdir) {
         report.addLine("");
-        report.addLine("# Entity counts");
+        report.addLine("## Entity counts");
         report.addLine("Omitting entities that occur only once.");
         HashMap<OWLEntity, Integer> map = new HashMap<>();
         for (OWLEntity e : entityCounts.keySet()) {
@@ -904,7 +911,6 @@ ontologies at all.
             OWLEntity e = (OWLEntity) entry.getKey();
             Integer v = entry.getValue();
             if (v > 1) {
-                report.addLine("");
                 report.addLine("* " + e.getIRI().toString() + " (" + getLabel(e) + ")");
                 entityCounts.get(e).keySet().forEach(k -> report.addLine("   * " + k + ": " + entityCounts.get(e).get(k)));
             }
@@ -953,5 +959,9 @@ ontologies at all.
             e.printStackTrace();
         }
         return null;
+    }
+
+    public List<String> getReportLines() {
+        return report.getLines();
     }
 }

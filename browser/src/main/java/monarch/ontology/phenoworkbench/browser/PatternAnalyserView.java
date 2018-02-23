@@ -1,15 +1,19 @@
 package monarch.ontology.phenoworkbench.browser;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import monarch.ontology.phenoworkbench.browser.analytics.PatternExtractor;
+
+import org.apache.commons.io.FileUtils;
 import org.vaadin.viritin.label.RichText;
 
 
-import monarch.ontology.phenoworkbench.browser.unionanalytics.CorpusDebugger;
 import monarch.ontology.phenoworkbench.browser.util.StringUtils;
 
 import com.vaadin.ui.UI;
@@ -29,9 +33,8 @@ public class PatternAnalyserView extends BasicLayout{
 	protected Map<String, String> getRunOptions() {
 		Map<String, String> options = new HashMap<>();
 		options.put("imports", "yes");
-		options.put("maxunsat", "10");
-		options.put("maxexplanation", "10");
-		options.put("reasoner", "elk");
+		options.put("addsubclasses", "yes");
+		options.put("samplesize", "10");
 		return options;
 	}
 
@@ -40,27 +43,50 @@ public class PatternAnalyserView extends BasicLayout{
 		selectedItems.forEach(System.out::println);
 
 		boolean imports = runOptionOrNull("imports").equals("yes");
-		int maxunsat = Integer.valueOf(runOptionOrNull("maxunsat"));
-		int maxexplunsat = Integer.valueOf(runOptionOrNull("maxexplanation"));
-		String reasoner = runOptionOrNull("reasoner");
+		boolean addsubclasses = runOptionOrNull("addsubclasses").equals("yes");
+		int samplesize = Integer.valueOf(runOptionOrNull("samplesize"));
 
-		File ontologiesdir = deleteMakeTmpDirectory("us_ontologies");
+		File ontologiesdir = deleteMakeTmpDirectory("pa_ontologies");
 		downloadOntologies(selectedItems, ontologiesdir);
-		CorpusDebugger p = new CorpusDebugger(ontologiesdir, reasoner, imports, maxunsat, maxexplunsat);
+		File resultsdir = deleteMakeTmpDirectory("pa_results");
+		
+		File branches = prepareBranchesFile();
+        PatternExtractor p = new PatternExtractor(ontologiesdir, branches, imports, addsubclasses, samplesize);
 
-		getUI().access(new Runnable() {
+        getUIFixed().access(new Runnable() {
 
 			@Override
 			public void run() {
 				runDebugger(p);
 			}
 
-			private void runDebugger(CorpusDebugger p) {
+			private void runDebugger(PatternExtractor p) {
 				p.run();
-				List<String> report = p.getReportLines();
-				StringBuilder sb = StringUtils.linesToStringBuilder(report);
-				getRunAnalysisPanel().addResult(new RichText().withMarkDown(sb.toString()));
+				p.printResults(resultsdir);
+				writeMarkdownToResults(p.getReportLines());
 			}
 		});
+	}
+
+	private File prepareBranchesFile() {
+		File branchfile = new File(getTmpdir(),"branches.txt");
+		List<String> branches = new ArrayList<>();
+		branches.add("http://purl.obolibrary.org/obo/MP_0005386");
+		branches.add("http://purl.obolibrary.org/obo/NBO_0000243");
+		branches.add("http://purl.obolibrary.org/obo/FBcv_0000387");
+		branches.add("http://purl.obolibrary.org/obo/WBPhenotype_0000517");
+		branches.add("http://purl.obolibrary.org/obo/NBO_0000243");
+		branches.add("http://purl.obolibrary.org/obo/NBO_0020110");
+		branches.add("http://purl.obolibrary.org/obo/NBO_0000313");
+		branches.add("http://purl.obolibrary.org/obo/PATO_0002265");
+		
+		try {
+			if(branchfile.exists()) FileUtils.deleteQuietly(branchfile);
+			FileUtils.writeLines(branchfile, branches);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return branchfile;
 	}
 }

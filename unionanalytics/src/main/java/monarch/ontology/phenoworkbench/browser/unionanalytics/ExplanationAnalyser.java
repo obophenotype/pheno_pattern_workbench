@@ -9,5 +9,5 @@ import java.util.Map;
 import java.util.Set;
 
 public interface ExplanationAnalyser {
-    List<String> getReport(HashMap<OWLAxiom, Integer> countaxiomsinannotations, Map<OWLAxiom, Set<IRI>> allAxiomsAcrossOntologies);
+    List<String> getReport(HashMap<OWLAxiom, Integer> countaxiomsinannotations, Map<OWLAxiom, Set<IRI>> allAxiomsAcrossOntologies, String s);
 }

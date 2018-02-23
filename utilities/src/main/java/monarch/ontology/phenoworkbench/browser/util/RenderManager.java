@@ -1,5 +1,6 @@
 package monarch.ontology.phenoworkbench.browser.util;
 
+import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.dlsyntax.renderer.DLSyntaxObjectRenderer;
 import org.semanticweb.owlapi.io.OWLObjectRenderer;
 import org.semanticweb.owlapi.manchestersyntax.renderer.ManchesterOWLSyntaxOWLObjectRendererImpl;
@@ -15,6 +16,7 @@ public class RenderManager {
     private OWLObjectRenderer renManchester = new ManchesterOWLSyntaxOWLObjectRendererImpl();
 
     private Map<OWLEntity, String> labels = new HashMap<>();
+    private OWLDataFactory df = OWLManager.getOWLDataFactory();
 
     public void addLabel(OWLOntology o) {
         o.getSignature(Imports.INCLUDED).forEach(s -> OntologyUtils.getLabels(s, o).forEach(l -> labels.put(s, l)));
@@ -48,6 +50,9 @@ public class RenderManager {
 
     public void renderTreeForMarkdown(OWLClass c, OWLReasoner r, List<String> sb, int level, Set<OWLEntity> k, Map<OWLClass,OWLClassExpression> g, Set<OWLClass> u) {
         for (OWLClass sub : r.getSubClasses(c, true).getFlattened()) {
+            if(u.contains(sub)||sub.equals(df.getOWLNothing())) {
+              continue;
+            }
             String repeated = new String(new char[level]).replace("\0", "  ");
             sb.add(repeated+  " * " + renderTreeEntity(sub,k,g,u));
             renderTreeForMarkdown(sub, r, sb, level + 1,k,g,u);
@@ -65,13 +70,13 @@ public class RenderManager {
     public String renderTreeEntity(OWLClass sub, Set<OWLEntity> keyentities, Map<OWLClass,OWLClassExpression> generated, Set<OWLClass> unsatisfiable) {
         String base = getLabel(sub);
         if (keyentities.contains(sub)) {
-            base = "{" + base + "}";
+            base = "(" + base + ")";
         }
         if (generated.containsKey(sub)) {
-            base = base+" ("+ render(generated.get(sub)) + ")";
+            base = base+" ["+ render(generated.get(sub)) + "]";
         }
         if (unsatisfiable.contains(sub)) {
-            base = "[[" + base + "]]";
+            base = "{" + base + "}";
         }
         return base;
     }

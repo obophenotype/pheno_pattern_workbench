@@ -15,10 +15,7 @@ import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 public class InferenceAnalyser {
@@ -31,7 +28,7 @@ public class InferenceAnalyser {
     private final Imports imports;
     private final Map<File, Set<OWLAxiom>> allAxiomsAcrossOntologies = new HashMap<>();
 
-    private InferenceAnalyser(File pd, boolean imports) {
+    public InferenceAnalyser(File pd, boolean imports) {
         this.pd = pd;
         this.imports = imports ? Imports.INCLUDED : Imports.EXCLUDED;
     }
@@ -52,14 +49,14 @@ public class InferenceAnalyser {
 
     }
 
-    private void prepare() {
+    public void prepare() {
         for (File ourl : pd.listFiles(new OntologyFileExtension())) {
             //if(ourl.endsWith("hp.owl"))
             processOntology(imports, ourl);
         }
     }
 
-    private void printResults(File out) throws IOException {
+    public void printResults(File out) throws IOException {
         report.addLine("# Analysing individual ontologies for inferences");
         for (File f: allAxiomsAcrossOntologies.keySet()) {
             report.addLine("## Ontology: " + f.getName());
@@ -109,6 +106,10 @@ public class InferenceAnalyser {
         }
 
         FileUtils.writeLines(new File(out,"report_inference_analysis.md"), report.getLines());
+    }
+
+    public List<String> getReportLines() {
+        return report.getLines();
     }
 
     private void printSuperInfo(Map<OWLClass, Set<OWLClass>> map, String label) {

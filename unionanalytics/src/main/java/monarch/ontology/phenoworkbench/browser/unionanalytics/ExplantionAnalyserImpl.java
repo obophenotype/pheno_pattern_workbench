@@ -23,7 +23,7 @@ public class ExplantionAnalyserImpl implements ExplanationAnalyser {
     }
 
     @Override
-    public List<String> getReport(HashMap<OWLAxiom, Integer> countaxiomsinannotations, Map<OWLAxiom, Set<IRI>> axiomsInOntologies) {
+    public List<String> getReport(HashMap<OWLAxiom, Integer> countaxiomsinannotations, Map<OWLAxiom, Set<IRI>> axiomsInOntologies, String s) {
         List<String> sb = new ArrayList();
         try {
             OWLOntologyManager man = OWLManager.createOWLOntologyManager();
@@ -50,18 +50,31 @@ public class ExplantionAnalyserImpl implements ExplanationAnalyser {
             OWLReasoner r = new ElkReasonerFactory().createReasoner(o);
             unsatisfiable.addAll(r.getUnsatisfiableClasses().getEntitiesMinus(OWLManager.getOWLDataFactory().getOWLNothing()));
 
-            sb.add("* Axioms that impose constraints that might affect satisfiability");
+            sb.add(s+"* Axioms that impose constraints that might affect satisfiability");
             for (OWLAxiom ax : ex.getAxioms()) {
                 if (potentiallyPainfulAxiom(ax)) {
-                    sb.add("  * "+renderAxiomForMarkdown(ax));
+                    sb.add(s+"  * "+renderAxiomForMarkdown(ax));
                 }
             }
-            sb.add("* Class Hierarchy of Explanation (unsat class marked with {}, Classnames like X1 are named anonymous classes:");
-            render.renderTreeForMarkdown(o.getOWLOntologyManager().getOWLDataFactory().getOWLThing(), r, sb, 1,keyentities,generated,unsatisfiable);
+            sb.add(s+"* Class Hierarchy of Explanation");
+            for (OWLClass sub : r.getSubClasses(df.getOWLThing(), true).getFlattened()) {
+                if(unsatisfiable.contains(sub)||sub.equals(df.getOWLNothing())) {
+                    continue;
+                }
+                Set<OWLClass> utop = r.getSubClasses(sub,true).getFlattened();
+                utop.remove(df.getOWLNothing());
+                if(utop.isEmpty()) {
+                    continue;
+                }
 
-            sb.add("* Other unsatisfiable classes in explanation: ");
+                String repeated = new String(new char[3]).replace("\0", "  ");
+                sb.add(repeated+  " * " + render.renderTreeEntity(sub,keyentities,generated,unsatisfiable));
+                render.renderTreeForMarkdown(sub, r, sb, 4,keyentities,generated,unsatisfiable);
+            }
 
-            unsatisfiable.forEach(c->sb.add("  * "+render.renderTreeEntity(c,keyentities,generated,unsatisfiable)));
+            sb.add(s+"* Other unsatisfiable classes in explanation: ");
+
+            unsatisfiable.forEach(c->sb.add(s+"  * "+render.renderTreeEntity(c,keyentities,generated,unsatisfiable)));
 
             //sb.append(LINEBREAK);
             //sb.append("Named anonymous expressions" + LINEBREAK);

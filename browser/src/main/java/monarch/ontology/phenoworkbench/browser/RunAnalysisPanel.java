@@ -23,6 +23,8 @@ public class RunAnalysisPanel extends VerticalLayout {
 	OptionPanel runoptions;
 	
 public RunAnalysisPanel(Map<String, String> runoptions) {
+	setWidth("100%");
+	results.setWidth("100%");
 	this.runoptions = new OptionPanel(runoptions);
 	cb_selectontologies.setItems(registry.getOntologies());
 	addComponent(LabelManager.labelH2("Select Ontologies for the analysis"));

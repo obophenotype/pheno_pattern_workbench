@@ -3,13 +3,17 @@ package monarch.ontology.phenoworkbench.browser;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 
+import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+
+import monarch.ontology.phenoworkbench.browser.util.StringUtils;
 
 public abstract class BasicLayout extends VerticalLayout {
 
@@ -35,11 +39,12 @@ public abstract class BasicLayout extends VerticalLayout {
 		runAnalysisPanel.addClickListener(x -> runAnalysis(runAnalysisPanel.getSelectedItems()));
 		
 		addComponent(LabelManager.labelH1(title));
+		addComponent(runAnalysisPanel);
 	}
 	protected abstract Map<String, String> getRunOptions();
 	protected abstract void runAnalysis(Set<String> items);
 	
-	public UI getUI() {
+	protected UI getUIFixed() {
 		return ui;
 	}
 	
@@ -48,8 +53,8 @@ public abstract class BasicLayout extends VerticalLayout {
 		return runAnalysisPanel;
 	}
 
-	protected String runOptionOrNull(String string) {
-		return getRunAnalysisPanel().getRunoption("maxunsat").orElse("NULL");
+	protected String runOptionOrNull(String option) {
+		return getRunAnalysisPanel().getRunoption(option).orElse("NULL");
 	}
 	public File getTmpdir() {
 		return tmpdir;
@@ -76,6 +81,13 @@ public abstract class BasicLayout extends VerticalLayout {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	protected void writeMarkdownToResults(List<String> report) {
+		StringBuilder sb = StringUtils.linesToStringBuilder(report);
+		Label l = LabelManager.htmlLabel(MarkDownTools.toHTML(sb.toString()));
+		l.setWidth("100%");
+		getRunAnalysisPanel().addResult(l);
 	}
 	
 }

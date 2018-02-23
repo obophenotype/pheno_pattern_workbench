@@ -28,8 +28,8 @@ public class UnionAnalyserView extends BasicLayout {
 	protected Map<String, String> getRunOptions() {
 		Map<String, String> options = new HashMap<>();
 		options.put("imports", "yes");
-		options.put("maxunsat", "10");
-		options.put("maxexplanation", "10");
+		options.put("maxunsat", "1");
+		options.put("maxexplanation", "1");
 		options.put("reasoner", "elk");
 		return options;
 	}
@@ -47,18 +47,12 @@ public class UnionAnalyserView extends BasicLayout {
 		downloadOntologies(selectedItems, ontologiesdir);
 		CorpusDebugger p = new CorpusDebugger(ontologiesdir, reasoner, imports, maxunsat, maxexplunsat);
 
-		getUI().access(new Runnable() {
+		getUIFixed().access(new Runnable() {
 
 			@Override
 			public void run() {
-				runDebugger(p);
-			}
-
-			private void runDebugger(CorpusDebugger p) {
 				p.run();
-				List<String> report = p.getReportLines();
-				StringBuilder sb = StringUtils.linesToStringBuilder(report);
-				getRunAnalysisPanel().addResult(new RichText().withMarkDown(sb.toString()));
+				writeMarkdownToResults(p.getReportLines());
 			}
 		});
 	}

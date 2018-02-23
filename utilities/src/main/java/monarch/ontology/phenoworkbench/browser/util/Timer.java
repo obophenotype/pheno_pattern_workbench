@@ -1,4 +1,4 @@
-package monarch.ontology.phenoworkbench.browser.analytics;
+package monarch.ontology.phenoworkbench.browser.util;
 
 public class Timer {
     long start = System.currentTimeMillis();
