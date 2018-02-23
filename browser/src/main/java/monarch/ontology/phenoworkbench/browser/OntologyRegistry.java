@@ -9,6 +9,7 @@ public class OntologyRegistry {
 	
 	public OntologyRegistry() {
 		
+		addOntology("http://purl.obolibrary.org/obo/upheno/monarch.owl");
 		addOntology("http://purl.obolibrary.org/obo/mp.owl");
         addOntology("http://purl.obolibrary.org/obo/hp.owl");
         addOntology("https://raw.githubusercontent.com/FlyBase/flybase-controlled-vocabulary/master/releases/dpo.owl");
