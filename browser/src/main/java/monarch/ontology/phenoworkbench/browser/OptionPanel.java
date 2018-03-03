@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.vaadin.shared.ui.grid.HeightMode;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -20,19 +21,21 @@ public class OptionPanel extends VerticalLayout {
 	List<RunOption> runoptions = new ArrayList<>();
 	
 	OptionPanel(Map<String,String> options) {
-		setHeight("300px");
-		setWidth("400px");
-		grid.setWidth("100%");
-		grid.setHeight("100%");
+		setHeightUndefined();
+		setWidth("100%");
+		setMargin(false);
+		setSpacing(false);
+		
 		options.entrySet().forEach(e->runoptions.add(new RunOption(e.getKey(), e.getValue())));
 		grid.setSelectionMode(SelectionMode.NONE);
 		grid.setItems(runoptions);
 		grid.addColumn(RunOption::getName).setCaption("Name");
 		TextField taskField = new TextField();
 		grid.addColumn(RunOption::getValue).setEditorComponent(taskField, RunOption::setValue).setExpandRatio(1);
-
+		grid.setWidth("100%");
+		//grid.setHeight((grid.getBodyRowHeight()*runoptions.size())+grid.getBodyRowHeight()+3+"px");
 		grid.getEditor().setEnabled(true);
-		//grid.setHeight((grid.getFooterRowHeight()+grid.getBodyRowHeight()+grid.getHeaderRowHeight())+"px");
+		grid.setHeightMode(HeightMode.UNDEFINED);
 		addComponent(grid);
 	}
 

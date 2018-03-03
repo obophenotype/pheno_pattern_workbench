@@ -10,21 +10,14 @@ public class RunAnalysisComponent extends HorizontalLayout {
 	 * 
 	 */
 	private static final long serialVersionUID = -2148045102477118777L;
-	ProgressBar bar = new ProgressBar(0.0f);
-	Layout vl_barcomponent = new HorizontalLayout();
 	Button bt_runanalysis = new Button("Run analysis");
 	
-	
 public RunAnalysisComponent() {
-	
-	bar.setIndeterminate(true);
-	vl_barcomponent.setWidth("50%");
-	vl_barcomponent.setHeight("100%");
-	
+	setMargin(false);
+	setSpacing(false);
 	setWidth("500px");
 	setHeight("100px");
 	addComponent(bt_runanalysis);
-	addComponent(vl_barcomponent);
 }
 
 

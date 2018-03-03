@@ -1,17 +1,14 @@
-package monarch.ontology.phenoworkbench.browser;
+package monarch.ontology.phenoworkbench.browser.views;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.vaadin.viritin.label.RichText;
-
 import com.vaadin.ui.UI;
 
+import monarch.ontology.phenoworkbench.browser.BasicLayout;
 import monarch.ontology.phenoworkbench.browser.unionanalytics.CorpusDebugger;
-import monarch.ontology.phenoworkbench.browser.util.StringUtils;
 
 public class UnionAnalyserView extends BasicLayout {
 
@@ -44,17 +41,10 @@ public class UnionAnalyserView extends BasicLayout {
 		String reasoner = runOptionOrNull("reasoner");
 
 		File ontologiesdir = deleteMakeTmpDirectory("us_ontologies");
-		downloadOntologies(selectedItems, ontologiesdir);
+		downloadFiles(selectedItems, ontologiesdir);
 		CorpusDebugger p = new CorpusDebugger(ontologiesdir, reasoner, imports, maxunsat, maxexplunsat);
-
-		getUIFixed().access(new Runnable() {
-
-			@Override
-			public void run() {
-				p.run();
-				writeMarkdownToResults(p.getReportLines());
-			}
-		});
+		p.run();
+		writeMarkdownToResults(p.getReportLines(),true);
 	}
 
 }

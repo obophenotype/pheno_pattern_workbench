@@ -20,7 +20,7 @@ public class OntologyAxiomPatternAnalyser {
         File f = new File("/data/flybaseanalysis/data/diffflybase.owl");
         File outdir = new File("/ws/ontologycompare/out/");
         IRI schema = IRI.create("http://purl.obolibrary.org/obo/so.owl");
-    int THRESHOLD = 500;
+        int THRESHOLD = 500;
 
         try {
             OWLOntology o = OWLManager.createOWLOntologyManager().loadOntologyFromOntologyDocument(f);

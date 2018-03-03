@@ -7,11 +7,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.vaadin.ui.Component;
+import monarch.ontology.phenoworkbench.browser.util.Downloader;
 import org.apache.commons.io.FileUtils;
 
 import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 
 import monarch.ontology.phenoworkbench.browser.util.StringUtils;
 
@@ -24,6 +27,7 @@ public abstract class BasicLayout extends VerticalLayout {
 	private final UI ui;
 	private final RunAnalysisPanel runAnalysisPanel;
 	private final File tmpdir;
+	private final Downloader downloader = new Downloader();
 	
 	public BasicLayout(UI ui, File tmpdir, String title) {
 		this.ui = ui;
@@ -36,10 +40,16 @@ public abstract class BasicLayout extends VerticalLayout {
 		setWidth("100%");
 		setHeight("100%");
 		runAnalysisPanel = new RunAnalysisPanel(getRunOptions());
-		runAnalysisPanel.addClickListener(x -> runAnalysis(runAnalysisPanel.getSelectedItems()));
+		runAnalysisPanel.addClickListener(x -> runLong());
 		
 		addComponent(LabelManager.labelH1(title));
 		addComponent(runAnalysisPanel);
+	}
+	private void runLong() {
+		Window sub = new WaitingPopup();
+		this.getUI().addWindow(sub);
+		ui.push();
+		runAnalysis(runAnalysisPanel.getSelectedItems());UI.getCurrent().access(()->{sub.close();});
 	}
 	protected abstract Map<String, String> getRunOptions();
 	protected abstract void runAnalysis(Set<String> items);
@@ -72,22 +82,44 @@ public abstract class BasicLayout extends VerticalLayout {
 		return null;
 	}
 	
-	protected void downloadOntologies(Set<String> ontologyiris, File ontologiesdir) {
-		for (String iri : ontologyiris) {
-			String filename = iri.replaceAll("[^A-Za-z0-9]", "") + ".owl";
-			try {
-				FileUtils.copyURLToFile(new URL(iri), new File(ontologiesdir, filename));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+	protected void downloadFiles(Set<String> iris, File dir) {
+		for (String iri : iris) {
+			downloadFile(dir, iri);
 		}
 	}
-	
-	protected void writeMarkdownToResults(List<String> report) {
-		StringBuilder sb = StringUtils.linesToStringBuilder(report);
-		Label l = LabelManager.htmlLabel(MarkDownTools.toHTML(sb.toString()));
+
+	protected File downloadFile(File dir, String iri) {
+		String filename = iri.replaceAll("[^A-Za-z0-9]", "") + ".owl";
+		File f = new File(dir, filename);
+		try {
+			downloader.download(new URL(iri), f);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return f;
+	}
+
+	protected void writeMarkdownToResults(List<String> report, boolean clear) {
+		Label l = getHTMLFromMarkdown(report);
 		l.setWidth("100%");
-		getRunAnalysisPanel().addResult(l);
+		setResults(l,clear);
 	}
 	
+	protected Label getHTMLFromMarkdown(List<String> report) {
+		StringBuilder sb = StringUtils.linesToStringBuilder(report);
+		return getHTMLFromMarkdown(sb.toString());
+	}
+	
+	protected Label getHTMLFromMarkdown(String s) {
+		Label l = LabelManager.htmlLabel(MarkDownTools.toHTML(s));
+		return l;
+	}
+
+	public void setResults(Component c, boolean clear) {
+		getRunAnalysisPanel().addResult(c, clear);
+	}
+	
+	public void setAdditionalSettingsComponent(Component c, boolean clear) {
+		getRunAnalysisPanel().addAdditionalSettingsComponent(c, clear);
+	}
 }

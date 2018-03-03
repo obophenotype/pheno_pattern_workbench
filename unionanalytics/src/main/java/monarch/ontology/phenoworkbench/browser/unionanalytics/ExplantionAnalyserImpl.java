@@ -63,6 +63,7 @@ public class ExplantionAnalyserImpl implements ExplanationAnalyser {
                 }
                 Set<OWLClass> utop = r.getSubClasses(sub,true).getFlattened();
                 utop.remove(df.getOWLNothing());
+                utop.remove(keyentities);
                 if(utop.isEmpty()) {
                     continue;
                 }

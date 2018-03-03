@@ -1,6 +1,8 @@
 package monarch.ontology.phenoworkbench.browser.analytics;
 
 import com.google.common.collect.Sets;
+import monarch.ontology.phenoworkbench.browser.util.Downloader;
+import monarch.ontology.phenoworkbench.browser.util.OntologyDebugReport;
 import monarch.ontology.phenoworkbench.browser.util.RenderManager;
 import monarch.ontology.phenoworkbench.browser.util.Timer;
 import org.apache.commons.io.FileUtils;
@@ -10,6 +12,8 @@ import org.semanticweb.owlapi.model.parameters.Imports;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -18,20 +22,20 @@ import java.util.Set;
 public class SubClassRedundancy {
     private BranchLoader branches = null;
     private RenderManager render = new RenderManager();
-    List<String> lines = new ArrayList<>();
+    OntologyDebugReport lines = new OntologyDebugReport();
     Timer timer = new Timer();
 
     private String BASEIRI = "http://ebi.ac.uk/";
 
-    SubClassRedundancy(IRI iri, File out, File branchfile) {
+    public SubClassRedundancy(File f, File branchfile) {
 
 
 
-        p("# Analysing: "+iri);
+        p("# Analysing: "+f.getName());
         OWLOntologyManager man = OWLManager.createOWLOntologyManager();
         try {
             p("* Loading ontology..");
-            OWLOntology base = man.loadOntologyFromOntologyDocument(iri);
+            OWLOntology base = man.loadOntologyFromOntologyDocument(f);
             render.addLabel(base);
             branches = new BranchLoader(branchfile,base);
             p("* done.."+timer.getTimeElapsed());
@@ -108,7 +112,7 @@ public class SubClassRedundancy {
             i = 0;
             p("## Branches of interest: ");
             for(OWLClass c:branches.getBranchHeads()) {
-                render.renderTreeForMarkdown(c,r_all.getOWLReasoner(),lines,1);
+                render.renderTreeForMarkdown(c,r_all.getOWLReasoner(),lines.getLines(),1);
             }
             p("## How many subclasses are recapitulated (i.e. redundant) wrt. defined classes?");
             p("Restricted to maximum 50 axioms");
@@ -129,7 +133,6 @@ public class SubClassRedundancy {
             p("* Only after: " + onlyafter);
             p("* Only before: " + onlybefore);
 
-            exportOutput(out);
         } catch (OWLOntologyCreationException e) {
             e.printStackTrace();
         }
@@ -146,9 +149,9 @@ public class SubClassRedundancy {
     }
 
 
-    private void exportOutput(File out) {
+    public void exportOutput(File out) {
         try {
-            FileUtils.writeLines(out, lines);
+            FileUtils.writeLines(out, lines.getLines());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -156,7 +159,7 @@ public class SubClassRedundancy {
 
     private void p(String s) {
         System.out.println(s);
-        lines.add(s);
+        lines.addLine(s);
     }
 
     private Set<OWLAxiom> anotb(Set<OWLAxiom> a, Set<OWLAxiom> b) {
@@ -180,20 +183,23 @@ public class SubClassRedundancy {
     }
 
     public static void main(String[] args) {
+        File odir = new File("/data/corpora/sbcl");
+        if(odir.isDirectory()) FileUtils.deleteQuietly(odir);
+        odir.mkdir();
         File outdir = new File("/ws/phenotypepatternanalysis/subclassredundancy/");
         File branches = new File("/data/dockerdata/branches2.txt");
         Set<IRI> phenotypeontologies = new HashSet<>();
-        phenotypeontologies.add(IRI.create("http://purl.obolibrary.org/obo/mp.owl"));
+        //phenotypeontologies.add(IRI.create("http://purl.obolibrary.org/obo/mp.owl"));
 
         phenotypeontologies.add(IRI.create("http://purl.obolibrary.org/obo/hp.owl"));
-        phenotypeontologies.add(IRI.create("http://purl.obolibrary.org/obo/fbcv/dpo.owl"));
-        phenotypeontologies.add(IRI.create("http://purl.obolibrary.org/obo/wbphenotype.owl"));
+        //phenotypeontologies.add(IRI.create("http://purl.obolibrary.org/obo/fbcv/dpo.owl"));
+        //phenotypeontologies.add(IRI.create("http://purl.obolibrary.org/obo/wbphenotype.owl"));
         //phenotypeontologies.add(IRI.create("http://purl.obolibrary.org/obo/zfa.owl"));
-        phenotypeontologies.add(IRI.create("http://purl.obolibrary.org/obo/xao.owl"));
-        phenotypeontologies.add(IRI.create("http://purl.obolibrary.org/obo/MFOEM.owl"));
-        phenotypeontologies.add(IRI.create("http://purl.obolibrary.org/obo/abo_in_nbo.owl"));
-        phenotypeontologies.add(IRI.create("http://purl.obolibrary.org/obo/nbo.owl"));
-        phenotypeontologies.add(IRI.create("http://purl.obolibrary.org/obo/pato.owl"));
+        //phenotypeontologies.add(IRI.create("http://purl.obolibrary.org/obo/xao.owl"));
+        //phenotypeontologies.add(IRI.create("http://purl.obolibrary.org/obo/MFOEM.owl"));
+        //phenotypeontologies.add(IRI.create("http://purl.obolibrary.org/obo/abo_in_nbo.owl"));
+        //phenotypeontologies.add(IRI.create("http://purl.obolibrary.org/obo/nbo.owl"));
+        //phenotypeontologies.add(IRI.create("http://purl.obolibrary.org/obo/pato.owl"));
 
         //phenotypeontologies.add(IRI.create("http://purl.obolibrary.org/obo/uberon.owl"));
         //phenotypeontologies.add(IRI.create(" http://purl.obolibrary.org/obo/MPATH.owl"));
@@ -201,8 +207,24 @@ public class SubClassRedundancy {
         //phenotypeontologies.add(IRI.create("http://purl.obolibrary.org/obo/doid.owl"));
         //phenotypeontologies.add(IRI.create("http://purl.obolibrary.org/obo/go/extensions/go-plus.owl"));
 
+        Downloader download = new Downloader();
         for(IRI iri:phenotypeontologies) {
-            new SubClassRedundancy(iri, new File(outdir,iri.getShortForm()+"subclassredundancy_report.md"), branches);
+            try {
+                URL url = iri.toURI().toURL();
+                String filename = iri.toString().replaceAll("[^A-Za-z0-9]", "") + ".owl";
+                File f = new File(odir,filename);
+                download.download(url,f);
+                SubClassRedundancy sbcl = new SubClassRedundancy(f, branches);
+                File out = new File(outdir,f.getName()+"_subclassredundancy_report.md");
+                sbcl.exportOutput(out);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
         }
+    }
+
+    public List<String> getReportLines() {
+        return lines.getLines();
     }
 }

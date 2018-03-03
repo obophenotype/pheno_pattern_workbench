@@ -25,6 +25,8 @@ public class OntologyRegistry {
         addOntology("http://purl.obolibrary.org/obo/upheno.owl");
         addOntology("http://purl.obolibrary.org/obo/doid.owl");
         addOntology("http://purl.obolibrary.org/obo/go/extensions/go-plus.owl");
+        addOntology("http://purl.obolibrary.org/obo/cl.owl");
+        addOntology("http://purl.obolibrary.org/obo/upheno/monarch.owl");
 
 	}
 

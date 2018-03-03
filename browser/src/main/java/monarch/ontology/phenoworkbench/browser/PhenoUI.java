@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.servlet.annotation.WebServlet;
 
+import com.vaadin.annotations.Push;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.server.VaadinRequest;
@@ -14,16 +15,26 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.MenuItem;
+
+import monarch.ontology.phenoworkbench.browser.views.AxiomRedundancyAnalyserView;
+import monarch.ontology.phenoworkbench.browser.views.InferenceAnalyserView;
+import monarch.ontology.phenoworkbench.browser.views.PatternAnalyserView;
+import monarch.ontology.phenoworkbench.browser.views.QuickImpactView;
+import monarch.ontology.phenoworkbench.browser.views.UnionAnalyserView;
+
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 @Theme("valo")
 @SuppressWarnings("serial")
+@Push 
 public class PhenoUI extends UI {
 
-	public static String PATTERNANALYTICSVIEW = "Phenotype Pattern Analytics";
+	public static String PATTERNANALYTICSVIEW = "Phenotype Pattern";
 	public static String UNIONANALYTICSVIEW = "Ontology Union Analysis";
-	public static String INFERENCEANALYTICSVIEW = "Ontology Inference Analysis";
+	public static String INFERENCEANALYTICSVIEW = "Ontology Inference";
+	public static String SUBCLASSREDUNDANCYVEIW = "Ontology Subclass Redundancy";
+	public static String QUICKCLASSIMPACT = "Quick Impact";
 	Map<String, Layout> views = new HashMap<>();
 
 	@Override
@@ -51,16 +62,30 @@ public class PhenoUI extends UI {
 						views.put(PATTERNANALYTICSVIEW, new PatternAnalyserView(PhenoUI.this,tmpdir));
 					}
 					setNewView(views.get(PATTERNANALYTICSVIEW));
-				} else if (menuitem.equals(UNIONANALYTICSVIEW)) {
+				} 
+				else if (menuitem.equals(UNIONANALYTICSVIEW)) {
 					if (!views.containsKey(UNIONANALYTICSVIEW)) {
 						views.put(UNIONANALYTICSVIEW, new UnionAnalyserView(PhenoUI.this,tmpdir));
 					}
 					setNewView(views.get(UNIONANALYTICSVIEW));
-				} else if (menuitem.equals(INFERENCEANALYTICSVIEW)) {
+				}
+				else if (menuitem.equals(INFERENCEANALYTICSVIEW)) {
 					if (!views.containsKey(INFERENCEANALYTICSVIEW)) {
 						views.put(INFERENCEANALYTICSVIEW, new InferenceAnalyserView(PhenoUI.this,tmpdir));
 					}
 					setNewView(views.get(INFERENCEANALYTICSVIEW));
+				}
+				else if (menuitem.equals(SUBCLASSREDUNDANCYVEIW)) {
+					if (!views.containsKey(SUBCLASSREDUNDANCYVEIW)) {
+						views.put(SUBCLASSREDUNDANCYVEIW, new AxiomRedundancyAnalyserView(PhenoUI.this,tmpdir));
+					}
+					setNewView(views.get(SUBCLASSREDUNDANCYVEIW));
+				} 
+				else if (menuitem.equals(QUICKCLASSIMPACT)) {
+					if (!views.containsKey(QUICKCLASSIMPACT)) {
+						views.put(QUICKCLASSIMPACT, new QuickImpactView(PhenoUI.this,tmpdir));
+					}
+					setNewView(views.get(QUICKCLASSIMPACT));
 				}
 			}
 
@@ -73,6 +98,8 @@ public class PhenoUI extends UI {
 		barmenu.addItem(PATTERNANALYTICSVIEW, null, mycommand);
 		barmenu.addItem(UNIONANALYTICSVIEW, null, mycommand);
 		barmenu.addItem(INFERENCEANALYTICSVIEW, null, mycommand);
+		barmenu.addItem(QUICKCLASSIMPACT, null, mycommand);
+		barmenu.addItem(SUBCLASSREDUNDANCYVEIW, null, mycommand);
 
 	}
 

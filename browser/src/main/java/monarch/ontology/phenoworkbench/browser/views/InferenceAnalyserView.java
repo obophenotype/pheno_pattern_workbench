@@ -1,14 +1,13 @@
-package monarch.ontology.phenoworkbench.browser;
+package monarch.ontology.phenoworkbench.browser.views;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import monarch.ontology.phenoworkbench.browser.BasicLayout;
 import monarch.ontology.phenoworkbench.browser.unionanalytics.InferenceAnalyser;
-import monarch.ontology.phenoworkbench.browser.util.StringUtils;
 
 import com.vaadin.ui.UI;
 
@@ -37,24 +36,17 @@ public class InferenceAnalyserView extends BasicLayout {
 		boolean imports = runOptionOrNull("imports").equals("yes");
 
 		File ontologiesdir = deleteMakeTmpDirectory("ia_ontologies");
-		downloadOntologies(selectedItems, ontologiesdir);
+		downloadFiles(selectedItems, ontologiesdir);
 		File resultsdir = deleteMakeTmpDirectory("ia_results");
 		InferenceAnalyser p = new InferenceAnalyser(ontologiesdir, imports);
-		getUIFixed().access(new Runnable() {
-
-			@Override
-			public void run() {
-				p.prepare();
-				try {
-					p.printResults(resultsdir);
-					writeMarkdownToResults(p.getReportLines());
+		p.prepare();
+		try {
+			p.printResults(resultsdir);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		writeMarkdownToResults(p.getReportLines(),true);
 		
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-
-			
-		});
 	}
 }

@@ -67,12 +67,12 @@ public class InferenceAnalyser {
                 OWLOntology o = OWLManager.createOWLOntologyManager().createOntology(allAxiomsAcrossOntologies.get(f));
                 OntologyUtils.p("Creating reasoners"+printTime());
                 OWLReasoner rel = createELReasoner(o);
-                OWLReasoner rdl = createDLReasoner(o);
+                //OWLReasoner rdl = createDLReasoner(o);
                 OWLReasoner rsl = createStructuralReasoner(o);
                 OntologyUtils.p("Subs: EL"+printTime());
                 Set<Subsumption> subsEL = getSubsumptions(rel, o);
                 OntologyUtils.p("Subs: DL"+printTime());
-                Set<Subsumption> subsDL = getSubsumptions(rdl, o);
+                //Set<Subsumption> subsDL = getSubsumptions(rdl, o);
                 OntologyUtils.p("Subs: Structural"+printTime());
                 Set<Subsumption> subsSL = getSubsumptions(rsl, o);
                 OntologyUtils.p("Subs: Syntactic"+printTime());
@@ -81,19 +81,19 @@ public class InferenceAnalyser {
                 OntologyUtils.p("Super: EL"+printTime());
                 Map<OWLClass,Set<OWLClass>> superclassmapEL = getSuperClassMap(rel, o);
                 OntologyUtils.p("Subs: DL"+printTime());
-                Map<OWLClass,Set<OWLClass>> superclassmapDL = getSuperClassMap(rdl, o);
+                //Map<OWLClass,Set<OWLClass>> superclassmapDL = getSuperClassMap(rdl, o);
                 OntologyUtils.p("Super: Structural"+printTime());
                 Map<OWLClass,Set<OWLClass>> superclassmapSL = getSuperClassMap(rsl, o);
                 OntologyUtils.p("Super: Syntactic"+printTime());
                 Map<OWLClass,Set<OWLClass>> superclassmapSYN = getSuperClassMap(null, o);
                 OntologyUtils.p("");
                 OntologyUtils.p("RESULTS:"+printTime());
-                printSubsInfo(subsDL,"DL");
+                //printSubsInfo(subsDL,"DL");
                 printSubsInfo(subsEL,"EL");
                 printSubsInfo(subsSL,"Structural");
                 printSubsInfo(subsSYN,"Syntactic");
 
-                printSuperInfo(superclassmapDL,"DL");
+                //printSuperInfo(superclassmapDL,"DL");
                 printSuperInfo(superclassmapEL,"EL");
                 printSuperInfo(superclassmapSL,"Structural");
                 printSuperInfo(superclassmapSYN,"Syntactic");

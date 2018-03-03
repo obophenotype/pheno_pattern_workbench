@@ -1,5 +1,6 @@
 package monarch.ontology.phenoworkbench.browser.analytics;
 
+import monarch.ontology.phenoworkbench.browser.util.InferredOntologyGenerator;
 import org.semanticweb.HermiT.ReasonerFactory;
 import org.semanticweb.elk.owlapi.ElkReasonerFactory;
 import org.semanticweb.owlapi.apibinding.OWLManager;
@@ -12,10 +13,7 @@ import org.semanticweb.owlapi.util.InferredEquivalentClassAxiomGenerator;
 import org.semanticweb.owlapi.util.InferredIndividualAxiomGenerator;
 import org.semanticweb.owlapi.util.InferredSubClassAxiomGenerator;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class Reasoner {
     private OWLReasoner r;
@@ -26,6 +24,7 @@ public class Reasoner {
     private OWLDataFactory df = OWLManager.getOWLDataFactory();
 
     private Set<OWLAxiom> inferredSubclassOfAxioms = new HashSet<>();
+    private Set<OWLClass> unsatisfiableClasses = new HashSet<>();
 
 
     Reasoner(OWLOntology o)  {
@@ -35,6 +34,7 @@ public class Reasoner {
     Reasoner(OWLOntology o, boolean realtautologies) {
         r = new ElkReasonerFactory().createReasoner(o);
         r.precomputeInferences(InferenceType.CLASS_HIERARCHY);
+        unsatisfiableClasses.addAll(r.getUnsatisfiableClasses().getEntities());
         try {
             tautologyreasoner =new ReasonerFactory().createReasoner(OWLManager.createOWLOntologyManager().createOntology(IRI.create("ebi:test")));
         } catch (OWLOntologyCreationException e) {
@@ -173,4 +173,24 @@ public class Reasoner {
             }
         }
     }
+
+    public Set<OWLClass> getUnsatisfiableClasses() {
+        return unsatisfiableClasses;
+    }
+
+    public Collection<? extends OWLClass> getSubclassesOf(OWLClass c, boolean direct) {
+        Set<OWLClass> sbcl = r.getSubClasses(c,direct).getFlattened();
+        sbcl.remove(c);
+        sbcl.remove(df.getOWLNothing());
+        return sbcl;
+    }
+
+    public Collection<? extends OWLClass> getSuperClassesOf(OWLClass c, boolean direct) {
+        Set<OWLClass> sbcl = r.getSuperClasses(c,direct).getFlattened();
+        sbcl.remove(c);
+        sbcl.remove(df.getOWLThing());
+        return sbcl;
+    }
+
+
 }
