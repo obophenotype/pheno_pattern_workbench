@@ -12,7 +12,7 @@ public class PatternTreeItem {
 
 	@Override
 	public String toString() {
-		String s = getPatternClass().toString();
+		String s = getPatternClass().getLabel();
 		if (getPatternClass() instanceof Pattern) {
 			if(((Pattern)c).isDefinedclass()) {
 				s = "<i>" + s + "</i>";

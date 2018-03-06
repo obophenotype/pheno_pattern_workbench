@@ -2,7 +2,6 @@ package monarch.ontology.phenoworkbench.browser.views;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 

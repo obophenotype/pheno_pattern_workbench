@@ -84,12 +84,12 @@ public abstract class BasicLayout extends VerticalLayout {
 	
 	protected void downloadFiles(Set<String> iris, File dir) {
 		for (String iri : iris) {
-			downloadFile(dir, iri);
+			downloadFile(dir, iri,"owl");
 		}
 	}
 
-	protected File downloadFile(File dir, String iri) {
-		String filename = iri.replaceAll("[^A-Za-z0-9]", "") + ".owl";
+	protected File downloadFile(File dir, String iri, String extension) {
+		String filename = iri.replaceAll("[^A-Za-z0-9]", "") + "."+extension;
 		File f = new File(dir, filename);
 		try {
 			downloader.download(new URL(iri), f);

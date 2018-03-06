@@ -193,4 +193,7 @@ public class Reasoner {
     }
 
 
+    public boolean equivalentClasses(OWLClass c1, OWLClass c2) {
+        return r.getEquivalentClasses(c1).contains(c2);
+    }
 }

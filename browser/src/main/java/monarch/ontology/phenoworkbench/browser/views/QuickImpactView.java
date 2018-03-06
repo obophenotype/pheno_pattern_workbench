@@ -54,18 +54,22 @@ public class QuickImpactView extends BasicLayout {
 		File ontologiesdir = deleteMakeTmpDirectory("qi_ontologies");
 		File patterndir = deleteMakeTmpDirectory("qi_pattern");
 		downloadFiles(selectedItems, ontologiesdir);
-		File patternontology = downloadFile(patterndir, patternFile);
+		File patternontology = downloadFile(patterndir, patternFile,"owl");
 
 		System.out.println("Initialising quick impact" + timer.getTimeElapsed());
 		ImpactMode mode = sl_quickmode.getSelectedItem();
 		QuickImpact p = new QuickImpact(ontologiesdir, patternontology, imports,mode,10);
+		System.out.println("Initialising tree" + timer.getTimeElapsed());
 		PatternTree tree = new PatternTree(p);
-
+		
+		System.out.println("Initialising Infobox" + timer.getTimeElapsed());
 		PatternInfoBox impactbox = new PatternInfoBox();
 		VerticalLayout vl_infobox = prepareInfoBoxLayout(impactbox);
 
+		System.out.println("Initialising grid" + timer.getTimeElapsed());
 		WeightedPatternGrid grid = new WeightedPatternGrid(p);
-
+		
+		System.out.println("Initialising remaining layout elements" + timer.getTimeElapsed());
 		tree.addItemClickListener(event -> updateInfoBox(p, impactbox, event.getItem(), grid,tree));
 		grid.addItemClickListener(event -> updateInfoBox(p, impactbox, event.getItem(), grid,tree));
 		Panel panel_patterns = preparePanel(grid, "Patterns");

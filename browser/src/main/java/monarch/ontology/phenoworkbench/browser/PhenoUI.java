@@ -11,6 +11,7 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
+import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.MenuBar;
@@ -19,6 +20,7 @@ import com.vaadin.ui.MenuBar.MenuItem;
 import monarch.ontology.phenoworkbench.browser.views.AxiomRedundancyAnalyserView;
 import monarch.ontology.phenoworkbench.browser.views.InferenceAnalyserView;
 import monarch.ontology.phenoworkbench.browser.views.PatternAnalyserView;
+import monarch.ontology.phenoworkbench.browser.views.PatternReconciliationView;
 import monarch.ontology.phenoworkbench.browser.views.QuickImpactView;
 import monarch.ontology.phenoworkbench.browser.views.UnionAnalyserView;
 
@@ -30,16 +32,18 @@ import com.vaadin.ui.VerticalLayout;
 @Push 
 public class PhenoUI extends UI {
 
-	public static String PATTERNANALYTICSVIEW = "Phenotype Pattern";
-	public static String UNIONANALYTICSVIEW = "Ontology Union Analysis";
-	public static String INFERENCEANALYTICSVIEW = "Ontology Inference";
-	public static String SUBCLASSREDUNDANCYVEIW = "Ontology Subclass Redundancy";
+	public static String PATTERNANALYTICSVIEW = "Pattern Analysis";
+	public static String UNIONANALYTICSVIEW = "Ontology Union Debugger";
+	public static String INFERENCEANALYTICSVIEW = "Inference Analysis";
+	public static String SUBCLASSREDUNDANCYVEIW = "Subclass Redundancy";
 	public static String QUICKCLASSIMPACT = "Quick Impact";
+	public static String RECONCILIATION = "Reconciliation";
 	Map<String, Layout> views = new HashMap<>();
 
 	@Override
 	protected void init(VaadinRequest request) {
 		// The root of the component hierarchy
+		VaadinSession.getCurrent().getSession().setMaxInactiveInterval(1200); 
 		//TODO Make tmdir configurable
 		File tmpdir = new File("tnmp");
 		VerticalLayout main = new VerticalLayout();
@@ -87,6 +91,12 @@ public class PhenoUI extends UI {
 					}
 					setNewView(views.get(QUICKCLASSIMPACT));
 				}
+				else if (menuitem.equals(RECONCILIATION)) {
+					if (!views.containsKey(RECONCILIATION)) {
+						views.put(RECONCILIATION, new PatternReconciliationView(PhenoUI.this,tmpdir));
+					}
+					setNewView(views.get(RECONCILIATION));
+				}
 			}
 
 			private void setNewView(Component c) {
@@ -100,6 +110,7 @@ public class PhenoUI extends UI {
 		barmenu.addItem(INFERENCEANALYTICSVIEW, null, mycommand);
 		barmenu.addItem(QUICKCLASSIMPACT, null, mycommand);
 		barmenu.addItem(SUBCLASSREDUNDANCYVEIW, null, mycommand);
+		barmenu.addItem(RECONCILIATION, null, mycommand);
 
 	}
 

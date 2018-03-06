@@ -1,14 +1,17 @@
 package monarch.ontology.phenoworkbench.browser.analytics;
 
-import org.semanticweb.owlapi.apibinding.OWLManager;
+import monarch.ontology.phenoworkbench.browser.util.RenderManager;
+import monarch.ontology.phenoworkbench.browser.util.Timer;
+import org.apache.commons.io.FileUtils;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.model.parameters.Imports;
-import monarch.ontology.phenoworkbench.browser.util.Timer;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.*;
 
-public class QuickImpact {
+public class PatternReconciler {
 
     private Timer timer = new Timer();
     private PatternImpact patternImpact;
@@ -18,67 +21,109 @@ public class QuickImpact {
     private Map<OWLClass, PatternClass> patternClassCache = new HashMap<>();
     private Map<Pattern, Set<PatternGrammar>> patternSubsumedGrammarsMap = new HashMap<>();
     private Set<Pattern> allPatterns = new HashSet<>();
+    private Map<Pattern,Set<Pattern>> mappedPatterns;
+    private Map<Pattern,Map<Pattern,PatternReconciliation>> patternReconciliation = new HashMap<>();
+    private List<PatternReconciliation> reconciliations = new ArrayList<>();
 
-    public QuickImpact(File corpus, File patternsfile, boolean imports, ImpactMode mode, int samplesize) {
+
+    public PatternReconciler(File corpus, File mappings, boolean imports, boolean lazyalign, boolean bidirectionmapping) {
 
         try {
             System.out.println("QI: Loading Uber Ontology: " + timer.getTimeElapsed());
             Imports i = imports ? Imports.INCLUDED : Imports.EXCLUDED;
-
             o = new UberOntology(i, corpus);
             System.out.println("QI: Initialising pattern generator.." + timer.getTimeElapsed());
             PatternGenerator patternGenerator = new PatternGenerator(o.getRender());
             System.out.println("QI: Create new Uber Ontology.." + timer.getTimeElapsed());
             OWLOntology all = o.createNewUberOntology();
-            System.out.println("QI: Preparing patterns" + timer.getTimeElapsed());
-            Set<Pattern> patterns = preparePatterns(patternsfile, mode, samplesize, i, patternGenerator, all);
+            System.out.println("Done... Axiomct: " +o.getAllAxioms().size()+ timer.getTimeElapsed());
             System.out.println("QI: Preparing pattern reasoner" + timer.getTimeElapsed());
-            r = preparePatternReasoner(patterns, all);
-
-            allPatterns.addAll(patterns);
-            System.out.println("QI: Extract definition patterns.." + timer.getTimeElapsed());
-            allPatterns.addAll(patternGenerator.extractPatterns(o.getAllAxioms(), true));
-            System.out.println("QI: Preparing pattern grammar and labels.." + timer.getTimeElapsed());
+            r = new Reasoner(all);
+            allPatterns.addAll(patternGenerator.extractPatterns(all.getAxioms(i), true));
             preparePatternsGrammarsAndLabels(patternGenerator);
             System.out.println("QI: Preparing pattern impact" + timer.getTimeElapsed());
-            patternImpact = new PatternImpact(o, r.getOWLReasoner(), r.getUnsatisfiableClasses(), new HashSet<>());
+            System.out.println("QI: Preparing patterns" + timer.getTimeElapsed());
+            mappedPatterns = preparePatterns(mappings, i, patternGenerator, all,bidirectionmapping);
+            //patternImpact = new PatternImpact(o, r.getOWLReasoner(), r.getUnsatisfiableClasses(), new HashSet<>());
             System.out.println("QI: Computing impact.." + timer.getTimeElapsed());
-            patternImpactMap = patternImpact.getImpactMap(allPatterns);
+            //patternImpactMap = patternImpact.getImpactMap(allPatterns);
+            if(!lazyalign) {
+                System.out.println("QI: Computing alignments.." + timer.getTimeElapsed());
+                for(Pattern p:mappedPatterns.keySet()) {
+                    if(!patternReconciliation.containsKey(p)) {
+                            patternReconciliation.put(p,new HashMap<>());
+                    }
+
+                    for(Pattern p2:mappedPatterns.get(p)) {
+                        if(!patternReconciliation.get(p).containsKey(p2)) {
+                            PatternReconciliation pr = new PatternReconciliation(p,p2,o.getRender(),r);
+                            patternReconciliation.get(p).put(p2,pr);
+                            reconciliations.add(pr);
+                        }
+                    }
+                }
+            }
             System.out.println("QI: Done.." + timer.getTimeElapsed());
 
-        } catch (OWLOntologyCreationException e) {
+
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 
-    private Set<Pattern> preparePatterns(File patternsfile, ImpactMode mode, int samplesize, Imports i, PatternGenerator patternGenerator, OWLOntology all) throws OWLOntologyCreationException {
-        Set<Pattern> patterns = new HashSet<>();
-        switch (mode) {
-            case EXTERNAL:
-                OWLOntology o_patterns = OWLManager.createOWLOntologyManager().loadOntologyFromOntologyDocument(patternsfile);
-                patterns.addAll(patternGenerator.extractPatterns(o_patterns.getAxioms(i), false));
-                break;
-            case ALL:
-                patterns.addAll(patternGenerator.generateDefinitionPatterns(all.getAxioms(i), new Reasoner(all).getOWLReasoner(),samplesize));
-                break;
-            case THING:
-                patterns.addAll(patternGenerator.generateHighLevelDefinitionPatterns(all.getAxioms(i)));
-                break;
-            default:
-                patterns.addAll(patternGenerator.generateHighLevelDefinitionPatterns(all.getAxioms(i)));
+    private Map<Pattern,Set<Pattern>> preparePatterns(File mappinFile, Imports i, PatternGenerator patternGenerator, OWLOntology all, boolean bidirectionmapping) {
+        Map<Pattern,Set<Pattern>> patterns = new HashMap<>();
+        Map<IRI,Set<IRI>> mapping = parseMappings(mappinFile);
+        Map<IRI,Pattern> iriPatternMap = new HashMap<>();
+
+        allPatterns.forEach(p->iriPatternMap.put(p.getOWLClass().getIRI(),p));
+        for(IRI iri:mapping.keySet()) {
+            if(iriPatternMap.containsKey(iri)) {
+                Pattern p = iriPatternMap.get(iri);
+                if(!patterns.containsKey(p)) {
+                    patterns.put(p,new HashSet<>());
+                }
+                for (IRI to : mapping.get(iri)) {
+                    if (iriPatternMap.containsKey(to)) {
+                        Pattern p2 = iriPatternMap.get(to);
+                        patterns.get(p).add(p2);
+                        if(bidirectionmapping) {
+                            if(!patterns.containsKey(p2)) {
+                                patterns.put(p2,new HashSet<>());
+                            }
+                            patterns.get(p2).add(p);
+                        }
+                    }
+
+                }
+            }
         }
         return patterns;
     }
 
-    private Reasoner preparePatternReasoner(Set<Pattern> patterns, OWLOntology uberOntology) {
-        OWLDataFactory df = OWLManager.getOWLDataFactory();
-        Set<OWLAxiom> patternAxioms = new HashSet<>();
-        for(Pattern p:patterns) {
-            patternAxioms.add(df.getOWLEquivalentClassesAxiom(p.getOWLClass(),p.getDefiniton()));
+    private Map<IRI,Set<IRI>> parseMappings(File mappinFile) {
+        Map<IRI,Set<IRI>> mappings = new HashMap<>();
+        if(mappinFile.isFile()) {
+            try {
+                List<String> lines = FileUtils.readLines(mappinFile, Charset.forName("utf-8"));
+                for(String line:lines) {
+                    String[] explosion = line.split(",");
+                    String i1 = explosion[0];
+                    String i2 = explosion[1];
+                    IRI iri1 = IRI.create(i1);
+                    IRI iri2 = IRI.create(i2);
+                    if(!mappings.containsKey(iri1)) {
+                        mappings.put(iri1, new HashSet<>());
+                    }
+                    mappings.get(iri1).add(iri2);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
         }
-        uberOntology.getOWLOntologyManager().addAxioms(uberOntology,patternAxioms);
-        return new Reasoner(uberOntology);
+        return mappings;
     }
 
     private void preparePatternsGrammarsAndLabels(PatternGenerator patternGenerator) {
@@ -109,6 +154,19 @@ public class QuickImpact {
             }
         }
         System.out.println("Def: "+ct_defined+", nondef:"+ct_nondef);
+    }
+
+
+    public PatternReconciliation getPatternAlignment(Pattern p1, Pattern p2) {
+        if(!patternReconciliation.containsKey(p1)) {
+            patternReconciliation.put(p1,new HashMap<>());
+        }
+        if(!patternReconciliation.get(p1).containsKey(p2)) {
+            PatternReconciliation pr = new PatternReconciliation(p1,p2,o.getRender(),r);
+            patternReconciliation.get(p1).put(p2, pr);
+            reconciliations.add(pr);
+        }
+        return patternReconciliation.get(p1).get(p2);
     }
 
     public Set<PatternGrammar> getSubsumedGrammars(Pattern p) {
@@ -193,5 +251,8 @@ public class QuickImpact {
         return o.getRender().renderForMarkdown(pattern.getDefiniton());
     }
 
+    public List<PatternReconciliation> getAllPatternReconciliations() {
+        return new ArrayList<>(reconciliations);
+    }
 
 }

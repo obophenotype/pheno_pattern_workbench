@@ -42,6 +42,14 @@ public class PatternInfoBox extends HorizontalLayout {
 			sb.append("<li>Direct: " + impact.getDirectImpact() + "</li>");
 			sb.append("<li>Indirect: " + impact.getIndirectImpact() + "</li>");
 			sb.append("</ol>");
+			sb.append("<li>Impact by ontology<ol>");
+			for(String oid:impact.getDirectImpactByO().keySet()) {
+				sb.append("<li>"+oid+"<ol>");
+				sb.append("<li>Direct: " + impact.getDirectImpactByO().get(oid) + "</li>");
+				sb.append("<li>Indirect: " + impact.getIndirectImpactByO().get(oid) + "</li>");
+				sb.append("</ol></li>");
+			}
+			sb.append("</ol></li>");
 			sb.append("<h3>Grammars subsumed under this pattern:</h3>");
 			sb.append("<div style='border:1px solid black; padding: 10px;'>");
 			sb.append("<strong>Self: " + pattern.getGrammar().getOriginal() + "</strong>");

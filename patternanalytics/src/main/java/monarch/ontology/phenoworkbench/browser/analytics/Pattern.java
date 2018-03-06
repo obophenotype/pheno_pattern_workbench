@@ -58,4 +58,9 @@ public class Pattern extends PatternClass {
     public boolean isDefinedclass() {
         return definedclass;
     }
+
+    @Override
+    public String toString() {
+        return getLabel()+": "+getPatternString();
+    }
 }
