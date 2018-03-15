@@ -3,11 +3,15 @@ package monarch.ontology.phenoworkbench.browser.analytics;
 import monarch.ontology.phenoworkbench.browser.util.InferredOntologyGenerator;
 import org.semanticweb.HermiT.ReasonerFactory;
 import org.semanticweb.elk.owlapi.ElkReasonerFactory;
+import org.semanticweb.owl.explanation.api.ExplanationGenerator;
+import org.semanticweb.owl.explanation.api.ExplanationGeneratorFactory;
+import org.semanticweb.owl.explanation.api.ExplanationManager;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.model.parameters.Imports;
 import org.semanticweb.owlapi.reasoner.InferenceType;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
+import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
 import org.semanticweb.owlapi.util.InferredAxiomGenerator;
 import org.semanticweb.owlapi.util.InferredEquivalentClassAxiomGenerator;
 import org.semanticweb.owlapi.util.InferredIndividualAxiomGenerator;
@@ -22,9 +26,12 @@ public class Reasoner {
 
     private OWLOntology o;
     private OWLDataFactory df = OWLManager.getOWLDataFactory();
+    private OWLReasonerFactory rf = new ElkReasonerFactory();
 
     private Set<OWLAxiom> inferredSubclassOfAxioms = new HashSet<>();
     private Set<OWLClass> unsatisfiableClasses = new HashSet<>();
+    private final ExplanationGeneratorFactory<OWLAxiom> genFac = ExplanationManager.createExplanationGeneratorFactory(rf);
+    private final ExplanationGenerator<OWLAxiom> gen;
 
 
     Reasoner(OWLOntology o)  {
@@ -32,7 +39,7 @@ public class Reasoner {
     }
 
     Reasoner(OWLOntology o, boolean realtautologies) {
-        r = new ElkReasonerFactory().createReasoner(o);
+        r = rf.createReasoner(o);
         r.precomputeInferences(InferenceType.CLASS_HIERARCHY);
         unsatisfiableClasses.addAll(r.getUnsatisfiableClasses().getEntities());
         try {
@@ -42,6 +49,7 @@ public class Reasoner {
         }
         this.realtautologies = realtautologies;
         this.o = o;
+        this.gen = genFac.createExplanationGenerator(this.o);
     }
 
     public Set<OWLAxiom> getInferredSubclassOfAxioms() {
@@ -195,5 +203,14 @@ public class Reasoner {
 
     public boolean equivalentClasses(OWLClass c1, OWLClass c2) {
         return r.getEquivalentClasses(c1).contains(c2);
+    }
+
+    public Explanation getExplanation(OWLClass c_sub, OWLClass c_super) {
+        OWLAxiom entailment = df.getOWLSubClassOfAxiom(c_sub, c_super);
+        Set<org.semanticweb.owl.explanation.api.Explanation<OWLAxiom>> expl = gen.getExplanations(entailment, 1);
+        if(expl.isEmpty()) {
+            return new Explanation(new HashSet<>());
+        }
+        return new Explanation(expl.stream().findFirst().get().getAxioms());
     }
 }

@@ -1,5 +1,9 @@
 package monarch.ontology.phenoworkbench.browser.analytics;
 
+import monarch.ontology.phenoworkbench.browser.util.OntologyUtils;
+import org.semanticweb.owl.explanation.api.ExplanationGenerator;
+import org.semanticweb.owl.explanation.api.ExplanationGeneratorFactory;
+import org.semanticweb.owl.explanation.api.ExplanationManager;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.model.parameters.Imports;
@@ -14,6 +18,7 @@ public class QuickImpact {
     private PatternImpact patternImpact;
     private UberOntology o;
     private Reasoner r;
+    private ExplanationRenderer explanationRenderer;
     private Map<Pattern, PatternImpact.Impact> patternImpactMap = new HashMap<>();
     private Map<OWLClass, PatternClass> patternClassCache = new HashMap<>();
     private Map<Pattern, Set<PatternGrammar>> patternSubsumedGrammarsMap = new HashMap<>();
@@ -34,6 +39,7 @@ public class QuickImpact {
             Set<Pattern> patterns = preparePatterns(patternsfile, mode, samplesize, i, patternGenerator, all);
             System.out.println("QI: Preparing pattern reasoner" + timer.getTimeElapsed());
             r = preparePatternReasoner(patterns, all);
+            explanationRenderer = new ExplanationRenderer(o.getRender());
 
             allPatterns.addAll(patterns);
             System.out.println("QI: Extract definition patterns.." + timer.getTimeElapsed());
@@ -58,6 +64,7 @@ public class QuickImpact {
             case EXTERNAL:
                 OWLOntology o_patterns = OWLManager.createOWLOntologyManager().loadOntologyFromOntologyDocument(patternsfile);
                 patterns.addAll(patternGenerator.extractPatterns(o_patterns.getAxioms(i), false));
+                o.getRender().addLabel(o_patterns);
                 break;
             case ALL:
                 patterns.addAll(patternGenerator.generateDefinitionPatterns(all.getAxioms(i), new Reasoner(all).getOWLReasoner(),samplesize));
@@ -194,4 +201,11 @@ public class QuickImpact {
     }
 
 
+    public Explanation getSubsumptionExplanation(PatternClass c, PatternClass p) {
+        return r.getExplanation(c.getOWLClass(),p.getOWLClass());
+    }
+
+    public String getSubsumptionExplanationRendered(PatternClass c, PatternClass p) {
+        return explanationRenderer.renderExplanation(getSubsumptionExplanation(c,p));
+    }
 }

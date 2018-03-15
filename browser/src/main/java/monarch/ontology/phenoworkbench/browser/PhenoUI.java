@@ -17,11 +17,11 @@ import com.vaadin.ui.Layout;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.MenuItem;
 
+import monarch.ontology.phenoworkbench.browser.quickimpact.QuickImpactView;
+import monarch.ontology.phenoworkbench.browser.reconciliation.PatternReconciliationView;
 import monarch.ontology.phenoworkbench.browser.views.AxiomRedundancyAnalyserView;
 import monarch.ontology.phenoworkbench.browser.views.InferenceAnalyserView;
 import monarch.ontology.phenoworkbench.browser.views.PatternAnalyserView;
-import monarch.ontology.phenoworkbench.browser.views.PatternReconciliationView;
-import monarch.ontology.phenoworkbench.browser.views.QuickImpactView;
 import monarch.ontology.phenoworkbench.browser.views.UnionAnalyserView;
 
 import com.vaadin.ui.UI;
