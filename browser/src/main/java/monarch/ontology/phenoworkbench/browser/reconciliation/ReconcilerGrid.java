@@ -4,18 +4,15 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.vaadin.shared.ui.grid.HeightMode;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Grid;
-import com.vaadin.ui.Notification;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.renderers.HtmlRenderer;
 import com.vaadin.ui.renderers.NumberRenderer;
 
-import monarch.ontology.phenoworkbench.browser.analytics.PatternReconciler;
-import monarch.ontology.phenoworkbench.browser.analytics.PatternReconciliation;
-import monarch.ontology.phenoworkbench.browser.util.StringUtils;
+import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.PatternReconciler;
+import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.PatternReconciliation;
+import monarch.ontology.phenoworkbench.util.StringUtils;
 
 public class ReconcilerGrid extends Grid<PatternReconciliation> {
 

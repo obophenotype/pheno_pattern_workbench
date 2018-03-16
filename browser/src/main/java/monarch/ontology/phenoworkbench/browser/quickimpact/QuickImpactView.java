@@ -4,12 +4,12 @@ import java.io.File;
 import java.util.*;
 import com.vaadin.ui.*;
 
-import monarch.ontology.phenoworkbench.browser.BasicLayout;
-import monarch.ontology.phenoworkbench.browser.analytics.ImpactMode;
-import monarch.ontology.phenoworkbench.browser.analytics.Pattern;
-import monarch.ontology.phenoworkbench.browser.analytics.PatternClass;
-import monarch.ontology.phenoworkbench.browser.analytics.QuickImpact;
-import monarch.ontology.phenoworkbench.browser.util.Timer;
+import monarch.ontology.phenoworkbench.analytics.pattern.impact.ImpactMode;
+import monarch.ontology.phenoworkbench.analytics.quickimpact.QuickImpact;
+import monarch.ontology.phenoworkbench.browser.basic.BasicLayout;
+import monarch.ontology.phenoworkbench.analytics.pattern.Pattern;
+import monarch.ontology.phenoworkbench.analytics.pattern.PatternClass;
+import monarch.ontology.phenoworkbench.util.Timer;
 
 public class QuickImpactView extends BasicLayout {
 
@@ -17,7 +17,7 @@ public class QuickImpactView extends BasicLayout {
 	 * 
 	 */
 	private static final long serialVersionUID = 8440240868260139938L;
-	private Timer timer = new Timer();
+	private monarch.ontology.phenoworkbench.util.Timer timer = new Timer();
 	QuickImpactModeSelect sl_quickmode = new QuickImpactModeSelect();
 	
 	

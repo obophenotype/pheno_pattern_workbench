@@ -1,6 +1,6 @@
 package monarch.ontology.phenoworkbench.browser.quickimpact;
 
-import monarch.ontology.phenoworkbench.browser.analytics.Pattern;
+import monarch.ontology.phenoworkbench.analytics.pattern.Pattern;
 
 public class WeightedPattern {
 	

@@ -1,11 +1,10 @@
 package monarch.ontology.phenoworkbench.browser.reconciliation;
 
 import com.vaadin.ui.*;
-import com.vaadin.ui.Button.ClickEvent;
 
-import monarch.ontology.phenoworkbench.browser.LabelManager;
-import monarch.ontology.phenoworkbench.browser.analytics.PatternReconciler;
-import monarch.ontology.phenoworkbench.browser.analytics.PatternReconciliation;
+import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.PatternReconciler;
+import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.PatternReconciliation;
+import monarch.ontology.phenoworkbench.browser.basic.LabelManager;
 
 //Define a sub-window by inheritance
 public class ReconciliationWindow extends Window {

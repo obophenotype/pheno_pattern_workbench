@@ -13,9 +13,9 @@ import com.vaadin.data.provider.TreeDataProvider;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Tree;
 
-import monarch.ontology.phenoworkbench.browser.analytics.Pattern;
-import monarch.ontology.phenoworkbench.browser.analytics.PatternClass;
-import monarch.ontology.phenoworkbench.browser.analytics.QuickImpact;
+import monarch.ontology.phenoworkbench.analytics.quickimpact.QuickImpact;
+import monarch.ontology.phenoworkbench.analytics.pattern.Pattern;
+import monarch.ontology.phenoworkbench.analytics.pattern.PatternClass;
 
 public class PatternTree extends Tree<PatternTreeItem> {
 	

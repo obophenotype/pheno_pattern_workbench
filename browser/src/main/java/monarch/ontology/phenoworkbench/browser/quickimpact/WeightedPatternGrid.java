@@ -7,9 +7,9 @@ import java.util.Map;
 
 import com.vaadin.ui.Grid;
 
-import monarch.ontology.phenoworkbench.browser.analytics.Pattern;
-import monarch.ontology.phenoworkbench.browser.analytics.PatternClass;
-import monarch.ontology.phenoworkbench.browser.analytics.QuickImpact;
+import monarch.ontology.phenoworkbench.analytics.quickimpact.QuickImpact;
+import monarch.ontology.phenoworkbench.analytics.pattern.PatternClass;
+import monarch.ontology.phenoworkbench.analytics.pattern.Pattern;
 
 public class WeightedPatternGrid extends Grid<WeightedPattern>{
 	

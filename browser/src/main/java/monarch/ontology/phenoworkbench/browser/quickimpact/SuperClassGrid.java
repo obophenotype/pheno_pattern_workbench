@@ -4,12 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Grid;
-import com.vaadin.ui.Notification;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
-import monarch.ontology.phenoworkbench.browser.analytics.ExplanationRenderer;
-import monarch.ontology.phenoworkbench.browser.analytics.PatternClass;
-import monarch.ontology.phenoworkbench.browser.analytics.QuickImpact;
+import monarch.ontology.phenoworkbench.analytics.quickimpact.QuickImpact;
+import monarch.ontology.phenoworkbench.analytics.pattern.PatternClass;
 
 public class SuperClassGrid extends Grid<PatternClass>{
 
@@ -46,7 +45,10 @@ public class SuperClassGrid extends Grid<PatternClass>{
     }
 
 	private void showExplanation(PatternClass p) {
-		Notification.show(qi.getSubsumptionExplanationRendered(current,p));
+		Window sub = new ExplanationWindow(qi,p, current);
+		  this.getUI().addWindow(sub);
+		  this.getUI().push(); 
+		  
 	}
 
 }

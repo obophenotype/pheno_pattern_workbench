@@ -5,12 +5,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import monarch.ontology.phenoworkbench.browser.BasicLayout;
-import monarch.ontology.phenoworkbench.browser.analytics.PatternReconciler;
+import monarch.ontology.phenoworkbench.browser.basic.BasicLayout;
+import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.PatternReconciler;
 
 import com.vaadin.ui.UI;
 
-public class PatternReconciliationView extends BasicLayout{
+public class PatternReconciliationView extends BasicLayout {
 	
 	/**
 	 * 

@@ -1,7 +1,7 @@
 package monarch.ontology.phenoworkbench.browser.quickimpact;
 
-import monarch.ontology.phenoworkbench.browser.analytics.Pattern;
-import monarch.ontology.phenoworkbench.browser.analytics.PatternClass;
+import monarch.ontology.phenoworkbench.analytics.pattern.Pattern;
+import monarch.ontology.phenoworkbench.analytics.pattern.PatternClass;
 
 public class PatternTreeItem {
 	private final PatternClass c;

@@ -4,9 +4,9 @@ import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.shared.ui.slider.SliderOrientation;
 import com.vaadin.ui.*;
 
-import monarch.ontology.phenoworkbench.browser.analytics.Pattern;
-import monarch.ontology.phenoworkbench.browser.analytics.PatternReconciler;
-import monarch.ontology.phenoworkbench.browser.analytics.PatternReconciliation;
+import monarch.ontology.phenoworkbench.analytics.pattern.Pattern;
+import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.PatternReconciler;
+import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.PatternReconciliation;
 
 public class ReconcilerLayoutPanel extends VerticalLayout {
 

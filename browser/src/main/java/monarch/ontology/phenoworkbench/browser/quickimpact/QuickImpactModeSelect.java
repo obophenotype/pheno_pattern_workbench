@@ -2,7 +2,7 @@ package monarch.ontology.phenoworkbench.browser.quickimpact;
 
 import com.vaadin.ui.RadioButtonGroup;
 import com.vaadin.ui.VerticalLayout;
-import monarch.ontology.phenoworkbench.browser.analytics.ImpactMode;
+import monarch.ontology.phenoworkbench.analytics.pattern.impact.ImpactMode;
 
 public class QuickImpactModeSelect extends VerticalLayout {
 	

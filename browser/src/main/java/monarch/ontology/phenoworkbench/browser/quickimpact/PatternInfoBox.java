@@ -1,15 +1,14 @@
 package monarch.ontology.phenoworkbench.browser.quickimpact;
 
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import monarch.ontology.phenoworkbench.browser.LabelManager;
-import monarch.ontology.phenoworkbench.browser.analytics.Pattern;
-import monarch.ontology.phenoworkbench.browser.analytics.PatternClass;
-import monarch.ontology.phenoworkbench.browser.analytics.PatternGrammar;
-import monarch.ontology.phenoworkbench.browser.analytics.PatternImpact;
-import monarch.ontology.phenoworkbench.browser.analytics.QuickImpact;
+import monarch.ontology.phenoworkbench.analytics.quickimpact.QuickImpact;
+import monarch.ontology.phenoworkbench.analytics.pattern.PatternClass;
+import monarch.ontology.phenoworkbench.analytics.pattern.PatternGrammar;
+import monarch.ontology.phenoworkbench.analytics.pattern.impact.Impact;
+import monarch.ontology.phenoworkbench.browser.basic.LabelManager;
+import monarch.ontology.phenoworkbench.analytics.pattern.Pattern;
 
 public class PatternInfoBox extends VerticalLayout {
 
@@ -41,7 +40,7 @@ public class PatternInfoBox extends VerticalLayout {
 		sb.append("<h3>" + patternName(p) + "</h3>");
 		if (p instanceof Pattern) {
 			Pattern pattern = (Pattern) p;
-			PatternImpact.Impact impact = quickImpact.getImpact(pattern);
+			Impact impact = quickImpact.getImpact(pattern);
 			sb.append("<strong>" + pattern.getPatternString() + "</strong>");
 			sb.append("<ol>");
 			sb.append("<li>Direct: " + impact.getDirectImpact() + "</li>");
