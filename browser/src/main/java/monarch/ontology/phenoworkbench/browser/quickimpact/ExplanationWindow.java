@@ -4,9 +4,9 @@ import java.util.Optional;
 
 import com.vaadin.ui.*;
 
+import monarch.ontology.phenoworkbench.analytics.pattern.generation.OntologyClass;
 import monarch.ontology.phenoworkbench.analytics.quickimpact.QuickImpact;
 import monarch.ontology.phenoworkbench.browser.basic.MarkDownTools;
-import monarch.ontology.phenoworkbench.analytics.pattern.PatternClass;
 import monarch.ontology.phenoworkbench.browser.basic.LabelManager;
 import monarch.ontology.phenoworkbench.util.ExplanationAnalyser;
 import monarch.ontology.phenoworkbench.util.StringUtils;
@@ -20,7 +20,7 @@ public class ExplanationWindow extends Window {
 	private static final long serialVersionUID = 983881322993478390L;
 	ProgressBar bar = new ProgressBar();
 
-	ExplanationWindow(QuickImpact qi, PatternClass p, PatternClass current) {
+	ExplanationWindow(QuickImpact qi, OntologyClass p, OntologyClass current) {
 		super(null);
 		center();
 		bar.setIndeterminate(true);

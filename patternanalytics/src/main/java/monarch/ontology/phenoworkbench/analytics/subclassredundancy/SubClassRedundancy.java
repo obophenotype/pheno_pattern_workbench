@@ -10,7 +10,6 @@ import org.semanticweb.owlapi.model.parameters.Imports;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,22 +18,21 @@ public class SubClassRedundancy {
     private BranchLoader branches = null;
     private RenderManager render = new RenderManager();
     OntologyDebugReport lines = new OntologyDebugReport();
-    Timer timer = new Timer();
 
     private String BASEIRI = "http://ebi.ac.uk/";
 
-    public SubClassRedundancy(File f, File branchfile) {
+    public SubClassRedundancy(String iri, File branchfile) {
 
 
 
-        p("# Analysing: "+f.getName());
+        p("# Analysing: "+iri);
         OWLOntologyManager man = OWLManager.createOWLOntologyManager();
         try {
             p("* Loading ontology..");
-            OWLOntology base = man.loadOntologyFromOntologyDocument(f);
+            OWLOntology base = KB.getInstance().getOntology(iri).get();
             render.addLabel(base);
             branches = new BranchLoader(branchfile,base);
-            p("* done.."+timer.getTimeElapsed());
+            p("* done.."+Timer.getSecondsElapsed("SubClassRedundancy::SubClassRedundancy()"));
 
             Set<OWLAxiom> all_axioms = new HashSet<>(base.getAxioms(Imports.INCLUDED));
             OWLOntology o_all = OWLManager.createOWLOntologyManager().createOntology(all_axioms, IRI.create(BASEIRI + "o_all"));
@@ -52,7 +50,7 @@ public class SubClassRedundancy {
             OWLOntology o_exceptbase = OWLManager.createOWLOntologyManager().createOntology(allaxiomsexceptbase, IRI.create(BASEIRI + "o_except_base"));
             //
             //
-            p("* done.."+timer.getTimeElapsed());
+            p("* done.."+Timer.getSecondsElapsed("SubClassRedundancy::SubClassRedundancy()"));
 
             p("* Performing reasoning..");
 
@@ -81,7 +79,7 @@ public class SubClassRedundancy {
             Reasoner r_scl_stripped = new Reasoner(o_subclassstripped);
             Set<OWLAxiom> after_stripping = r_scl_stripped.getInferredSubclassOfAxioms();
             after_stripping.removeAll(impliedwobase);
-            p("* done.."+timer.getTimeElapsed());
+            p("* done.."+Timer.getSecondsElapsed("SubClassRedundancy::SubClassRedundancy()"));
 
             p("* Performing analysis..");
             Set<OWLAxiom> intersection = Sets.intersection(after_stripping, before_all);
@@ -93,7 +91,7 @@ public class SubClassRedundancy {
             int onlybefore = anotb(before_all, after_stripping).size();
             int onlyafter = anotb(after_stripping, before_all).size();
             int intersectionasserted = intersection_asserted.size();
-            p("* done.."+timer.getTimeElapsed());
+            p("* done.."+Timer.getSecondsElapsed("SubClassRedundancy::SubClassRedundancy()"));
 
             p("## Bug: Axioms that were implied before removing subclasses, but are not anymore");
             p("Restricted to maximum 50 axioms");
@@ -203,15 +201,11 @@ public class SubClassRedundancy {
         //phenotypeontologies.add(IRI.create("http://purl.obolibrary.org/obo/doid.owl"));
         //phenotypeontologies.add(IRI.create("http://purl.obolibrary.org/obo/go/extensions/go-plus.owl"));
 
-        Downloader download = new Downloader();
         for(IRI iri:phenotypeontologies) {
             try {
-                URL url = iri.toURI().toURL();
                 String filename = iri.toString().replaceAll("[^A-Za-z0-9]", "") + ".owl";
-                File f = new File(odir,filename);
-                download.download(url,f);
-                SubClassRedundancy sbcl = new SubClassRedundancy(f, branches);
-                File out = new File(outdir,f.getName()+"_subclassredundancy_report.md");
+                SubClassRedundancy sbcl = new SubClassRedundancy(iri.toString(), branches);
+                File out = new File(outdir,filename+"_subclassredundancy_report.md");
                 sbcl.exportOutput(out);
             } catch (Exception e) {
                 e.printStackTrace();

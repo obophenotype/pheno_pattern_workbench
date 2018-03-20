@@ -18,8 +18,8 @@ public class InferenceAnalyserView extends BasicLayout {
 	 */
 	private static final long serialVersionUID = 8440240868260139938L;
 
-	public InferenceAnalyserView(UI ui, File tmp) {
-		super(ui, tmp, "Ontology Inference Analysis");
+	public InferenceAnalyserView() {
+		super("Ontology Inference Analysis");
 	}
 
 	@Override
@@ -35,10 +35,8 @@ public class InferenceAnalyserView extends BasicLayout {
 
 		boolean imports = runOptionOrNull("imports").equals("yes");
 
-		File ontologiesdir = deleteMakeTmpDirectory("ia_ontologies");
-		downloadFiles(selectedItems, ontologiesdir);
-		File resultsdir = deleteMakeTmpDirectory("ia_results");
-		InferenceAnalyser p = new InferenceAnalyser(ontologiesdir, imports);
+		File resultsdir = deleteMakeTmpDirectory("ia_results").get();
+		InferenceAnalyser p = new InferenceAnalyser(selectedItems, imports);
 		p.prepare();
 		try {
 			p.printResults(resultsdir);

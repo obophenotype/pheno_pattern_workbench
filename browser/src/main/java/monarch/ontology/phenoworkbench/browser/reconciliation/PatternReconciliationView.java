@@ -9,6 +9,7 @@ import monarch.ontology.phenoworkbench.browser.basic.BasicLayout;
 import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.PatternReconciler;
 
 import com.vaadin.ui.UI;
+import monarch.ontology.phenoworkbench.util.Files;
 
 public class PatternReconciliationView extends BasicLayout {
 	
@@ -17,8 +18,8 @@ public class PatternReconciliationView extends BasicLayout {
 	 */
 	private static final long serialVersionUID = 8440240868260139938L;
 
-	public PatternReconciliationView(UI ui, File tmp) {
-		super(ui, tmp, "Pattern Reconciliation");
+	public PatternReconciliationView() {
+		super("DefinedClass Reconciliation");
 	}
 
 	@Override
@@ -42,13 +43,11 @@ public class PatternReconciliationView extends BasicLayout {
 		double confidencethreshold = Double.valueOf(runOptionOrNull("confidencethreshold"));
 		String mapping = runOptionOrNull("mappings");
 
-		File ontologiesdir = deleteMakeTmpDirectory("pa_ontologies");
-		downloadFiles(selectedItems, ontologiesdir);
-		File mappings = downloadFile(getTmpdir(), mapping, "txt");
+		File mappings = downloadFile(mapping, "txt");
 
-		System.out.println("Prepare Pattern Reconciler");
-		PatternReconciler p = new PatternReconciler(ontologiesdir, mappings, imports, lazyalign, bidirection, confidencethreshold);
-		System.out.println("Layout Pattern Reconciler");
+		System.out.println("Prepare DefinedClass Reconciler");
+		PatternReconciler p = new PatternReconciler(selectedItems, mappings, imports, lazyalign, bidirection, confidencethreshold);
+		System.out.println("Layout DefinedClass Reconciler");
 ReconcilerLayoutPanel l_rec = new ReconcilerLayoutPanel(p);
 System.out.println("Done Layout");
         setResults(l_rec, true);

@@ -10,7 +10,7 @@ import monarch.ontology.phenoworkbench.browser.basic.BranchGrid;
 import monarch.ontology.phenoworkbench.browser.basic.Branches;
 import monarch.ontology.phenoworkbench.analytics.pattern.report.PatternExtractor;
 
-import com.vaadin.ui.UI;
+import monarch.ontology.phenoworkbench.util.Files;
 
 public class PatternAnalyserView extends BasicLayout{
 	
@@ -20,8 +20,8 @@ public class PatternAnalyserView extends BasicLayout{
 	private static final long serialVersionUID = 8440240868260139938L;
 	private BranchGrid branchGrid = new BranchGrid();
 
-	public PatternAnalyserView(UI ui, File tmp) {
-		super(ui, tmp, "Ontology Pattern Analysis");
+	public PatternAnalyserView() {
+		super("Ontology DefinedClass Analysis");
 		setAdditionalSettingsComponent(branchGrid,true);
 	}
 
@@ -42,11 +42,9 @@ public class PatternAnalyserView extends BasicLayout{
 		boolean addsubclasses = runOptionOrNull("addsubclasses").equals("yes");
 		int samplesize = Integer.valueOf(runOptionOrNull("samplesize"));
 
-		File ontologiesdir = deleteMakeTmpDirectory("pa_ontologies");
-		downloadFiles(selectedItems, ontologiesdir);
-		File resultsdir = deleteMakeTmpDirectory("pa_results");
-		File branches = Branches.prepareBranchesFile(getTmpdir(),branchGrid.getBranches());
-        PatternExtractor p = new PatternExtractor(ontologiesdir, branches, imports, addsubclasses, samplesize);
+		File resultsdir = deleteMakeTmpDirectory("pa_results").get();
+		File branches = Branches.prepareBranchesFile(Files.getInstance().getTmpdir(),branchGrid.getBranches());
+        PatternExtractor p = new PatternExtractor(selectedItems, branches, imports, addsubclasses, samplesize);
         p.run();
 		p.printResults(resultsdir);
 		writeMarkdownToResults(p.getReportLines(),true);

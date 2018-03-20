@@ -11,16 +11,16 @@ import com.vaadin.ui.renderers.HtmlRenderer;
 import com.vaadin.ui.renderers.NumberRenderer;
 
 import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.PatternReconciler;
-import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.PatternReconciliation;
+import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.PatternReconciliationCandidate;
 import monarch.ontology.phenoworkbench.util.StringUtils;
 
-public class ReconcilerGrid extends Grid<PatternReconciliation> {
+public class ReconcilerGrid extends Grid<PatternReconciliationCandidate> {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -1503748580420486580L;
-	List<PatternReconciliation> reconciliations = new ArrayList<>();
+	List<PatternReconciliationCandidate> reconciliations = new ArrayList<>();
 	public ReconcilerGrid(PatternReconciler p) {
 		setWidth("100%");
 		setHeight("100%");
@@ -28,12 +28,12 @@ public class ReconcilerGrid extends Grid<PatternReconciliation> {
 		reconciliations.addAll(p.getAllPatternReconciliations());
 		System.out.println("Set Reconciliations: "+reconciliations.size());
 		setItems(reconciliations);
-		Column p1 = addColumn(rec -> "<div>" + StringUtils.insertPeriodically(rec.getP1().toString(),"<br>",50)+ "</div>", new HtmlRenderer()).setCaption("Pattern 1");
-		Column p2 = addColumn(rec -> "<div>" + StringUtils.insertPeriodically(rec.getP2().toString(),"<br>",50)+ "</div>", new HtmlRenderer()).setCaption("Pattern 2");
-		Column c_compl = addColumn(PatternReconciliation::getReconciliationComplexity,new NumberRenderer(new DecimalFormat("#.##"))).setCaption("Complexity");
-		Column c_imp = addColumn(PatternReconciliation::getReconciliationEffect,new NumberRenderer(new DecimalFormat("#.####"))).setCaption("Impact");
-		Column c_jack = addColumn(PatternReconciliation::getJaccardSimiliarity,new NumberRenderer(new DecimalFormat("#.##"))).setCaption("Jackard");
-		Column c_subcl = addColumn(PatternReconciliation::getSubclassSimilarity,new NumberRenderer(new DecimalFormat("#.##"))).setCaption("SBSim");
+		Column p1 = addColumn(rec -> "<div>" + StringUtils.insertPeriodically(rec.getP1().toString(),"<br>",50)+ "</div>", new HtmlRenderer()).setCaption("DefinedClass 1");
+		Column p2 = addColumn(rec -> "<div>" + StringUtils.insertPeriodically(rec.getP2().toString(),"<br>",50)+ "</div>", new HtmlRenderer()).setCaption("DefinedClass 2");
+		Column c_compl = addColumn(PatternReconciliationCandidate::getReconciliationComplexity,new NumberRenderer(new DecimalFormat("#.##"))).setCaption("Complexity");
+		Column c_imp = addColumn(PatternReconciliationCandidate::getReconciliationEffect,new NumberRenderer(new DecimalFormat("#.####"))).setCaption("OntologyClassImpact");
+		Column c_jack = addColumn(PatternReconciliationCandidate::getJaccardSimiliarity,new NumberRenderer(new DecimalFormat("#.##"))).setCaption("Jackard");
+		Column c_subcl = addColumn(PatternReconciliationCandidate::getSubclassSimilarity,new NumberRenderer(new DecimalFormat("#.##"))).setCaption("SBSim");
 
 		Column c_bt = addComponentColumn(recon -> {
 		      Button button = new Button("Reconcile");
@@ -52,7 +52,7 @@ public class ReconcilerGrid extends Grid<PatternReconciliation> {
 		System.out.println("Done Creating Grid");
 		
 	}
-	private void reconcileClick(PatternReconciliation recon, PatternReconciler r) {
+	private void reconcileClick(PatternReconciliationCandidate recon, PatternReconciler r) {
 		Window sub = new ReconciliationWindow(recon, r);
 		  this.getUI().addWindow(sub);
 		  this.getUI().push(); 

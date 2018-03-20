@@ -17,8 +17,8 @@ public class UnionAnalyserView extends BasicLayout {
 	 */
 	private static final long serialVersionUID = 255453218992079876L;
 
-	public UnionAnalyserView(UI ui, File tmp) {
-		super(ui, tmp, "Ontology Union Analysis");
+	public UnionAnalyserView() {
+		super("Ontology Union Analysis");
 	}
 
 	@Override
@@ -40,9 +40,7 @@ public class UnionAnalyserView extends BasicLayout {
 		int maxexplunsat = Integer.valueOf(runOptionOrNull("maxexplanation"));
 		String reasoner = runOptionOrNull("reasoner");
 
-		File ontologiesdir = deleteMakeTmpDirectory("us_ontologies");
-		downloadFiles(selectedItems, ontologiesdir);
-		CorpusDebugger p = new CorpusDebugger(ontologiesdir, reasoner, imports, maxunsat, maxexplunsat);
+		CorpusDebugger p = new CorpusDebugger(selectedItems, reasoner, imports, maxunsat, maxexplunsat);
 		p.run();
 		writeMarkdownToResults(p.getReportLines(),true);
 	}

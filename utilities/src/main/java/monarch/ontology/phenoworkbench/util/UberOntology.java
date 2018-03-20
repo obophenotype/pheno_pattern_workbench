@@ -13,7 +13,7 @@ import java.util.*;
 
 public class UberOntology {
 
-
+    private final KB kb = KB.getInstance();
 
     private final Map<String, Set<OWLAxiom>> allAxiomsAcrossOntologies = new HashMap<>();
     private final Map<OWLAxiom, Set<String>> allOntologiesAcrossAxioms = new HashMap<>();
@@ -24,26 +24,22 @@ public class UberOntology {
 
     private final Imports imports;
     Map<String, String> map_oid_name = new HashMap<>();
-    private final File pd;
     int o_ct = 1;
 
     private final RenderManager render = new RenderManager();
 
-    public UberOntology(Imports imports, File pd) {
+    public UberOntology(Imports imports, Set<String> iris) {
         this.imports = imports;
-        this.pd = pd;
-        processOntologies();
+        processOntologies(iris);
     }
 
-    private void processOntology(Imports imports, File ofile) {
-        String name = ofile.getName();
+    private void processOntology(Imports imports, OWLOntology o, String name) {
         String oid = "o" + o_ct;
         o_ct++;
         map_oid_name.put(oid, name);
 
         try {
-            OWLOntology o = OWLManager.createOWLOntologyManager().loadOntologyFromOntologyDocument(ofile);
-            Set<OWLAxiom> axioms = new HashSet<>(o.getAxioms(imports));
+               Set<OWLAxiom> axioms = new HashSet<>(o.getAxioms(imports));
             Set<OWLEntity> signature = new HashSet<>(o.getSignature(imports));
             allAxiomsAcrossOntologies.put(oid, axioms);
             allSignaturesAcrossOntologies.put(oid, signature);
@@ -85,11 +81,8 @@ public class UberOntology {
         return allAxiomsAcrossOntologies;
     }
 
-    private void processOntologies() {
-        for (File ofile : pd.listFiles(new OntologyFileExtension())) {
-            OntologyUtils.p(ofile.getName());
-            processOntology(imports, ofile);
-        }
+    private void processOntologies(Set<String> iris) {
+        iris.forEach(iri->kb.getOntology(iri).ifPresent(o->processOntology(imports, o,iri)));
     }
 
     public OWLOntology createNewUberOntology() {

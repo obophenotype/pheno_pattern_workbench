@@ -19,7 +19,7 @@ public class RenderManager {
     private OWLDataFactory df = OWLManager.getOWLDataFactory();
 
     public RenderManager() {
-        System.out.println("Warning: Unnecessary hackLabelMethod still in place, should be retired.");
+        System.out.println("Warning: Unnecessary RenderManager::hackLabelMethod still in place, should be retired.");
     }
 
     public void addLabel(OWLOntology o) {
@@ -28,15 +28,14 @@ public class RenderManager {
 
     private String hackLabel(String l) {
         //TODO This should not be necessary
-        String s = l.replace("http://www.w3.org/2002/07/owl#","");
-        return s;
+        return replaceIRIWithLabel(l, df.getOWLThing(), "Thing");
     }
 
     public String render(OWLObject ax) {
         String s = ren.render(ax);
         for (OWLEntity k : ax.getSignature()) {
             String l = getLabel(k);
-            s = s.replaceAll(k.getIRI().getRemainder().or(""), l);
+            s = replaceIRIWithLabel(s, k, l);
         }
         return s;
     }
@@ -45,9 +44,13 @@ public class RenderManager {
         String s = renManchester.render(ax);
         for (OWLEntity k : ax.getSignature()) {
             String l = getLabel(k);
-            s = s.replaceAll(k.getIRI().getRemainder().or(""), l);
+            s = replaceIRIWithLabel(s, k, l);
         }
         return s;
+    }
+
+    private String replaceIRIWithLabel(String s, OWLEntity k, String l) {
+        return s.replaceAll(k.getIRI().getRemainder().or(""), "'"+l+"'");
     }
 
     public String getLabel(OWLEntity k) {

@@ -11,7 +11,7 @@ public class QuickImpactModeSelect extends VerticalLayout {
 	 */
 	private static final long serialVersionUID = -575938527956672285L;
 	private RadioButtonGroup<ImpactMode> select =
-		    new RadioButtonGroup<>("Quick Impact Mode");
+		    new RadioButtonGroup<>("Quick OntologyClassImpact Mode");
 	
 	public QuickImpactModeSelect() {
 		select.setItems(ImpactMode.values());

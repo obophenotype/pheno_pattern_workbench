@@ -1,22 +1,21 @@
 package monarch.ontology.phenoworkbench.browser.basic;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import com.vaadin.ui.Component;
 import monarch.ontology.phenoworkbench.util.Downloader;
-import org.apache.commons.io.FileUtils;
 
 import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+import monarch.ontology.phenoworkbench.util.Files;
+import monarch.ontology.phenoworkbench.util.KB;
 
-import monarch.ontology.phenoworkbench.util.StringUtils;
 
 public abstract class BasicLayout extends VerticalLayout {
 
@@ -24,17 +23,13 @@ public abstract class BasicLayout extends VerticalLayout {
 	 * 
 	 */
 	private static final long serialVersionUID = 216875934202756147L;
-	private final UI ui;
+	//private final UI ui;
 	private final RunAnalysisPanel runAnalysisPanel;
-	private final File tmpdir;
-	private final Downloader downloader = new Downloader();
+	private final Downloader downloader = Downloader.getInstance();
+	private final KB kb = KB.getInstance();
+	private final Files fileSystem = Files.getInstance();
 	
-	public BasicLayout(UI ui, File tmpdir, String title) {
-		this.ui = ui;
-		this.tmpdir = tmpdir;
-		if(!tmpdir.exists()) {
-			tmpdir.mkdir();
-		}
+	public BasicLayout(String title) {
 		setMargin(false);
 		setSpacing(false);
 		setWidth("100%");
@@ -47,79 +42,46 @@ public abstract class BasicLayout extends VerticalLayout {
 	}
 	private void runLong() {
 		Window sub = new WaitingPopup();
-		this.getUI().addWindow(sub);
-		ui.push();
-		runAnalysis(runAnalysisPanel.getSelectedItems());UI.getCurrent().access(()->{sub.close();});
+		getUI().addWindow(sub);
+		getUI().push();
+		if(runAnalysisPanel.reDownload()) {kb.clearCache();}
+		runAnalysis(runAnalysisPanel.getSelectedItems());
+		UI.getCurrent().access(()->{sub.close();});
 	}
 	protected abstract Map<String, String> getRunOptions();
-	protected abstract void runAnalysis(Set<String> items);
-	
-	protected UI getUIFixed() {
-		return ui;
-	}
-	
+	protected abstract void runAnalysis(Set<String> selectedOntologies);
 
-	protected RunAnalysisPanel getRunAnalysisPanel() {
+	private RunAnalysisPanel getRunAnalysisPanel() {
 		return runAnalysisPanel;
 	}
 
 	protected String runOptionOrNull(String option) {
 		return getRunAnalysisPanel().getRunoption(option).orElse("NULL");
 	}
-	public File getTmpdir() {
-		return tmpdir;
-	}
-	
-	protected File deleteMakeTmpDirectory(String name) {
-		File dir = new File(getTmpdir(),name);
-		try {
-			if(dir.exists()) FileUtils.forceDelete(dir);
-			dir.mkdir();
-			return dir;
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-		return null;
-	}
-	
-	protected void downloadFiles(Set<String> iris, File dir) {
-		for (String iri : iris) {
-			downloadFile(dir, iri,"owl");
-		}
-	}
-
-	protected File downloadFile(File dir, String iri, String extension) {
-		String filename = iri.replaceAll("[^A-Za-z0-9]", "") + "."+extension;
-		File f = new File(dir, filename);
-		try {
-			downloader.download(new URL(iri), f);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return f;
-	}
 
 	protected void writeMarkdownToResults(List<String> report, boolean clear) {
-		Label l = getHTMLFromMarkdown(report);
+		Label l = LabelManager.htmlLabelFromMarkdown(report);
 		l.setWidth("100%");
 		setResults(l,clear);
 	}
-	
-	protected Label getHTMLFromMarkdown(List<String> report) {
-		StringBuilder sb = StringUtils.linesToStringBuilder(report);
-		return getHTMLFromMarkdown(sb.toString());
-	}
-	
-	protected Label getHTMLFromMarkdown(String s) {
-		Label l = LabelManager.htmlLabel(MarkDownTools.toHTML(s));
-		return l;
-	}
 
-	public void setResults(Component c, boolean clear) {
+	protected void setResults(Component c, boolean clear) {
 		getRunAnalysisPanel().addResult(c, clear);
 	}
+
+	protected Optional<File> deleteMakeTmpDirectory(String name) {
+		return fileSystem.deleteMakeTmpDirectory(name);
+	}
 	
-	public void setAdditionalSettingsComponent(Component c, boolean clear) {
+	protected void setAdditionalSettingsComponent(Component c, boolean clear) {
 		getRunAnalysisPanel().addAdditionalSettingsComponent(c, clear);
+	}
+
+	private Downloader getDownloader() {
+		return downloader;
+	}
+
+	protected File downloadFile(String url, String extension) {
+		return getDownloader().downloadFile(url,extension);
 	}
 }

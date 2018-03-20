@@ -32,11 +32,11 @@ import com.vaadin.ui.VerticalLayout;
 @Push 
 public class PhenoUI extends UI {
 
-	public static String PATTERNANALYTICSVIEW = "Pattern Analysis";
+	public static String PATTERNANALYTICSVIEW = "DefinedClass Analysis";
 	public static String UNIONANALYTICSVIEW = "Ontology Union Debugger";
 	public static String INFERENCEANALYTICSVIEW = "Inference Analysis";
 	public static String SUBCLASSREDUNDANCYVEIW = "Subclass Redundancy";
-	public static String QUICKCLASSIMPACT = "Quick Impact";
+	public static String QUICKCLASSIMPACT = "Quick OntologyClassImpact";
 	public static String RECONCILIATION = "Reconciliation";
 	Map<String, Layout> views = new HashMap<>();
 
@@ -63,37 +63,37 @@ public class PhenoUI extends UI {
 				String menuitem = selectedItem.getText();
 				if (menuitem.equals(PATTERNANALYTICSVIEW)) {
 					if (!views.containsKey(PATTERNANALYTICSVIEW)) {
-						views.put(PATTERNANALYTICSVIEW, new PatternAnalyserView(PhenoUI.this,tmpdir));
+						views.put(PATTERNANALYTICSVIEW, new PatternAnalyserView());
 					}
 					setNewView(views.get(PATTERNANALYTICSVIEW));
 				} 
 				else if (menuitem.equals(UNIONANALYTICSVIEW)) {
 					if (!views.containsKey(UNIONANALYTICSVIEW)) {
-						views.put(UNIONANALYTICSVIEW, new UnionAnalyserView(PhenoUI.this,tmpdir));
+						views.put(UNIONANALYTICSVIEW, new UnionAnalyserView());
 					}
 					setNewView(views.get(UNIONANALYTICSVIEW));
 				}
 				else if (menuitem.equals(INFERENCEANALYTICSVIEW)) {
 					if (!views.containsKey(INFERENCEANALYTICSVIEW)) {
-						views.put(INFERENCEANALYTICSVIEW, new InferenceAnalyserView(PhenoUI.this,tmpdir));
+						views.put(INFERENCEANALYTICSVIEW, new InferenceAnalyserView());
 					}
 					setNewView(views.get(INFERENCEANALYTICSVIEW));
 				}
 				else if (menuitem.equals(SUBCLASSREDUNDANCYVEIW)) {
 					if (!views.containsKey(SUBCLASSREDUNDANCYVEIW)) {
-						views.put(SUBCLASSREDUNDANCYVEIW, new AxiomRedundancyAnalyserView(PhenoUI.this,tmpdir));
+						views.put(SUBCLASSREDUNDANCYVEIW, new AxiomRedundancyAnalyserView());
 					}
 					setNewView(views.get(SUBCLASSREDUNDANCYVEIW));
 				} 
 				else if (menuitem.equals(QUICKCLASSIMPACT)) {
 					if (!views.containsKey(QUICKCLASSIMPACT)) {
-						views.put(QUICKCLASSIMPACT, new QuickImpactView(PhenoUI.this,tmpdir));
+						views.put(QUICKCLASSIMPACT, new QuickImpactView());
 					}
 					setNewView(views.get(QUICKCLASSIMPACT));
 				}
 				else if (menuitem.equals(RECONCILIATION)) {
 					if (!views.containsKey(RECONCILIATION)) {
-						views.put(RECONCILIATION, new PatternReconciliationView(PhenoUI.this,tmpdir));
+						views.put(RECONCILIATION, new PatternReconciliationView());
 					}
 					setNewView(views.get(RECONCILIATION));
 				}

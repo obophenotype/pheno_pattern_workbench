@@ -4,9 +4,9 @@ import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.shared.ui.slider.SliderOrientation;
 import com.vaadin.ui.*;
 
-import monarch.ontology.phenoworkbench.analytics.pattern.Pattern;
+import monarch.ontology.phenoworkbench.analytics.pattern.generation.DefinedClass;
 import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.PatternReconciler;
-import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.PatternReconciliation;
+import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.PatternReconciliationCandidate;
 
 public class ReconcilerLayoutPanel extends VerticalLayout {
 
@@ -18,7 +18,7 @@ public class ReconcilerLayoutPanel extends VerticalLayout {
 	Slider sl_jaccard = new Slider("Jackard Similarity",0, 1);
 	Slider sl_sbcl = new Slider("Subclass Similarity",0, 1);
 	Slider sl_complexity = new Slider("Complexity",0, 1);
-	Slider sl_impact = new Slider("Impact",0, 1);
+	Slider sl_impact = new Slider("OntologyClassImpact",0, 1);
 	TextField tf_filter_patterns = new TextField("Filter");
 	CheckBox cb_exclude_reconciled = new CheckBox("Exclude Reconciled");
 	
@@ -70,11 +70,11 @@ public class ReconcilerLayoutPanel extends VerticalLayout {
 		float sbcl = sl_sbcl.getValue().floatValue();
 		float complexity = sl_complexity.getValue().floatValue();
 		float effect = sl_impact.getValue().floatValue();
-		ListDataProvider<PatternReconciliation> dataProvider = (ListDataProvider<PatternReconciliation>) grid.getDataProvider();
-		dataProvider.setFilter(PatternReconciliation::getItself, s -> filter(s,value,excludeReconciled,jaccard,sbcl,complexity,effect));
+		ListDataProvider<PatternReconciliationCandidate> dataProvider = (ListDataProvider<PatternReconciliationCandidate>) grid.getDataProvider();
+		dataProvider.setFilter(PatternReconciliationCandidate::getItself, s -> filter(s,value,excludeReconciled,jaccard,sbcl,complexity,effect));
 	}
 
-	private boolean filter(PatternReconciliation s, String value, boolean excludeReconciled, float jaccard, float sbcl, float complexity, float effect) {
+	private boolean filter(PatternReconciliationCandidate s, String value, boolean excludeReconciled, float jaccard, float sbcl, float complexity, float effect) {
 		return caseInsensitiveContains(s.getP1(),value)&&minThreshold(s.getJaccardSimiliarity(),jaccard)&&minThreshold(s.getSubclassSimilarity(),sbcl)&&includeReconciled(s.isSyntacticallyEquivalent(),excludeReconciled)&&maxThreshold(s.getReconciliationComplexity(),complexity)&&minThreshold(s.getReconciliationEffect(),effect);
 	}
 
@@ -87,7 +87,7 @@ public class ReconcilerLayoutPanel extends VerticalLayout {
 	}
 
 
-	private boolean caseInsensitiveContains(Pattern s, String value) {
+	private boolean caseInsensitiveContains(DefinedClass s, String value) {
 		if(value.length()>2) {
 	        return s.toString().toLowerCase().contains(value.toLowerCase());
 

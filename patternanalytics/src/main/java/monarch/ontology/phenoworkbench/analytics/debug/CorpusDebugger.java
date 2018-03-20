@@ -29,9 +29,8 @@ public class CorpusDebugger {
     private RenderManager render = new RenderManager();
     private String BASE = "http://ebi.debug.owl#";
     private OntologyDebugReport report = new OntologyDebugReport();
-    monarch.ontology.phenoworkbench.util.Timer timer = new Timer();
 
-    private final File pd;
+    private final Set<String> pd;
     private final String reasoner;
     private final int MAXUNSAT;
     private final int MAXEXPLANATIONPERUNSAT;
@@ -39,7 +38,7 @@ public class CorpusDebugger {
     private final Map<IRI, OWLOntology> allAxiomsAcrossOntologies = new HashMap<>();
     private final Map<OWLAxiom, Set<IRI>> allOntologiesAcrossAxioms = new HashMap<>();
 
-    public CorpusDebugger(File pd, String reasoner, boolean imports, int maxunsat,int maxexplunsat) {
+    public CorpusDebugger(Set<String> pd, String reasoner, boolean imports, int maxunsat,int maxexplunsat) {
         this.pd = pd;
         this.reasoner = reasoner;
         this.MAXUNSAT = maxunsat;
@@ -47,7 +46,7 @@ public class CorpusDebugger {
         this.imports = imports ? Imports.INCLUDED : Imports.EXCLUDED;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         File pd = new File(args[0]);
         boolean imports = args[1].contains("i");
         int maxunsat = Integer.valueOf(args[2]);
@@ -56,7 +55,7 @@ public class CorpusDebugger {
         File outdir = new File(args[5]);
 
 
-        CorpusDebugger p = new CorpusDebugger(pd, reasoner, imports, maxunsat, maxexplunsat);
+        CorpusDebugger p = new CorpusDebugger(new HashSet<>(FileUtils.readLines(pd,"UTF-8")), reasoner, imports, maxunsat, maxexplunsat);
         p.run();
         try {
             p.printResults(outdir);
@@ -67,19 +66,21 @@ public class CorpusDebugger {
     }
 
     public void run() {
-        for (File ourl : pd.listFiles(new OntologyFileExtension())) {
+        Timer.start("CorpusDebugger::run");
+        for (String ourl : pd) {
             //if(ourl.endsWith("hp.owl"))
             processOntology(imports, ourl);
         }
         preparePrint();
+        Timer.end("CorpusDebugger::run");
     }
 
     private void preparePrint() {
+        Timer.start("CorpusDebugger::preparePrint");
         report.clear();
-        report.addLine("# Compatibility analysis of corpus "+pd.getPath());
+        report.addLine("# Compatibility analysis of corpus");
         report.addLine("## Analysing individual ontologies for Profile violations");
         for (IRI iri : allAxiomsAcrossOntologies.keySet()) {
-            OntologyUtils.p("Analysing: "+iri+printTime());
             report.addLine("### Ontology: " + iri);
             OWLOntology o = allAxiomsAcrossOntologies.get(iri);
             checkProfileCompliance(o);
@@ -89,7 +90,7 @@ public class CorpusDebugger {
 
 
         analyseOntologyCompatibilityIssues();
-
+        Timer.end("CorpusDebugger::preparePrint");
     }
 
     public void printResults(File out) throws IOException {
@@ -102,7 +103,7 @@ public class CorpusDebugger {
         report.addLine("* The explanation class hierarchies only includes top level classes that have at least one child.");
         report.addLine("  * (Only those can be potentially relevant for debugging).");
 
-        OntologyUtils.p("Analysing Compatibility issues:"+printTime());
+        OntologyUtils.p("Analysing Compatibility issues:"+printTime("debug"));
         OWLOntologyManager man = OWLManager.createOWLOntologyManager();
         try {
 
@@ -131,7 +132,7 @@ public class CorpusDebugger {
             HashMap<OWLAxiom, Integer> countaxiomsinannotations = new HashMap<>();
             report.addEmptyLine();
             report.addLine("### Explanations");
-            OntologyUtils.p("Generating explanations:"+printTime());
+            OntologyUtils.p("Generating explanations:"+printTime("debug"));
             for (OWLClass unsat : unsatisfiable) {
                 i++;
                 OWLAxiom entailment = df.getOWLEquivalentClassesAxiom(df.getOWLNothing(), unsat);
@@ -175,6 +176,7 @@ public class CorpusDebugger {
     }
 
     private void countAxiomsAcrossExplanations(HashMap<OWLAxiom, Integer> countaxiomsinannotations, Set<Explanation<OWLAxiom>> expl) {
+        Timer.start("CorpusDebugger::countAxiomsAcrossExplanations");
         for (Explanation<OWLAxiom> ex : expl) {
             for (OWLAxiom ax : ex.getAxioms()) {
                 if (!countaxiomsinannotations.containsKey(ax)) {
@@ -183,15 +185,17 @@ public class CorpusDebugger {
                 countaxiomsinannotations.put(ax, countaxiomsinannotations.get(ax) + 1);
             }
         }
+        Timer.end("CorpusDebugger::countAxiomsAcrossExplanations");
     }
 
-    private String printTime() {
-       return timer.getTimeElapsed();
+    private String printTime(String process) {
+       return Timer.getSecondsElapsed(process);
     }
 
-    private void processOntology(Imports imports, File ofile) {
+    private void processOntology(Imports imports, String ofile) {
+        Timer.start("CorpusDebugger::processOntology");
         try {
-            OWLOntology o = OWLManager.createOWLOntologyManager().loadOntologyFromOntologyDocument(ofile);
+            OWLOntology o = KB.getInstance().getOntology(ofile).get();
             render.addLabel(o);
             for (OWLOntology imp : o.getImportsClosure()) {
                 IRI niri = IRI.create(BASE + UUID.randomUUID());
@@ -212,6 +216,7 @@ public class CorpusDebugger {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        Timer.end("CorpusDebugger::processOntology");
     }
 
     private void checkConsistency(OWLOntology o) {

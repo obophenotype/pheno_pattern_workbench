@@ -11,14 +11,14 @@ import java.util.Map;
 
 public class PatternClassNameGenerator {
 
-    static OWLDataFactory df = OWLManager.getOWLDataFactory();
-    static int id = 1;
-    static Map<OWLClassExpression,OWLClass> map = new HashMap<>();
+    private static final OWLDataFactory df = OWLManager.getOWLDataFactory();
+    private static int id = 1;
+    private static final Map<OWLClassExpression,OWLClass> map = new HashMap<>();
 
 
     public static OWLClass generateNamedClassForExpression(OWLClassExpression exp) {
         if(!map.containsKey(exp)) {
-            OWLClass cl = df.getOWLClass(IRI.create("http://ebi.ac.uk#Pattern" + id));
+            OWLClass cl = df.getOWLClass(IRI.create("http://ebi.ac.uk#DefinedClass" + id));
             id++;
             map.put(exp, cl);
         }

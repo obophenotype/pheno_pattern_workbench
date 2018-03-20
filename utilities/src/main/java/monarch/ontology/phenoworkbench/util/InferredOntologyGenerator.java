@@ -69,7 +69,7 @@ public class InferredOntologyGenerator {
 
     @Nonnull
     private static List<InferredAxiomGenerator<? extends OWLAxiom>> generators() {
-        return CollectionFactory.<InferredAxiomGenerator<? extends OWLAxiom>>list(
+        return CollectionFactory.list(
                 new InferredClassAssertionAxiomGenerator(),
                 new InferredDataPropertyCharacteristicAxiomGenerator(),
                 new InferredEquivalentClassAxiomGenerator(),

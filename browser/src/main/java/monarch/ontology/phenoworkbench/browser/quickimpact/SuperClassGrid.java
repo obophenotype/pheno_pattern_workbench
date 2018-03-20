@@ -7,44 +7,46 @@ import com.vaadin.ui.Grid;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
+import monarch.ontology.phenoworkbench.analytics.pattern.generation.OntologyClass;
 import monarch.ontology.phenoworkbench.analytics.quickimpact.QuickImpact;
-import monarch.ontology.phenoworkbench.analytics.pattern.PatternClass;
 
-public class SuperClassGrid extends Grid<PatternClass>{
+public class SuperClassGrid extends Grid<OntologyClass>{
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -7693916597555928732L;
 	private QuickImpact qi;
-	private PatternClass current;
+	private OntologyClass current;
 	
-	public SuperClassGrid() {
-		addColumn(PatternClass::getLabel).setCaption("Name");
-		addComponentColumn(this::createEntailmentButton).setCaption("Superclasses");
+	SuperClassGrid() {
+		addColumn(OntologyClass::getLabel).setCaption("Superclasses");
+		addComponentColumn(this::createEntailmentButton).setCaption("?").setWidth(60.0);
+		updateHeight(0);
 	}
 	
-	void update(QuickImpact qi,PatternClass c) {
+	void update(QuickImpact qi,OntologyClass c) {
 		this.current = c;
 		this.qi = qi;
-		List<PatternClass> weightedPatterns = new ArrayList<>();
-		for (PatternClass pattern : qi.getParentPatterns(c, true)) {
-			weightedPatterns.add(pattern);
-		}
+		List<OntologyClass> weightedPatterns = new ArrayList<>(c.directParents());
 		setItems(weightedPatterns);
-		setRowHeight(40.0);
-		setHeaderRowHeight(40.0);
-		setHeight((40*weightedPatterns.size())+40+"px");
+		updateHeight(weightedPatterns.size());
 	}
 
-	private Button createEntailmentButton(PatternClass p) {
+	private void updateHeight(int rowcount) {
+		setRowHeight(40.0);
+		setHeaderRowHeight(40.0);
+		setHeight((40*rowcount)+40+"px");
+	}
+
+	private Button createEntailmentButton(OntologyClass p) {
         Button button = new Button("?");
         button.addStyleName(ValoTheme.BUTTON_SMALL);
         button.addClickListener(e -> showExplanation(p));
         return button;
     }
 
-	private void showExplanation(PatternClass p) {
+	private void showExplanation(OntologyClass p) {
 		Window sub = new ExplanationWindow(qi,p, current);
 		  this.getUI().addWindow(sub);
 		  this.getUI().push(); 

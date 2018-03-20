@@ -21,22 +21,22 @@ public class InferenceAnalyser {
     private OntologyDebugReport report = new OntologyDebugReport();
 
     private final long start = System.currentTimeMillis();
-    private final File pd;
+    private final Set<String> pd;
     private final Imports imports;
-    private final Map<File, Set<OWLAxiom>> allAxiomsAcrossOntologies = new HashMap<>();
+    private final Map<String, Set<OWLAxiom>> allAxiomsAcrossOntologies = new HashMap<>();
 
-    public InferenceAnalyser(File pd, boolean imports) {
+    public InferenceAnalyser(Set<String> pd, boolean imports) {
         this.pd = pd;
         this.imports = imports ? Imports.INCLUDED : Imports.EXCLUDED;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         File pd = new File(args[0]);
         boolean imports = args[1].contains("i");
         File out = new File(args[2]);
 
 
-        InferenceAnalyser p = new InferenceAnalyser(pd, imports);
+        InferenceAnalyser p = new InferenceAnalyser(new HashSet<>(FileUtils.readLines(pd,"UTF-8")), imports);
         p.prepare();
         try {
             p.printResults(out);
@@ -47,7 +47,7 @@ public class InferenceAnalyser {
     }
 
     public void prepare() {
-        for (File ourl : pd.listFiles(new OntologyFileExtension())) {
+        for (String ourl : pd) {
             //if(ourl.endsWith("hp.owl"))
             processOntology(imports, ourl);
         }
@@ -55,10 +55,10 @@ public class InferenceAnalyser {
 
     public void printResults(File out) throws IOException {
         report.addLine("# Analysing individual ontologies for inferences");
-        for (File f: allAxiomsAcrossOntologies.keySet()) {
-            report.addLine("## Ontology: " + f.getName());
+        for (String f: allAxiomsAcrossOntologies.keySet()) {
+            report.addLine("## Ontology: " + f);
             report.addEmptyLine();
-            OntologyUtils.p("#### ANALYSING ONTOLOGY: "+f.getName());
+            OntologyUtils.p("#### ANALYSING ONTOLOGY: "+f);
             //...
             try {
                 OWLOntology o = OWLManager.createOWLOntologyManager().createOntology(allAxiomsAcrossOntologies.get(f));
@@ -185,10 +185,10 @@ public class InferenceAnalyser {
     }
 
 
-    private void processOntology(Imports imports, File ofile) {
-        OntologyUtils.p("Preparing "+ofile.getName());
+    private void processOntology(Imports imports, String ofile) {
+        OntologyUtils.p("Preparing "+ofile);
         try {
-            OWLOntology o = OWLManager.createOWLOntologyManager().loadOntologyFromOntologyDocument(ofile);
+            OWLOntology o = KB.getInstance().getOntology(ofile).get();
             render.addLabel(o);
             allAxiomsAcrossOntologies.put(ofile,o.getAxioms(imports));
 

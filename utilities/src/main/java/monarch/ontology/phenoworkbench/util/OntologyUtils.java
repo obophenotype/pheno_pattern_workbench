@@ -31,10 +31,20 @@ public class OntologyUtils {
     }
 
     public static TreeMap<Object, Integer> sortMapByValue(HashMap<? extends Object, Integer> map) {
-        Comparator<Object> comparator = new OWLEntityMapSorter(map);
+        Comparator<Object> comparator = new MapSortInt(map);
         //TreeMap is a map sorted by its keys.
         //The comparator is used to sort the TreeMap by keys.
         TreeMap<Object, Integer> result = new TreeMap<>(comparator);
+        result.putAll(map);
+        return result;
+    }
+
+
+    public static TreeMap<Object, Long> sortMapByLongValue(HashMap<? extends Object, Long> map) {
+        Comparator<Object> comparator = new MapSortLong(map);
+        //TreeMap is a map sorted by its keys.
+        //The comparator is used to sort the TreeMap by keys.
+        TreeMap<Object, Long> result = new TreeMap<>(comparator);
         result.putAll(map);
         return result;
     }

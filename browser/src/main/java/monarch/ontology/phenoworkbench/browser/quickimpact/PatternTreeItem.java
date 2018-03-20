@@ -1,20 +1,21 @@
 package monarch.ontology.phenoworkbench.browser.quickimpact;
 
-import monarch.ontology.phenoworkbench.analytics.pattern.Pattern;
-import monarch.ontology.phenoworkbench.analytics.pattern.PatternClass;
+import monarch.ontology.phenoworkbench.analytics.pattern.generation.DefinedClass;
+import monarch.ontology.phenoworkbench.analytics.pattern.generation.OntologyClass;
+import monarch.ontology.phenoworkbench.analytics.pattern.generation.PatternClass;
 
 public class PatternTreeItem {
-	private final PatternClass c;
+	private final OntologyClass c;
 
-	public PatternTreeItem(PatternClass c) {
+	PatternTreeItem(OntologyClass c) {
 		this.c = c;
 	}
 
 	@Override
 	public String toString() {
 		String s = getPatternClass().getLabel();
-		if (getPatternClass() instanceof Pattern) {
-			if(((Pattern)c).isDefinedclass()) {
+		if (getPatternClass() instanceof DefinedClass) {
+			if(getPatternClass() instanceof PatternClass) {
 				s = "<i>" + s + "</i>";
 			} else {
 				s = "<b>" + s + "</b>";
@@ -23,7 +24,7 @@ public class PatternTreeItem {
 		return s;
 	}
 
-	public PatternClass getPatternClass() {
+	public OntologyClass getPatternClass() {
 		return c;
 	}
 }

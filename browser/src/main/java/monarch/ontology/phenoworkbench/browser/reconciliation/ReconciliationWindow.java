@@ -3,7 +3,7 @@ package monarch.ontology.phenoworkbench.browser.reconciliation;
 import com.vaadin.ui.*;
 
 import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.PatternReconciler;
-import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.PatternReconciliation;
+import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.PatternReconciliationCandidate;
 import monarch.ontology.phenoworkbench.browser.basic.LabelManager;
 
 //Define a sub-window by inheritance
@@ -15,7 +15,7 @@ public class ReconciliationWindow extends Window {
 	private static final long serialVersionUID = 983881322993478390L;
 	ProgressBar bar = new ProgressBar();
 	
- public ReconciliationWindow(PatternReconciliation recon, PatternReconciler r) {
+ public ReconciliationWindow(PatternReconciliationCandidate recon, PatternReconciler r) {
      super(null);
      center();
      bar.setIndeterminate(true);
@@ -32,7 +32,7 @@ public class ReconciliationWindow extends Window {
      StringBuilder sb = new StringBuilder();
      sb.append("<div>");
      sb.append("<div style='background-color:white;'>");
-     sb.append("<table style='width:100%'><tr><th>Pattern 1</th><th>Pattern 2</th></tr>");
+     sb.append("<table style='width:100%'><tr><th>DefinedClass 1</th><th>DefinedClass 2</th></tr>");
      sb.append("<tr><td>"+recon.getP1().toString().replaceAll(":",":<br/>")+"</td><td>"+recon.getP2().toString().replaceAll(":",":<br/>")+"</td></tr></table>");
      sb.append("</div>");
      sb.append("<ul>");

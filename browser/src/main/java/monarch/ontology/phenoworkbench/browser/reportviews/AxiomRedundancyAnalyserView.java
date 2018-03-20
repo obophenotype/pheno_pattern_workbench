@@ -13,6 +13,8 @@ import monarch.ontology.phenoworkbench.analytics.subclassredundancy.SubClassRedu
 import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+import monarch.ontology.phenoworkbench.browser.basic.LabelManager;
+import monarch.ontology.phenoworkbench.util.Files;
 
 public class AxiomRedundancyAnalyserView extends BasicLayout {
 
@@ -22,8 +24,8 @@ public class AxiomRedundancyAnalyserView extends BasicLayout {
 	private static final long serialVersionUID = 8440654086826039938L;
 	private BranchGrid branchGrid = new BranchGrid();
 
-	public AxiomRedundancyAnalyserView(UI ui, File tmp) {
-		super(ui, tmp, "Ontology Inference Analysis");
+	public AxiomRedundancyAnalyserView() {
+		super("Ontology Inference Analysis");
 		setAdditionalSettingsComponent(branchGrid,true);
 	}
 
@@ -40,18 +42,16 @@ public class AxiomRedundancyAnalyserView extends BasicLayout {
 
 		boolean imports = runOptionOrNull("imports").equals("yes");
 
-		File ontologiesdir = deleteMakeTmpDirectory("ia_ontologies");
-		downloadFiles(selectedItems, ontologiesdir);
-		File branches = Branches.prepareBranchesFile(getTmpdir(),branchGrid.getBranches());
+		File branches = Branches.prepareBranchesFile(Files.getInstance().getTmpdir(),branchGrid.getBranches());
 		
 		VerticalLayout vl_sbcl_redundancy = new VerticalLayout();
 		vl_sbcl_redundancy.setMargin(false);
 		vl_sbcl_redundancy.setSpacing(true);
 		
 		
-		for(File ofile:ontologiesdir.listFiles((f)->f.getName().endsWith(".owl"))) {
+		for(String ofile:selectedItems) {
 			SubClassRedundancy p = new SubClassRedundancy(ofile, branches);
-			Label l = getHTMLFromMarkdown(p.getReportLines());
+			Label l = LabelManager.htmlLabelFromMarkdown(p.getReportLines());
 			vl_sbcl_redundancy.addComponent(l);
 		}
 		

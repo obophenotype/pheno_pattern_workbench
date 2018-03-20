@@ -1,7 +1,5 @@
 package monarch.ontology.phenoworkbench.util;
 
-import monarch.ontology.phenoworkbench.util.Explanation;
-import monarch.ontology.phenoworkbench.util.InferredOntologyGenerator;
 import org.semanticweb.HermiT.ReasonerFactory;
 import org.semanticweb.elk.owlapi.ElkReasonerFactory;
 import org.semanticweb.owl.explanation.api.ExplanationGenerator;
@@ -15,7 +13,6 @@ import org.semanticweb.owlapi.reasoner.OWLReasoner;
 import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
 import org.semanticweb.owlapi.util.InferredAxiomGenerator;
 import org.semanticweb.owlapi.util.InferredEquivalentClassAxiomGenerator;
-import org.semanticweb.owlapi.util.InferredIndividualAxiomGenerator;
 import org.semanticweb.owlapi.util.InferredSubClassAxiomGenerator;
 
 import java.util.*;
@@ -27,11 +24,9 @@ public class Reasoner {
 
     private OWLOntology o;
     private OWLDataFactory df = OWLManager.getOWLDataFactory();
-    private OWLReasonerFactory rf = new ElkReasonerFactory();
 
     private Set<OWLAxiom> inferredSubclassOfAxioms = new HashSet<>();
     private Set<OWLClass> unsatisfiableClasses = new HashSet<>();
-    private final ExplanationGeneratorFactory<OWLAxiom> genFac = ExplanationManager.createExplanationGeneratorFactory(rf);
     private final ExplanationGenerator<OWLAxiom> gen;
 
 
@@ -39,7 +34,8 @@ public class Reasoner {
         this(o,true);
     }
 
-    Reasoner(OWLOntology o, boolean realtautologies) {
+    public Reasoner(OWLOntology o, boolean realtautologies) {
+        OWLReasonerFactory rf = new ElkReasonerFactory();
         r = rf.createReasoner(o);
         r.precomputeInferences(InferenceType.CLASS_HIERARCHY);
         unsatisfiableClasses.addAll(r.getUnsatisfiableClasses().getEntities());
@@ -50,6 +46,7 @@ public class Reasoner {
         }
         this.realtautologies = realtautologies;
         this.o = o;
+        ExplanationGeneratorFactory<OWLAxiom> genFac = ExplanationManager.createExplanationGeneratorFactory(rf);
         this.gen = genFac.createExplanationGenerator(this.o);
     }
 
@@ -78,7 +75,7 @@ public class Reasoner {
 
                 //g.addEdge(vertexmapping.get(a),vertexmapping.get(superClass));
                 OWLSubClassOfAxiom sbcl = df.getOWLSubClassOfAxiom(c_sub, c_super);
-                if (!isTautology(sbcl)) {
+                if (!isKnownTautology(sbcl)) {
                     inferredSubclassOfAxioms.add(sbcl);
                 }
             }
@@ -94,29 +91,19 @@ public class Reasoner {
         generators.add(new InferredEquivalentClassAxiomGenerator());
         //generators.add(new InferredDisjointClassesAxiomGenerator());
 
-        List<InferredIndividualAxiomGenerator<? extends OWLIndividualAxiom>> individualAxioms =
-                new ArrayList<>();
-        generators.addAll(individualAxioms);
-
         InferredOntologyGenerator iog = new InferredOntologyGenerator(r, generators);
         iog.fillOntology(o.getOWLOntologyManager().getOWLDataFactory(), o);
-        //inferredSubclassOfAxioms.addAll(o.getAxioms());
     }
 
     public OWLReasoner getOWLReasoner() {
         return r;
     }
 
-    private boolean isTautology(OWLAxiom ax) {
-        if(ax instanceof OWLSubClassOfAxiom) {
-            if(realtautologies) {
-                return tautologyreasoner.isEntailed(ax);
-            } else {
-                if(((OWLSubClassOfAxiom)ax).getSuperClass().equals(df.getOWLThing())) {
-                    return true;
-                }
-            }
-
+    private boolean isKnownTautology(OWLAxiom ax) {
+        if(realtautologies) {
+            return tautologyreasoner.isEntailed(ax);
+        } else if(ax instanceof OWLSubClassOfAxiom) {
+            return (((OWLSubClassOfAxiom)ax).getSuperClass().equals(df.getOWLThing()));
         }
         return false;
     }
@@ -134,9 +121,6 @@ public class Reasoner {
     A or B sub C and D
     because it wont be clear if a one of the resulting axioms is redundant, that all are.
      */
-    public Set<OWLAxiom> getAssertedSubclassOfAxioms() {
-        return getAssertedSubclassOfAxioms(new HashSet<>());
-    }
 
     public Set<OWLAxiom> getAssertedSubclassOfAxioms(Set<OWLClass> branch) {
         Set<OWLAxiom> sbcl = new HashSet<>();
@@ -188,19 +172,32 @@ public class Reasoner {
     }
 
     public Collection<? extends OWLClass> getSubclassesOf(OWLClass c, boolean direct) {
+        return getSubclassesOf(c,direct,false);
+    }
+
+    public Collection<? extends OWLClass> getSubclassesOf(OWLClass c, boolean direct, boolean removeUnsatisfiable) {
+        Timer.start("Reasoner::getSubclassesOf()");
         Set<OWLClass> sbcl = r.getSubClasses(c,direct).getFlattened();
         sbcl.remove(c);
         sbcl.remove(df.getOWLNothing());
+        if(removeUnsatisfiable) {
+            sbcl.removeAll(getUnsatisfiableClasses());
+        }
+        Timer.end("Reasoner::getSubclassesOf()");
         return sbcl;
     }
 
-    public Collection<? extends OWLClass> getSuperClassesOf(OWLClass c, boolean direct) {
+    public Collection<? extends OWLClass> getSuperClassesOf(OWLClass c, boolean direct, boolean removeUnsatisfiable) {
+        Timer.start("Reasoner::getSuperClassesOf()");
         Set<OWLClass> sbcl = r.getSuperClasses(c,direct).getFlattened();
         sbcl.remove(c);
         sbcl.remove(df.getOWLThing());
+        if(removeUnsatisfiable) {
+            sbcl.removeAll(getUnsatisfiableClasses());
+        }
+        Timer.end("Reasoner::getSuperClassesOf()");
         return sbcl;
     }
-
 
     public boolean equivalentClasses(OWLClass c1, OWLClass c2) {
         return r.getEquivalentClasses(c1).contains(c2);
@@ -209,9 +206,10 @@ public class Reasoner {
     public Optional<Explanation> getExplanation(OWLClass c_sub, OWLClass c_super) {
         OWLAxiom entailment = df.getOWLSubClassOfAxiom(c_sub, c_super);
         Set<org.semanticweb.owl.explanation.api.Explanation<OWLAxiom>> expl = gen.getExplanations(entailment, 1);
-       for(org.semanticweb.owl.explanation.api.Explanation<OWLAxiom> e:expl) {
-           return Optional.of(new Explanation(e));
-       }
+        Optional<org.semanticweb.owl.explanation.api.Explanation<OWLAxiom>> o = expl.stream().findFirst();
+        if(o.isPresent()) {
+            return Optional.of(new Explanation(o.get()));
+        }
         return Optional.empty();
     }
 }

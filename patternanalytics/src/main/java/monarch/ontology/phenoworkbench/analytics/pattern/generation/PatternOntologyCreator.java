@@ -1,8 +1,6 @@
 package monarch.ontology.phenoworkbench.analytics.pattern.generation;
 
-import monarch.ontology.phenoworkbench.analytics.pattern.Pattern;
-import monarch.ontology.phenoworkbench.analytics.pattern.impact.Impact;
-import monarch.ontology.phenoworkbench.analytics.pattern.impact.PatternImpact;
+import monarch.ontology.phenoworkbench.analytics.pattern.impact.OntologyClassImpact;
 import monarch.ontology.phenoworkbench.util.BaseIRIs;
 import monarch.ontology.phenoworkbench.util.OntologyUtils;
 import org.semanticweb.owlapi.apibinding.OWLManager;
@@ -19,13 +17,13 @@ public class PatternOntologyCreator {
     private final OWLAnnotationProperty ap_patternIDSC = df.getOWLAnnotationProperty(IRI.create(BaseIRIs.EBIBASE + "annoPatternIDSC"));
     private final  OWLAnnotationProperty ap_patternType = df.getOWLAnnotationProperty(IRI.create(BaseIRIs.EBIBASE + "patternType"));
     private final OWLAnnotationProperty ap_associatedPattern = df.getOWLAnnotationProperty(IRI.create(BaseIRIs.EBIBASE + "associatedPattern"));
-    private final OWLClass clpatterntop = df.getOWLClass(IRI.create(BaseIRIs.EBIBASE + "Pattern"));
+    private final OWLClass clpatterntop = df.getOWLClass(IRI.create(BaseIRIs.EBIBASE + "DefinedClass"));
 
 
     public void addDefinedClassesForImpact(OWLOntology odef) {
 
         OWLOntologyManager m = odef.getOWLOntologyManager();
-        OWLClass impact = df.getOWLClass(IRI.create(BaseIRIs.EBIBASE + "Impact"));
+        OWLClass impact = df.getOWLClass(IRI.create(BaseIRIs.EBIBASE + "OntologyClassImpact"));
         OWLClass highimpactalldsc = df.getOWLClass(IRI.create(BaseIRIs.EBIBASE + "HighImpactDSCAll"));
         OWLClass moderateimpactalldsc = df.getOWLClass(IRI.create(BaseIRIs.EBIBASE + "ModerateImpactDSCAll"));
         OWLClass lowimpactalldsc = df.getOWLClass(IRI.create(BaseIRIs.EBIBASE + "LowImpactDSCAll"));
@@ -77,7 +75,7 @@ public class PatternOntologyCreator {
     }
 
 
-    private void addImpactIndividualAssertionsToOntology(OWLOntology o, List<OWLOntologyChange> changes, Impact impact, OWLNamedIndividual i) {
+    private void addImpactIndividualAssertionsToOntology(OWLOntology o, List<OWLOntologyChange> changes, OntologyClassImpact impact, OWLNamedIndividual i) {
 
         changes.add(new AddAxiom(o, df.getOWLDataPropertyAssertionAxiom(dp_patternDSC, i, df.getOWLLiteral(impact.getDirectImpact()))));
         changes.add(new AddAxiom(o, df.getOWLDataPropertyAssertionAxiom(dp_patternIDSC, i, df.getOWLLiteral(impact.getIndirectImpact()))));
@@ -92,7 +90,7 @@ public class PatternOntologyCreator {
         }
     }
 
-    public void addImpactAxiomsForABox(OWLClass patternName, OWLNamedIndividual i,OWLOntology o_definition_abox, List<OWLOntologyChange> aboxchanges, String def_mcr_syntax, Impact impact) {
+    public void addImpactAxiomsForABox(OWLClass patternName, OWLNamedIndividual i,OWLOntology o_definition_abox, List<OWLOntologyChange> aboxchanges, String def_mcr_syntax, OntologyClassImpact impact) {
         OWLAnnotation indivLabel = df.getOWLAnnotation(df.getRDFSLabel(), df.getOWLLiteral(def_mcr_syntax.replaceAll("[^A-Za-z0-9_]", "")));
         OWLAnnotation indivDefinition = df.getOWLAnnotation(df.getRDFSComment(), df.getOWLLiteral(def_mcr_syntax));
         OWLAnnotation annoPatternType = df.getOWLAnnotation(ap_patternType, clpatterntop.getIRI());
@@ -104,7 +102,7 @@ public class PatternOntologyCreator {
         addImpactIndividualAssertionsToOntology(o_definition_abox, aboxchanges, impact, i);
     }
 
-    public void addImpactAxiomsForTBox(OWLClass pattern,  OWLNamedIndividual i,OWLOntology o, List<OWLOntologyChange> changes, Impact impact) {
+    public void addImpactAxiomsForTBox(OWLClass pattern,OWLOntology o, List<OWLOntologyChange> changes, OntologyClassImpact impact) {
         changes.add(new AddAxiom(o, df.getOWLAnnotationAssertionAxiom(ap_patternDSC, pattern.getIRI(), df.getOWLLiteral(impact.getDirectImpact()))));
         changes.add(new AddAxiom(o, df.getOWLAnnotationAssertionAxiom(ap_patternIDSC, pattern.getIRI(), df.getOWLLiteral(impact.getIndirectImpact()))));
 
@@ -118,14 +116,14 @@ public class PatternOntologyCreator {
         }
     }
 
-    public Map<OWLClass, OWLNamedIndividual> addPatternsToOntology(Set<Pattern> patterns, OWLOntology o) {
+    public Map<OWLClass, OWLNamedIndividual> addPatternsToOntology(Set<PatternClass> definedClasses, OWLOntology o) {
         Map<OWLClass, OWLNamedIndividual> classIndividualMap = new HashMap<>();
         long s=System.currentTimeMillis();
         long timing_b = 0;
         long timing_c = 0;
 
         List<OWLOntologyChange> changes = new ArrayList<>();
-        for (Pattern p : patterns) {
+        for (DefinedClass p : definedClasses) {
             OWLClass defclass = p.getOWLClass();
             long st2 = System.currentTimeMillis();
             OWLNamedIndividual i = df.getOWLNamedIndividual(IRI.create(BaseIRIs.EBIBASE + "i_" + defclass.getIRI().getRemainder().or(UUID.randomUUID() + "")));
@@ -136,7 +134,7 @@ public class PatternOntologyCreator {
             timing_c+=(System.currentTimeMillis()-st3);
         }
         o.getOWLOntologyManager().applyChanges(changes);
-        OntologyUtils.p("Add patterns to ontology: "+(System.currentTimeMillis()-s)/1000+" sec");
+        OntologyUtils.p("Add definedClasses to ontology: "+(System.currentTimeMillis()-s)/1000+" sec");
         OntologyUtils.p("Create Individual: "+((double)timing_b/(double)1000)+" sec");
         OntologyUtils.p("Create Definition: "+((double)timing_c/(double)1000)+" sec");
         return classIndividualMap;

@@ -1,7 +1,5 @@
 package monarch.ontology.phenoworkbench.analytics.pattern.generation;
 
-import monarch.ontology.phenoworkbench.analytics.pattern.Pattern;
-import monarch.ontology.phenoworkbench.analytics.pattern.PatternGrammar;
 import monarch.ontology.phenoworkbench.util.BaseIRIs;
 import monarch.ontology.phenoworkbench.util.OntologyUtils;
 import monarch.ontology.phenoworkbench.util.RenderManager;
@@ -26,10 +24,10 @@ public class PatternGenerator {
         this.renderManager = renderManager;
     }
 
-    public Set<Pattern> extractPatterns(Set<OWLAxiom> axioms, boolean definition) {
+    public Set<DefinedClass> extractDefinedClasses(Set<OWLAxiom> axioms, boolean treatAsDefinedClass) {
         Set<OWLEquivalentClassesAxiom> allDefinitions = getDefinitionAxioms(axioms);
-        OntologyUtils.p("extractPatterns(). Definitons: " + allDefinitions.size());
-        Set<Pattern> generatedDefinitions = new HashSet<>();
+        OntologyUtils.p("extractDefinedClasses(). Definitons: " + allDefinitions.size());
+        Set<DefinedClass> generatedDefinitions = new HashSet<>();
 
         int all = allDefinitions.size();
         int i = 0;
@@ -52,8 +50,11 @@ public class PatternGenerator {
             }
             for(OWLClass c: classes) {
                 for(OWLClassExpression ce:ces) {
-                    Pattern p = new Pattern(c, ce, definition);
-                    generatedDefinitions.add(p);
+                    if(treatAsDefinedClass) {
+                        generatedDefinitions.add(new DefinedClass(c, ce));
+                    } else {
+                        generatedDefinitions.add(new PatternClass(c, ce));
+                    }
                 }
             }
             timespent_all +=(System.currentTimeMillis()-start);
@@ -64,10 +65,10 @@ public class PatternGenerator {
         return generatedDefinitions;
     }
 
-    public Set<Pattern> generateHighLevelDefinitionPatterns(Set<OWLAxiom> axioms)  {
+    public Set<PatternClass> generateThingPatterns(Set<OWLAxiom> axioms)  {
         Set<OWLEquivalentClassesAxiom> allDefinitions = getDefinitionAxioms(axioms);
-        OntologyUtils.p("generateHighLevelDefinitionPatterns. Definitons: " + allDefinitions.size());
-        List<Pattern> generatedDefinitions = new ArrayList<>();
+        OntologyUtils.p("generateThingPatterns. Definitons: " + allDefinitions.size());
+        List<PatternClass> generatedDefinitions = new ArrayList<>();
 
         int all = allDefinitions.size();
         int i = 0;
@@ -116,21 +117,21 @@ public class PatternGenerator {
         return replacer.duplicateObject(ce);
     }
 
-    private Pattern getThingPattern(OWLClassExpression ce) {
+    private PatternClass getThingPattern(OWLClassExpression ce) {
         OWLClassExpression ce_thing = generateThingPattern(ce);
-        return createNewNonIndexedPattern(ce_thing,false);
+        return createNewNonIndexedPattern(ce_thing);
     }
 
-    private Pattern createNewNonIndexedPattern(OWLClassExpression ce, boolean definition) {
+    private PatternClass createNewNonIndexedPattern(OWLClassExpression ce) {
         OWLClass c = PatternClassNameGenerator.generateNamedClassForExpression(ce);
-        return new Pattern(c,ce,definition);
+        return new PatternClass(c,ce);
     }
 
-    public void setGrammar(Collection<Pattern> p) {
+    public void setGrammar(Collection<DefinedClass> p) {
         p.forEach(this::setGrammar);
     }
 
-    public void setGrammar(Pattern p) {
+    private void setGrammar(DefinedClass p) {
         p.setGrammar(generateGrammar(p.getDefiniton()));
     }
 
@@ -144,7 +145,7 @@ public class PatternGenerator {
     }
 
 
-    public Set<Pattern> generateDefinitionPatterns(Set<OWLAxiom> axioms, OWLReasoner r, int SAMPLESIZE) {
+    public Set<PatternClass> generateDefinitionPatterns(Set<OWLAxiom> axioms, OWLReasoner r, int SAMPLESIZE) {
         Set<OWLEquivalentClassesAxiom> allDefinitions = getDefinitionAxioms(axioms);
         OntologyUtils.p("generateDefinitionPatterns");
         Set<OWLClassExpression> generatedDefinitions = new HashSet<>();
@@ -163,7 +164,7 @@ public class PatternGenerator {
             long start = System.currentTimeMillis();
             i++;
             if(i % 1000 == 0) {
-                OntologyUtils.p("Pattern: "+i+"/"+all);
+                OntologyUtils.p("DefinedClass: "+i+"/"+all);
                 OntologyUtils.p("All: "+timespent_all/1000);
             }
             for (OWLClassExpression ce : ax.getClassExpressionsAsList()) {
@@ -183,18 +184,18 @@ public class PatternGenerator {
 
         OntologyUtils.p("Generated After Removing existing: " + generatedDefinitions.size());
         OntologyUtils.p("All: "+timespent_all/1000);
-        Set<Pattern> patterns = new HashSet<>();
+        Set<PatternClass> definedClasses = new HashSet<>();
         for(OWLClassExpression ce:generatedDefinitions) {
             OWLClass c = PatternClassNameGenerator.generateNamedClassForExpression(ce);
-            Pattern p = new Pattern(c,ce, false);
-            patterns.add(p);
+            PatternClass p = new PatternClass(c,ce);
+            definedClasses.add(p);
         }
-        return patterns;
+        return definedClasses;
     }
 
     private void constructPatternsRecursively(OWLClassExpression ce, OWLReasoner r, Set<OWLClassExpression> patterns) {
         //OntologyUtils.p("##############");
-        // OntologyUtils.p("Pattern: "+ patterns.size());
+        // OntologyUtils.p("DefinedClass: "+ patterns.size());
         patterns.add(ce);
         Set<OWLClassExpression> generated = generateAbstractions(ce, r);
         for(OWLClassExpression ceg:generated) {

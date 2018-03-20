@@ -1,18 +1,18 @@
 package monarch.ontology.phenoworkbench.browser.quickimpact;
 
-import monarch.ontology.phenoworkbench.analytics.pattern.Pattern;
+import monarch.ontology.phenoworkbench.analytics.pattern.generation.DefinedClass;
 
 public class WeightedPattern {
 	
-	private final Pattern p;
+	private final DefinedClass p;
 	private final int weight;
 	
-	public WeightedPattern(Pattern p, int weight) {
+	public WeightedPattern(DefinedClass p, int weight) {
 		this.p = p;
 		this.weight = weight;
 	}
 	
-	public Pattern getPattern() {
+	public DefinedClass getPattern() {
 		return p;
 	}
 

@@ -68,4 +68,9 @@ public void addAdditionalSettingsComponent(Component c, boolean clear) {
 	if(clear) clearResults();
 	vl_addtional_options.addComponent(c);
 }
+
+
+public boolean reDownload() {
+	return rac.isRefreshDownload();
+}
 }
