@@ -4,6 +4,7 @@ import monarch.ontology.phenoworkbench.util.Timer;
 import org.semanticweb.owlapi.model.OWLClass;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public class OntologyClass {
@@ -15,6 +16,21 @@ public class OntologyClass {
     OntologyClass(OWLClass c) {
         this.c = c;
         this.label = c.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof OntologyClass)) return false;
+        OntologyClass that = (OntologyClass) o;
+        return Objects.equals(c, that.c) &&
+                Objects.equals(label, that.label);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(c, label);
     }
 
     public final void addChild(OntologyClass c) {

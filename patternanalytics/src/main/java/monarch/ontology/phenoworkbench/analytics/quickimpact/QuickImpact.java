@@ -55,7 +55,7 @@ public class QuickImpact {
 
         System.out.println("QI: Preparing DefinedClass Manager.." + Timer.getSecondsElapsed("QuickImpact::QuickImpact()"));
         Timer.start("QuickImpact::QuickImpact()::PatternManager()");
-        man = new PatternManager(allDefinedClasses,r,patternGenerator,o.getRender());
+        man = new PatternManager(allDefinedClasses, r, patternGenerator, o.getRender());
         Timer.end("QuickImpact::QuickImpact()::PatternManager()");
 
         System.out.println("QI: Preparing pattern impact" + Timer.getSecondsElapsed("QuickImpact::QuickImpact()"));
@@ -78,12 +78,15 @@ public class QuickImpact {
         switch (mode) {
             case EXTERNAL:
                 Set<OWLAxiom> axioms = new HashSet<>();
-                KB.getInstance().getOntology(patternsfile).ifPresent(ont->{axioms.addAll(ont.getAxioms(i));this.o.getRender().addLabel(ont);});
+                KB.getInstance().getOntology(patternsfile).ifPresent(ont -> {
+                    axioms.addAll(ont.getAxioms(i));
+                    this.o.getRender().addLabel(ont);
+                });
 
                 definedClasses.addAll(patternGenerator.extractDefinedClasses(axioms, false));
                 break;
             case ALL:
-                definedClasses.addAll(patternGenerator.generateDefinitionPatterns(all.getAxioms(i), new Reasoner(all).getOWLReasoner(),samplesize));
+                definedClasses.addAll(patternGenerator.generateDefinitionPatterns(all.getAxioms(i), new Reasoner(all).getOWLReasoner(), samplesize));
                 break;
             case THING:
                 definedClasses.addAll(patternGenerator.generateThingPatterns(all.getAxioms(i)));
@@ -98,13 +101,12 @@ public class QuickImpact {
     private Reasoner preparePatternReasoner(Set<DefinedClass> definedClasses, OWLOntology uberOntology) {
         OWLDataFactory df = OWLManager.getOWLDataFactory();
         Set<OWLAxiom> patternAxioms = new HashSet<>();
-        for(DefinedClass p: definedClasses) {
-            patternAxioms.add(df.getOWLEquivalentClassesAxiom(p.getOWLClass(),p.getDefiniton()));
+        for (DefinedClass p : definedClasses) {
+            patternAxioms.add(df.getOWLEquivalentClassesAxiom(p.getOWLClass(), p.getDefiniton()));
         }
-        uberOntology.getOWLOntologyManager().addAxioms(uberOntology,patternAxioms);
+        uberOntology.getOWLOntologyManager().addAxioms(uberOntology, patternAxioms);
         return new Reasoner(uberOntology);
     }
-
 
 
     public Set<PatternGrammar> getSubsumedGrammars(DefinedClass p) {
@@ -126,12 +128,12 @@ public class QuickImpact {
 
         for (PatternClass c : allPatternClasses) {
             Timer.start("QuickImpact::getTopPatterns()::getSuperClasses:noneMatch");
-            if (c.indirectParents().stream().noneMatch(parent->allPatternOWLClasses.contains(parent.getOWLClass()))) {
+            if (c.indirectParents().stream().noneMatch(parent -> allPatternOWLClasses.contains(parent.getOWLClass()))) {
                 patterns.add(c);
             }
             Timer.end("QuickImpact::getTopPatterns()::getSuperClasses:noneMatch");
         }
-        System.out.println("TOP:"+patterns.size());
+        System.out.println("TOP:" + patterns.size());
 
         Timer.end("QuickImpact::getTopPatterns()");
         return patterns;
@@ -146,13 +148,13 @@ public class QuickImpact {
     }
 
     private Optional<Explanation> getSubsumptionExplanation(OntologyClass c, OntologyClass p) {
-        return r.getExplanation(c.getOWLClass(),p.getOWLClass());
+        return r.getExplanation(c.getOWLClass(), p.getOWLClass());
     }
 
     public Optional<ExplanationAnalyser> getSubsumptionExplanationRendered(OntologyClass subC, OntologyClass superC) {
-        Optional<Explanation> explanation = getSubsumptionExplanation(subC,superC);
-        if(explanation.isPresent()) {
-            return Optional.of(new ExplantionAnalyserImpl(explanation.get(),new HashSet<>(),o.getRender()));
+        Optional<Explanation> explanation = getSubsumptionExplanation(subC, superC);
+        if (explanation.isPresent()) {
+            return Optional.of(new ExplantionAnalyserImpl(explanation.get(), new HashSet<>(), o.getRender()));
         }
         return Optional.empty();
     }

@@ -36,7 +36,7 @@ public class PhenoUI extends UI {
 	public static String UNIONANALYTICSVIEW = "Ontology Union Debugger";
 	public static String INFERENCEANALYTICSVIEW = "Inference Analysis";
 	public static String SUBCLASSREDUNDANCYVEIW = "Subclass Redundancy";
-	public static String QUICKCLASSIMPACT = "Quick OntologyClassImpact";
+	public static String QUICKCLASSIMPACT = "Quick Impact";
 	public static String RECONCILIATION = "Reconciliation";
 	Map<String, Layout> views = new HashMap<>();
 

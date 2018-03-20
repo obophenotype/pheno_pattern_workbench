@@ -22,7 +22,7 @@ public class QuickImpactView extends BasicLayout {
 
 
     public QuickImpactView() {
-        super("Quick OntologyClassImpact");
+        super("Quick Impact");
         setAdditionalSettingsComponent(sl_quickmode, true);
     }
 
