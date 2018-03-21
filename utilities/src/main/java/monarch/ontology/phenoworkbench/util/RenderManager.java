@@ -93,4 +93,10 @@ public class RenderManager {
         }
         return base;
     }
+
+    public String stripKnownIRIs(String name) {
+        String s = name.replace("http://purl.obolibrary.org/obo/","");
+        s.replace("https://raw.githubusercontent.com/","");
+        return s;
+    }
 }

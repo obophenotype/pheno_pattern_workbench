@@ -44,8 +44,6 @@ public class PhenoUI extends UI {
 	protected void init(VaadinRequest request) {
 		// The root of the component hierarchy
 		VaadinSession.getCurrent().getSession().setMaxInactiveInterval(1200); 
-		//TODO Make tmdir configurable
-		File tmpdir = new File("tnmp");
 		VerticalLayout main = new VerticalLayout();
 		setContent(main);
 		MenuBar barmenu = new MenuBar();

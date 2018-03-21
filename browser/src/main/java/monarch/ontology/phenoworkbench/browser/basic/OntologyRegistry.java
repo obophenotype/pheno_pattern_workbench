@@ -28,6 +28,7 @@ public class OntologyRegistry {
         addOntology("http://purl.obolibrary.org/obo/cl.owl");
         addOntology("http://purl.obolibrary.org/obo/upheno/monarch.owl");
         addOntology("https://raw.githubusercontent.com/matentzn/ontologies/master/smalltest.owl");
+        addOntology("http://purl.obolibrary.org/obo/vt.owl");
 	}
 
 	public Set<String> getOntologies() {
