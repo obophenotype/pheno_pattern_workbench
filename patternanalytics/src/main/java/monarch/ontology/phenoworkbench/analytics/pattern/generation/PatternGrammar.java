@@ -7,6 +7,10 @@ public class PatternGrammar {
     private final String original;
     private final String grammar;
 
+    PatternGrammar() {
+        this("none");
+    }
+
     PatternGrammar(String s) {
         this.original = s;
         this.grammar = s.replaceAll("[^a-zA-Z0-9]","").toLowerCase();

@@ -20,7 +20,7 @@ public class RunAnalysisPanel extends VerticalLayout {
 	CheckBoxGroup<String> cb_selectontologies = new CheckBoxGroup<>("Select Ontologies");
 	private final VerticalLayout vl_addtional_options = new VerticalLayout();
 	RunAnalysisComponent rac = new RunAnalysisComponent();
-	Layout results = new VerticalLayout();
+	VerticalLayout results = new VerticalLayout();
 	OptionPanel runoptions;
 	
 public RunAnalysisPanel(Map<String, String> runoptions) {
@@ -28,6 +28,8 @@ public RunAnalysisPanel(Map<String, String> runoptions) {
 	setSpacing(true);
 	setWidth("100%");
 	results.setWidth("100%");
+	results.setMargin(false);
+	results.setSpacing(false);
 	this.runoptions = new OptionPanel(runoptions);
 	cb_selectontologies.setItems(registry.getOntologies());
 	vl_addtional_options.setMargin(false);

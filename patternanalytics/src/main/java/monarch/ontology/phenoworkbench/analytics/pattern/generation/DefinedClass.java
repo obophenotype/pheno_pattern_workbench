@@ -7,7 +7,7 @@ import java.util.Objects;
 
 public class DefinedClass extends OntologyClass {
     private final OWLClassExpression definiton;
-    private PatternGrammar grammar = new PatternGrammar("none");
+    private PatternGrammar grammar = new PatternGrammar();
 
     @Override
     public boolean equals(Object o) {

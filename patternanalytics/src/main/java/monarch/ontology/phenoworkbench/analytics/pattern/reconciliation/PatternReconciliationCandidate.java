@@ -1,8 +1,11 @@
 package monarch.ontology.phenoworkbench.analytics.pattern.reconciliation;
 
 import monarch.ontology.phenoworkbench.analytics.pattern.generation.DefinedClass;
+import monarch.ontology.phenoworkbench.analytics.pattern.generation.OntologyClass;
+import monarch.ontology.phenoworkbench.analytics.pattern.generation.PatternClass;
 import monarch.ontology.phenoworkbench.util.Reasoner;
 import monarch.ontology.phenoworkbench.util.RenderManager;
+import monarch.ontology.phenoworkbench.util.Timer;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLClassExpression;
 import org.semanticweb.owlapi.model.parameters.Imports;
@@ -11,14 +14,17 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 public class PatternReconciliationCandidate {
 
     private final DefinedClass p1;
     private final DefinedClass p2;
+    private final Set<OntologyClass> commonAncestors = new HashSet<>();
     private final boolean logicallyEquivalent;
     private final boolean syntacticallyEquivalent;
+    private final boolean grammarEquivalent;
     private final double reconciliationComplexity;
     private final double reconciliationEffect;
     private double jaccardSimiliarity = -1;
@@ -26,11 +32,12 @@ public class PatternReconciliationCandidate {
     private final LogicalDiff rightDiff;
     private final LogicalDiff leftDiff;
 
-    public PatternReconciliationCandidate(DefinedClass p1, DefinedClass p2, RenderManager renderManager, Reasoner r) {
+    PatternReconciliationCandidate(DefinedClass p1, DefinedClass p2, RenderManager renderManager, Reasoner r) {
         this.p1 = p1;
         this.p2 = p2;
         this.logicallyEquivalent = r.equivalentClasses(p1.getOWLClass(),p2.getOWLClass());
         this.syntacticallyEquivalent = p1.getPatternString().equals(p2.getPatternString()) && !p1.getPatternString().equals("Not given");
+        this.grammarEquivalent = p1.getGrammar().getGrammarSignature().equals(p2.getGrammar().getGrammarSignature()) && !p1.getGrammar().getGrammarSignature().equals("none");
         this.rightDiff = new LogicalDiff(p1.getDefiniton(),p2.getDefiniton(),renderManager);
         this.leftDiff = new LogicalDiff(p2.getDefiniton(),p1.getDefiniton(),renderManager);
         DecimalFormat df = new DecimalFormat("#.####");
@@ -41,12 +48,34 @@ public class PatternReconciliationCandidate {
         Set<OWLClassExpression> intersection = new HashSet<>();
         intersection.addAll(p1.getDefiniton().getNestedClassExpressions());
         intersection.retainAll(p2.getDefiniton().getNestedClassExpressions());
+
         this.reconciliationComplexity = round(1.0-((double)intersection.size()/(double)union.size()),2);
         Set<OWLClass> affectedclasses = new HashSet<>(r.getSubclassesOf(p1.getOWLClass(),false));
         affectedclasses.addAll(r.getSubclassesOf(p2.getOWLClass(),false));
         affectedclasses.removeAll(r.getUnsatisfiableClasses());
         int all_cl = r.getOWLReasoner().getRootOntology().getClassesInSignature(Imports.INCLUDED).size();
         this.reconciliationEffect = round((double)affectedclasses.size()/(double)all_cl,4);
+        commonAncestors.addAll(getMostSpecificAncestors());
+    }
+
+    private Set<OntologyClass> getMostSpecificAncestors() {
+        Timer.start("PatternReconciliationCandidate::getMostSpecificAncestors()");
+        Set<OntologyClass> ancestors = new HashSet<>();
+        new HashSet<>();
+
+        Set<OntologyClass> commonParents = new HashSet(getP1().indirectParents());
+        commonParents.retainAll(getP2().indirectParents());
+
+        Set<OWLClass> commonParentsOWL = commonParents.stream().map(OntologyClass::getOWLClass).collect(Collectors.toSet());
+
+        for (OntologyClass c : commonParents) {
+            if (c.indirectChildren().stream().noneMatch(child -> commonParentsOWL.contains(child.getOWLClass()))) {
+                ancestors.add(c);
+            }
+        }
+
+        Timer.end("PatternReconciliationCandidate::getMostSpecificAncestors()");
+        return ancestors;
     }
 
     private double round(double val,int digits) {
@@ -60,10 +89,6 @@ public class PatternReconciliationCandidate {
 
     public double getReconciliationEffect() {
         return reconciliationEffect;
-    }
-
-    public OWLClassExpression getReconciledPattern() {
-        return null;
     }
 
     public DefinedClass getP1() {
@@ -80,6 +105,10 @@ public class PatternReconciliationCandidate {
 
     public boolean isSyntacticallyEquivalent() {
         return syntacticallyEquivalent;
+    }
+
+    public boolean isGrammarEquivalent() {
+        return grammarEquivalent;
     }
 
     public LogicalDiff getRightDiff() {
@@ -107,5 +136,9 @@ public class PatternReconciliationCandidate {
 
     public PatternReconciliationCandidate getItself() {
         return this;
+    }
+
+    public Set<OntologyClass> getCommonAncestors() {
+        return commonAncestors;
     }
 }

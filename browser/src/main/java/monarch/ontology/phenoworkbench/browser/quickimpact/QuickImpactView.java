@@ -9,7 +9,10 @@ import monarch.ontology.phenoworkbench.analytics.pattern.generation.PatternClass
 import monarch.ontology.phenoworkbench.analytics.pattern.impact.ImpactMode;
 import monarch.ontology.phenoworkbench.analytics.quickimpact.QuickImpact;
 import monarch.ontology.phenoworkbench.browser.basic.BasicLayout;
+import monarch.ontology.phenoworkbench.browser.basic.LayoutUtils;
 import monarch.ontology.phenoworkbench.analytics.pattern.generation.DefinedClass;
+import monarch.ontology.phenoworkbench.browser.basic.PatternTree;
+import monarch.ontology.phenoworkbench.browser.basic.PatternTreeItem;
 import monarch.ontology.phenoworkbench.util.Timer;
 
 public class QuickImpactView extends BasicLayout {
@@ -55,17 +58,19 @@ public class QuickImpactView extends BasicLayout {
         Timer.end("QuickImpactView::PatternTree()");
 
         PatternInfoBox impactbox = new PatternInfoBox();
-        VerticalLayout vl_infobox = prepareInfoBoxLayout(impactbox);
+        VerticalLayout vl_infobox = LayoutUtils.hlNoMarginNoSpacingNoSize(impactbox);
+        Panel info = LayoutUtils.preparePanel(vl_infobox, "DefinedClass info");
 
         System.out.println("Initialising grid" + Timer.getSecondsElapsed("QuickImpactView::runAnalysis()"));
         WeightedPatternGrid grid = new WeightedPatternGrid(p);
 
         System.out.println("Initialising remaining layout elements" + Timer.getSecondsElapsed("QuickImpactView::runAnalysis()"));
+        impactbox.addItemClickListener(event -> updateInfoBox(p, impactbox, event.getItem(), grid, tree));
         tree.addItemClickListener(event -> updateInfoBox(p, impactbox, event.getItem(), grid, tree));
         grid.addItemClickListener(event -> updateInfoBox(p, impactbox, event.getItem(), grid, tree));
-        Panel panel_patterns = preparePanel(grid, "Patterns");
-        Panel info = preparePanel(vl_infobox, "DefinedClass info");
-        Panel panel_tree = preparePanel(tree, "Browser");
+        Panel panel_patterns = LayoutUtils.preparePanel(grid, "Patterns");
+        
+        Panel panel_tree = LayoutUtils.preparePanel(tree, "Browser");
         HorizontalSplitPanel split_tree = prepareSplitPanel(info, panel_tree);
         VerticalLayout vl_all = new VerticalLayout();
         vl_all.setMargin(false);
@@ -81,24 +86,9 @@ public class QuickImpactView extends BasicLayout {
     }
 
 
-    private VerticalLayout prepareInfoBoxLayout(PatternInfoBox impactbox) {
-        VerticalLayout vl_infobox = new VerticalLayout();
-        vl_infobox.addComponent(impactbox);
-        vl_infobox.setMargin(false);
-        vl_infobox.setSpacing(false);
-        vl_infobox.setSizeUndefined();
-        return vl_infobox;
-    }
+    
 
-    private Panel preparePanel(Component c, String label) {
-        Panel panel = new Panel(label);
-        panel.setWidth("100%");
-        panel.setHeight("100%");
-        //c.setSizeUndefined();
-        c.setWidth("100%");
-        panel.setContent(c);
-        return panel;
-    }
+
 
     private HorizontalSplitPanel prepareSplitPanel(Component right, Component left) {
         HorizontalSplitPanel split_tree = new HorizontalSplitPanel();
@@ -115,27 +105,28 @@ public class QuickImpactView extends BasicLayout {
         if (pi instanceof PatternTreeItem) {
             OntologyClass pc = ((PatternTreeItem) pi).getPatternClass();
             impactbox.setValue(pc, p);
-            if (pc instanceof PatternClass) {
-                g.getWeightedPattern((PatternClass) pc).ifPresent(wp -> {
-                    g.select(wp);
-                    g.scrollTo(g.indexOf(wp));
-                });
-            }
-            tree.expandLoad((PatternTreeItem) pi);
+            selectPatternInWeightedGrid(g, pc);
         } else if (pi instanceof WeightedPattern) {
             DefinedClass pc = ((WeightedPattern) pi).getPattern();
             impactbox.setValue(pc, p);
-
-            for (PatternTreeItem pp : tree.getMapPatternTreeItem(pc)) {
-                tree.expand(pp);
-                tree.select(pp);
-                //TODO implement scrollto
-                //tree.scrollTo(1);
-            }
-
-            this.getUI().push();
+            tree.expandSelect(pc);
+        } else if (pi instanceof OntologyClass) {
+        		 OntologyClass pc = (OntologyClass) pi;
+             impactbox.setValue(pc, p);
+             tree.expandSelect(pc);
+             selectPatternInWeightedGrid(g, pc);
         }
+        this.getUI().push();
     }
+
+	private void selectPatternInWeightedGrid(WeightedPatternGrid g, OntologyClass pc) {
+		if (pc instanceof PatternClass) {
+		    g.getWeightedPattern((PatternClass) pc).ifPresent(wp -> {
+		        g.select(wp);
+		        g.scrollTo(g.indexOf(wp));
+		    });
+		}
+	}
 
 
 }

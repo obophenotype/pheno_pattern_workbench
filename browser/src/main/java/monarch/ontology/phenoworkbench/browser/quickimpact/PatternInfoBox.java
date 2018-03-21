@@ -1,7 +1,9 @@
 package monarch.ontology.phenoworkbench.browser.quickimpact;
 
+import com.vaadin.shared.Registration;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.components.grid.ItemClickListener;
 
 import monarch.ontology.phenoworkbench.analytics.pattern.generation.DefinedClass;
 import monarch.ontology.phenoworkbench.analytics.pattern.generation.OntologyClass;
@@ -24,7 +26,7 @@ public class PatternInfoBox extends VerticalLayout {
 	public PatternInfoBox() {
 		setWidth("100%");
 		setHeightUndefined();
-		setMargin(true);
+		setMargin(false);
 		setSpacing(true);
 		label.setSizeFull();
 		addComponent(label);
@@ -81,6 +83,10 @@ public class PatternInfoBox extends VerticalLayout {
 
 	private String patternName(OntologyClass p) {
 		return "<a href=\""+OLSLinkout.linkout(p.getOWLClass().getIRI().toString(),p.getLabel())+"\" target=\"_blank\">"+p.getLabel()+"</a>";
+	}
+	
+	public Registration addItemClickListener(ItemClickListener<? super OntologyClass> listener) {
+		return grid.addItemClickListener(listener);
 	}
 
 }

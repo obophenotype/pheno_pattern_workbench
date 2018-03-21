@@ -1,4 +1,4 @@
-package monarch.ontology.phenoworkbench.browser.quickimpact;
+package monarch.ontology.phenoworkbench.browser.basic;
 
 import java.util.*;
 
@@ -11,7 +11,6 @@ import com.vaadin.ui.Tree;
 import monarch.ontology.phenoworkbench.analytics.pattern.generation.OntologyClass;
 import monarch.ontology.phenoworkbench.analytics.pattern.generation.PatternClass;
 import monarch.ontology.phenoworkbench.util.Timer;
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.DefinedClass;
 
 public class PatternTree extends Tree<PatternTreeItem> {
 	
@@ -23,7 +22,7 @@ public class PatternTree extends Tree<PatternTreeItem> {
 	TreeData<PatternTreeItem> treeData = new TreeData<>();
 
 	
-	PatternTree(Set<PatternClass> toppatterns) {
+	public PatternTree(Set<? extends OntologyClass> toppatterns) {
 		Timer.start("PatternTree::PatternTree()");
 		// Couple of childless root items
 		Timer.start("PatternTree::PatternTree():constructTree");
@@ -37,6 +36,7 @@ public class PatternTree extends Tree<PatternTreeItem> {
 		setHeight("100%");
 		setCaptionAsHtml(true);
 		setContentMode(ContentMode.HTML);
+		addItemClickListener(e->expandLoad(e.getItem()));
 		Timer.end("PatternTree::PatternTree()");
 	}
 	private void addTopLevelItemToTree(OntologyClass pattern) {
@@ -69,26 +69,13 @@ public class PatternTree extends Tree<PatternTreeItem> {
 		mapPatternTree.get(iri).add(pi);
 		Timer.end("PatternTree::addToMapPatternTree()");
 	}
-	/*
+	
 	public void collapseAll() {
 		mapPatternTree.keySet().forEach(x -> mapPatternTree.get(x).forEach(this::collapse));
 	}
-	
-	public void expand(PatternTreeItem patternTreeItem) {
-		Iterator<OntologyClass> parents = patternTreeItem.getPatternClass().indirectParents();
-		while(parents.hasNext()) {
-			OntologyClass parent = parents.next();
-			if (mapPatternTree.containsKey(parent)) {
-				for (PatternTreeItem i : mapPatternTree.get(parent)) {
-					expand(i);
-				}
-			}
-
-		}
-	}*/
 
 	private void loadSubTree(PatternTreeItem c) {
-		Timer.start("PatternTree::populateTreeRecursively()");
+		Timer.start("PatternTree::loadSubTree()");
 		Timer.start("PatternTree::populateTreeRecursively():getDirectChildren()");
 		Set<OntologyClass> directchildren = c.getPatternClass().directChildren();
 		Timer.end("PatternTree::populateTreeRecursively():getDirectChildren()");
@@ -96,7 +83,7 @@ public class PatternTree extends Tree<PatternTreeItem> {
 			PatternTreeItem csub = new PatternTreeItem(cs);
 			addToMapPatternTree(cs, csub);
 			addTreeData(treeData, c, csub);
-			Timer.end("PatternTree::populateTreeRecursively()");
+			Timer.end("PatternTree::loadSubTree()");
 		}
 	}
 	private void addTreeData(TreeData<PatternTreeItem> treeData, PatternTreeItem c, PatternTreeItem csub) {
@@ -105,13 +92,39 @@ public class PatternTree extends Tree<PatternTreeItem> {
 		Timer.end("PatternTree::addTreeData");
 	}
 
-	public Set<PatternTreeItem> getMapPatternTreeItem(DefinedClass pc) {
-		String iri = pc.getOWLClass().getIRI().toString();
+	public Set<PatternTreeItem> getMapPatternTreeItem(OntologyClass pc) {
+		String iri = keyString(pc);
 		return mapPatternTree.containsKey(iri) ?mapPatternTree.get(iri) :Collections.emptySet();
+	}
+	private String keyString(OntologyClass pc) {
+		return pc.getOWLClass().getIRI().toString();
 	}
 
 	public void expandLoad(PatternTreeItem pi) {
 		loadSubTree(pi);
 		expand(pi);
+	}
+	
+	public void expandSelect(OntologyClass pc) {
+		Timer.start("PatternTree::expandSelect");
+		System.out.print("PatternTree::ExpandSelect");
+		addTreeItemsRecursively(pc);
+		 for (PatternTreeItem pp : getMapPatternTreeItem(pc)) {
+			 expand(pp);
+			 select(pp);
+	         //TODO implement: 
+	         //scrollTo(1);
+         }
+		 Timer.end("PatternTree::expandSelect");
+	}
+	private void addTreeItemsRecursively(OntologyClass c) {
+		String iri = keyString(c);
+		if(mapPatternTree.containsKey(iri)) {
+			return;
+		} 
+		for(OntologyClass parent: c.directParents()) {
+			addTreeItemsRecursively(parent);
+			getMapPatternTreeItem(parent).forEach(this::expandLoad);
+		}
 	}
 }

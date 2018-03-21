@@ -34,7 +34,7 @@ public class UberOntology {
     }
 
     private void processOntology(Imports imports, OWLOntology o, String name) {
-        String oid = "o" + render.stripKnownIRIs(name);
+        String oid = render.stripKnownIRIs(name);
         o_ct++;
         map_oid_name.put(oid, name);
 

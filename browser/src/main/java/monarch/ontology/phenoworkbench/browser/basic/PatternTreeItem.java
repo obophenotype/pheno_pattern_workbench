@@ -1,4 +1,4 @@
-package monarch.ontology.phenoworkbench.browser.quickimpact;
+package monarch.ontology.phenoworkbench.browser.basic;
 
 import monarch.ontology.phenoworkbench.analytics.pattern.generation.DefinedClass;
 import monarch.ontology.phenoworkbench.analytics.pattern.generation.OntologyClass;

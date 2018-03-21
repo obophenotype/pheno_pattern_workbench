@@ -130,7 +130,7 @@ public class PatternReconciler {
     }
 
     public List<PatternReconciliationCandidate> getAllPatternReconciliations() {
-        return new ArrayList<>(reconciliations);
+        return reconciliations;
     }
 
 }

@@ -1,0 +1,11 @@
+@import "../valo/valo.scss";
+
+@mixin pheno {
+  @include valo;
+
+  /* An actual theme rule */
+ .v-gridlayout-spacing-on {
+     width: 20px;
+     height: 20px;
+ }
+}

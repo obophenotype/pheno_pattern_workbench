@@ -1,6 +1,5 @@
 package monarch.ontology.phenoworkbench.browser.basic;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,7 +26,7 @@ import monarch.ontology.phenoworkbench.browser.reportviews.UnionAnalyserView;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
-@Theme("valo")
+@Theme("pheno")
 @SuppressWarnings("serial")
 @Push 
 public class PhenoUI extends UI {
