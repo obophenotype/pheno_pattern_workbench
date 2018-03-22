@@ -1,34 +1,25 @@
 package monarch.ontology.phenoworkbench.browser.reconciliation;
 
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
 
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.DefinedClass;
 import monarch.ontology.phenoworkbench.analytics.pattern.generation.OntologyClass;
-import monarch.ontology.phenoworkbench.analytics.pattern.impact.OntologyClassImpact;
 import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.PatternReconciliationCandidate;
-import monarch.ontology.phenoworkbench.analytics.quickimpact.QuickImpact;
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.PatternGrammar;
 import monarch.ontology.phenoworkbench.browser.basic.HTMLRenderUtils;
 import monarch.ontology.phenoworkbench.browser.basic.LabelManager;
-import monarch.ontology.phenoworkbench.browser.quickimpact.OLSLinkout;
 
-import java.util.Optional;
-
-public class ReconciliationInfoBox extends VerticalLayout {
+public class ReconciliationInfoBox extends HorizontalLayout {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 2254864769616615100L;
-	Label label = LabelManager.htmlLabel("<h3>Nothing Selected</h3>");
+	private static final long serialVersionUID = 2254864769616615100L;	;
 
 	public ReconciliationInfoBox(PatternReconciliationCandidate recon) {
 		setWidth("100%");
 		setHeightUndefined();
 		setMargin(true);
 		setSpacing(true);
-		label.setSizeFull();
 		String sb = "<div><ul>" 
 				+ "<li>Complexity of reconciliation: " + recon.getReconciliationComplexity()+ "</li>" 
 				+ "<li>Logical equivalence: " + recon.isLogicallyEquivalent() + "</li>"
@@ -41,8 +32,15 @@ public class ReconciliationInfoBox extends VerticalLayout {
 				sb = sb + "</ol></li>"
 				+ "<li>Impact: " + recon.getReconciliationEffect() + "</li>" 
 				+ "</ul></div>";
-		label.setValue(sb);
-		addComponent(label);
+		Label l_info = LabelManager.htmlLabel(sb);
+		Label l_p1 = LabelManager.htmlLabel(HTMLRenderUtils.renderDefinedClass(recon.getP1()));
+		Label l_p2 = LabelManager.htmlLabel(HTMLRenderUtils.renderDefinedClass(recon.getP2()));
+		l_info.setWidth("100%");
+		l_p1.setWidth("100%");
+		l_p2.setWidth("100%");
+		addComponent(l_info);
+		addComponent(l_p1);
+		addComponent(l_p2);
 	}
 
 }

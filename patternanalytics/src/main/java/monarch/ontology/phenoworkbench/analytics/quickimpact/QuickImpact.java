@@ -19,6 +19,7 @@ public class QuickImpact implements GrammarProvider,ExplanationRenderProvider,Im
     private UberOntology o;
     private Reasoner r;
     private PatternManager man;
+    private PatternProvider patternProviderDefault;
 
     public QuickImpact(Set<String> corpus, String patternsiri, boolean imports, ImpactMode mode, int samplesize) {
         Timer.start("QuickImpact::QuickImpact()");
@@ -67,7 +68,7 @@ public class QuickImpact implements GrammarProvider,ExplanationRenderProvider,Im
         Timer.start("QuickImpact::QuickImpact()::precomputeImpactMap()");
         definedClassImpactCalculator.precomputeImpactMap(man.getAllDefinedClasses());
         Timer.end("QuickImpact::QuickImpact()::precomputeImpactMap()");
-
+        patternProviderDefault = new PatternProviderDefaultImpl(man);
         System.out.println("QI: Done.." + Timer.getSecondsElapsed("QuickImpact::QuickImpact()"));
         Timer.end("QuickImpact::QuickImpact()");
         Timer.printTimings();
@@ -117,31 +118,7 @@ public class QuickImpact implements GrammarProvider,ExplanationRenderProvider,Im
         return man.getAllDefinedClasses();
     }
 
-    public Set<PatternClass> getTopPatterns() {
-        Timer.start("QuickImpact::getTopPatterns()");
-        Set<PatternClass> patterns = new HashSet<>();
-        new HashSet<>();
-        Timer.start("QuickImpact::getTopPatterns()::getPatternsAmongDefinedClasses");
-        Set<PatternClass> allPatternClasses = getPatternsAmongDefinedClasses();
-        Set<OWLClass> allPatternOWLClasses = allPatternClasses.stream().map(PatternClass::getOWLClass).collect(Collectors.toSet());
-        Timer.end("QuickImpact::getTopPatterns()::getPatternsAmongDefinedClasses");
 
-        for (PatternClass c : allPatternClasses) {
-            Timer.start("QuickImpact::getTopPatterns()::getSuperClasses:noneMatch");
-            if (c.indirectParents().stream().noneMatch(parent -> allPatternOWLClasses.contains(parent.getOWLClass()))) {
-                patterns.add(c);
-            }
-            Timer.end("QuickImpact::getTopPatterns()::getSuperClasses:noneMatch");
-        }
-        System.out.println("TOP:" + patterns.size());
-
-        Timer.end("QuickImpact::getTopPatterns()");
-        return patterns;
-    }
-
-    public Set<PatternClass> getPatternsAmongDefinedClasses() {
-        return getAllDefinedClasses().stream().filter(PatternClass.class::isInstance).map(PatternClass.class::cast).collect(Collectors.toSet());
-    }
 
     public Optional<OntologyClassImpact> getImpact(OntologyClass c) {
         return definedClassImpactCalculator.getImpact(c);
@@ -157,5 +134,17 @@ public class QuickImpact implements GrammarProvider,ExplanationRenderProvider,Im
             return Optional.of(new ExplantionAnalyserImpl(explanation.get(), new HashSet<>(), o.getRender()));
         }
         return Optional.empty();
+    }
+
+    public PatternProvider getPatternProvider() {
+        return patternProviderDefault;
+    }
+
+    public Set<? extends OntologyClass> getTopPatterns() {
+        return getPatternProvider().getTopPatterns();
+    }
+
+    public Set<PatternClass> getPatternsAmongDefinedClasses() {
+        return getPatternProvider().getPatternsAmongDefinedClasses();
     }
 }

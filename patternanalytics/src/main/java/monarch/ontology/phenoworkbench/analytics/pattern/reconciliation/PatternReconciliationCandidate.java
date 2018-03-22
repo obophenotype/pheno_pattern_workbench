@@ -20,7 +20,7 @@ public class PatternReconciliationCandidate {
 
     private final DefinedClass p1;
     private final DefinedClass p2;
-    private final Set<OntologyClass> commonAncestors = new HashSet<>();
+    private Set<OntologyClass> commonAncestors;
     private final boolean logicallyEquivalent;
     private final boolean syntacticallyEquivalent;
     private final boolean grammarEquivalent;
@@ -54,7 +54,6 @@ public class PatternReconciliationCandidate {
         affectedclasses.addAll(r.getSubclassesOf(p2.getOWLClass(),false));
         affectedclasses.removeAll(r.getUnsatisfiableClasses());
         int all_cl = r.getOWLReasoner().getRootOntology().getClassesInSignature(Imports.INCLUDED).size();
-        commonAncestors.addAll(getMostSpecificAncestors());
         List<String> grammars = new ArrayList();
         grammars.add(getP1().getGrammar().getGrammarSignature());
         grammars.add(getP2().getGrammar().getGrammarSignature());
@@ -67,16 +66,23 @@ public class PatternReconciliationCandidate {
         Set<OntologyClass> ancestors = new HashSet<>();
         new HashSet<>();
 
+        Timer.start("PatternReconciliationCandidate::getMostSpecificAncestors()::parents");
         Set<OntologyClass> commonParents = new HashSet(getP1().indirectParents());
         commonParents.retainAll(getP2().indirectParents());
+        Timer.end("PatternReconciliationCandidate::getMostSpecificAncestors()::parents");
 
+        Timer.start("PatternReconciliationCandidate::getMostSpecificAncestors()::owlclass");
         Set<OWLClass> commonParentsOWL = commonParents.stream().map(OntologyClass::getOWLClass).collect(Collectors.toSet());
+        Timer.end("PatternReconciliationCandidate::getMostSpecificAncestors()::owlclass");
+
+        Timer.start("PatternReconciliationCandidate::getMostSpecificAncestors()::commonparents");
 
         for (OntologyClass c : commonParents) {
             if (c.indirectChildren().stream().noneMatch(child -> commonParentsOWL.contains(child.getOWLClass()))) {
                 ancestors.add(c);
             }
         }
+        Timer.end("PatternReconciliationCandidate::getMostSpecificAncestors()::commonparents");
 
         Timer.end("PatternReconciliationCandidate::getMostSpecificAncestors()");
         return ancestors;
@@ -143,6 +149,9 @@ public class PatternReconciliationCandidate {
     }
 
     public Set<OntologyClass> getCommonAncestors() {
+        if(commonAncestors==null){
+            commonAncestors = getMostSpecificAncestors();
+        }
         return commonAncestors;
     }
 

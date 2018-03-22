@@ -71,7 +71,7 @@ public class QuickImpactView extends BasicLayout {
         Panel panel_patterns = LayoutUtils.preparePanel(grid, "Patterns");
         
         Panel panel_tree = LayoutUtils.preparePanel(tree, "Browser");
-        HorizontalSplitPanel split_tree = prepareSplitPanel(info, panel_tree);
+        HorizontalSplitPanel split_tree = LayoutUtils.prepareSplitPanel(info, panel_tree,400);
         VerticalLayout vl_all = new VerticalLayout();
         vl_all.setMargin(false);
         vl_all.setSpacing(true);
@@ -90,15 +90,7 @@ public class QuickImpactView extends BasicLayout {
 
 
 
-    private HorizontalSplitPanel prepareSplitPanel(Component right, Component left) {
-        HorizontalSplitPanel split_tree = new HorizontalSplitPanel();
-        split_tree.setSplitPosition(60, Unit.PERCENTAGE);
-        split_tree.setWidth("100%");
-        split_tree.setHeight("400px");
-        split_tree.setFirstComponent(left);
-        split_tree.setSecondComponent(right);
-        return split_tree;
-    }
+   
 
 
     private void updateInfoBox(QuickImpact p, PatternInfoBox impactbox, Object pi, WeightedPatternGrid g, PatternTree tree) {

@@ -10,6 +10,7 @@ import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.PatternR
 
 import com.vaadin.ui.UI;
 import monarch.ontology.phenoworkbench.util.Files;
+import monarch.ontology.phenoworkbench.util.Timer;
 
 public class PatternReconciliationView extends BasicLayout {
 	
@@ -52,6 +53,7 @@ ReconcilerLayoutPanel l_rec = new ReconcilerLayoutPanel(p);
 System.out.println("Done Layout");
         setResults(l_rec, true);
         System.out.println("Done Setting Results");
+        Timer.printTimings();
 	}
 
 	

@@ -36,7 +36,7 @@ public class PatternGenerator {
         for (OWLEquivalentClassesAxiom ax : allDefinitions) {
             long start = System.currentTimeMillis();
             i++;
-            if(i % 100 == 0) {
+            if(i % 5000 == 0) {
                 OntologyUtils.p("Processing definition "+i+"/"+all);
             }
             Set<OWLClass> classes = new HashSet<>();

@@ -9,7 +9,6 @@ import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Tree;
 
 import monarch.ontology.phenoworkbench.analytics.pattern.generation.OntologyClass;
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.PatternClass;
 import monarch.ontology.phenoworkbench.util.Timer;
 
 public class PatternTree extends Tree<PatternTreeItem> {
@@ -107,7 +106,7 @@ public class PatternTree extends Tree<PatternTreeItem> {
 	
 	public void expandSelect(OntologyClass pc) {
 		Timer.start("PatternTree::expandSelect");
-		System.out.print("PatternTree::ExpandSelect");
+		//System.out.print("PatternTree::ExpandSelect");
 		addTreeItemsRecursively(pc);
 		 for (PatternTreeItem pp : getMapPatternTreeItem(pc)) {
 			 expand(pp);

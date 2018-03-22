@@ -4,6 +4,7 @@ import monarch.ontology.phenoworkbench.util.Reasoner;
 import monarch.ontology.phenoworkbench.util.RenderManager;
 import monarch.ontology.phenoworkbench.util.Timer;
 import org.semanticweb.owlapi.model.OWLClass;
+import org.semanticweb.owlapi.model.parameters.Imports;
 
 import java.util.*;
 
@@ -38,13 +39,16 @@ public class PatternManager {
             p.setPatternString(renderPattern(p));
             patternClassCache.put(p.getOWLClass(), p);
         }
-        allDefinedClasses.forEach(this::setTaxonomy);
-        allDefinedClasses.forEach(this::setGrammar);
+        // Make sure all classes are registered before building  the taxonomy
+        r.getOWLReasoner().getRootOntology().getClassesInSignature(Imports.INCLUDED).forEach(this::getPatternClass);
+
+        getAllClasses().forEach(this::setTaxonomy);
+        getAllDefinedClasses().forEach(this::setGrammar);
         System.out.println("Def: "+ct_defined+", nondef:"+ct_nondef);
         Timer.end("PatternManager::preparePatterns()");
     }
 
-    private void setTaxonomy(DefinedClass p) {
+    private void setTaxonomy(OntologyClass p) {
         Timer.start("PatternManager::setTaxonomy()");
         r.getSubclassesOf(p.getOWLClass(),true,true).forEach(c->p.addChild(getPatternClass(c)));
         r.getSuperClassesOf(p.getOWLClass(),true,true).forEach(c->p.addParent(getPatternClass(c)));
@@ -101,6 +105,10 @@ public class PatternManager {
         }
         Timer.end("PatternManager::getSubsumedGrammars()");
         return grammars;
+    }
+
+    public Collection<OntologyClass> getAllClasses() {
+        return patternClassCache.values();
     }
 
 }
