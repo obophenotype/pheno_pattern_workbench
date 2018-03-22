@@ -74,7 +74,8 @@ public class PatternReconciler implements GrammarProvider, ImpactProvider, Expla
     }
 
     private void indexReconciliationCandidate(Map<DefinedClass, Map<DefinedClass, PatternReconciliationCandidate>> patternReconciliation, Map<IRI, DefinedClass> iriPatternMap, IRIMapping imap, IRI iri, IRI to) {
-
+        Timer.start("PatternReconciler::indexReconciliationCandidate()");
+        Map<String,Long> mapGrammarEffect = new HashMap();
         if (iriPatternMap.containsKey(iri) && iriPatternMap.containsKey(to)) {
             DefinedClass p = iriPatternMap.get(iri);
             DefinedClass p2 = iriPatternMap.get(to);
@@ -87,8 +88,19 @@ public class PatternReconciler implements GrammarProvider, ImpactProvider, Expla
                 pr.setSubclassSimilarity(imap.getSbcl());
                 patternReconciliation.get(p).put(p2, pr);
                 reconciliations.add(pr);
+                incrementGrammarEffect(mapGrammarEffect, pr);
             }
         }
+        reconciliations.forEach(r->r.setReconciliationEffect(mapGrammarEffect.get(r.getReconciliationclass())));
+        Timer.start("PatternReconciler::indexReconciliationCandidate()");
+    }
+
+    private void incrementGrammarEffect(Map<String, Long> mapGrammarEffect, PatternReconciliationCandidate pr) {
+        String reconclass = pr.getReconciliationclass();
+        if(!mapGrammarEffect.containsKey(reconclass)) {
+            mapGrammarEffect.put(reconclass,0l);
+        }
+        mapGrammarEffect.put(reconclass,mapGrammarEffect.get(reconclass)+1);
     }
 
     private List<IRIMapping> parseMappings(File mappinFile, double confidencethreshold) {

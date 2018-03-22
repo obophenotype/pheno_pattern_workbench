@@ -32,7 +32,7 @@ class ReconcilerGrid extends Grid<PatternReconciliationCandidate> {
 		Column<PatternReconciliationCandidate, String> p1 = addColumn(rec -> HTMLRenderUtils.renderDefinedClass(rec.getP1(),50), new HtmlRenderer()).setCaption("Class 1");
 		Column<PatternReconciliationCandidate, String> p2 = addColumn(rec -> HTMLRenderUtils.renderDefinedClass(rec.getP2(),50), new HtmlRenderer()).setCaption("Class 2");
 		Column<PatternReconciliationCandidate, Double> c_compl = addColumn(PatternReconciliationCandidate::getReconciliationComplexity,new NumberRenderer(new DecimalFormat("#.##"))).setCaption("Complexity");
-		Column<PatternReconciliationCandidate, Double> c_imp = addColumn(PatternReconciliationCandidate::getReconciliationEffect,new NumberRenderer(new DecimalFormat("#.####"))).setCaption("Impact");
+		Column<PatternReconciliationCandidate, Long> c_imp = addColumn(PatternReconciliationCandidate::getReconciliationEffect).setCaption("Impact");
 		Column<PatternReconciliationCandidate, Double> c_jack = addColumn(PatternReconciliationCandidate::getJaccardSimiliarity,new NumberRenderer(new DecimalFormat("#.##"))).setCaption("Jackard");
 		Column<PatternReconciliationCandidate, Double> c_subcl = addColumn(PatternReconciliationCandidate::getSubclassSimilarity,new NumberRenderer(new DecimalFormat("#.##"))).setCaption("SBSim");
 

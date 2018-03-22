@@ -12,8 +12,7 @@ import org.semanticweb.owlapi.model.parameters.Imports;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -26,11 +25,12 @@ public class PatternReconciliationCandidate {
     private final boolean syntacticallyEquivalent;
     private final boolean grammarEquivalent;
     private final double reconciliationComplexity;
-    private final double reconciliationEffect;
+    private long reconciliationEffect = -1;
     private double jaccardSimiliarity = -1;
     private double subclassSimilarity = -1;
     private final LogicalDiff rightDiff;
     private final LogicalDiff leftDiff;
+    private final String reconciliationclass;
 
     PatternReconciliationCandidate(DefinedClass p1, DefinedClass p2, RenderManager renderManager, Reasoner r) {
         this.p1 = p1;
@@ -54,8 +54,12 @@ public class PatternReconciliationCandidate {
         affectedclasses.addAll(r.getSubclassesOf(p2.getOWLClass(),false));
         affectedclasses.removeAll(r.getUnsatisfiableClasses());
         int all_cl = r.getOWLReasoner().getRootOntology().getClassesInSignature(Imports.INCLUDED).size();
-        this.reconciliationEffect = round((double)affectedclasses.size()/(double)all_cl,4);
         commonAncestors.addAll(getMostSpecificAncestors());
+        List<String> grammars = new ArrayList();
+        grammars.add(getP1().getGrammar().getGrammarSignature());
+        grammars.add(getP2().getGrammar().getGrammarSignature());
+        Collections.sort(grammars);
+        reconciliationclass = String.join("",grammars);
     }
 
     private Set<OntologyClass> getMostSpecificAncestors() {
@@ -87,7 +91,7 @@ public class PatternReconciliationCandidate {
        return reconciliationComplexity;
     }
 
-    public double getReconciliationEffect() {
+    public long getReconciliationEffect() {
         return reconciliationEffect;
     }
 
@@ -140,5 +144,13 @@ public class PatternReconciliationCandidate {
 
     public Set<OntologyClass> getCommonAncestors() {
         return commonAncestors;
+    }
+
+    public void setReconciliationEffect(long reconciliationEffect) {
+        this.reconciliationEffect = reconciliationEffect;
+    }
+
+    public String getReconciliationclass() {
+        return reconciliationclass;
     }
 }
