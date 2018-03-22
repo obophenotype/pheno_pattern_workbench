@@ -1,7 +1,6 @@
 package monarch.ontology.phenoworkbench.browser.reconciliation;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 import com.vaadin.data.HasValue;
 import com.vaadin.data.provider.ListDataProvider;

@@ -8,7 +8,7 @@ import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
 import monarch.ontology.phenoworkbench.analytics.pattern.generation.OntologyClass;
-import monarch.ontology.phenoworkbench.analytics.quickimpact.QuickImpact;
+import monarch.ontology.phenoworkbench.analytics.pattern.generation.ExplanationRenderProvider;
 
 public class SuperClassGrid extends Grid<OntologyClass>{
 
@@ -16,7 +16,7 @@ public class SuperClassGrid extends Grid<OntologyClass>{
 	 * 
 	 */
 	private static final long serialVersionUID = -7693916597555928732L;
-	private QuickImpact qi;
+	private ExplanationRenderProvider qi;
 	private OntologyClass current;
 	
 	SuperClassGrid() {
@@ -25,7 +25,7 @@ public class SuperClassGrid extends Grid<OntologyClass>{
 		updateHeight(0);
 	}
 	
-	void update(QuickImpact qi,OntologyClass c) {
+	void update(ExplanationRenderProvider qi,OntologyClass c) {
 		this.current = c;
 		this.qi = qi;
 		List<OntologyClass> weightedPatterns = new ArrayList<>(c.directParents());

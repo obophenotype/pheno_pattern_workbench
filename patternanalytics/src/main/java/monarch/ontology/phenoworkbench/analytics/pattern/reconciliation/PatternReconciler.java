@@ -1,11 +1,9 @@
 package monarch.ontology.phenoworkbench.analytics.pattern.reconciliation;
 
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.DefinedClass;
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.PatternGenerator;
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.PatternManager;
-import monarch.ontology.phenoworkbench.util.Reasoner;
+import monarch.ontology.phenoworkbench.analytics.pattern.generation.*;
+import monarch.ontology.phenoworkbench.analytics.pattern.impact.OntologyClassImpact;
+import monarch.ontology.phenoworkbench.util.*;
 import monarch.ontology.phenoworkbench.util.Timer;
-import monarch.ontology.phenoworkbench.util.UberOntology;
 import org.apache.commons.io.FileUtils;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.model.parameters.Imports;
@@ -14,7 +12,7 @@ import java.io.File;
 import java.nio.charset.Charset;
 import java.util.*;
 
-public class PatternReconciler {
+public class PatternReconciler implements GrammarProvider, ImpactProvider, ExplanationRenderProvider {
 
     private UberOntology o;
     private PatternManager patternManager;
@@ -133,4 +131,25 @@ public class PatternReconciler {
         return reconciliations;
     }
 
+    private Optional<Explanation> getSubsumptionExplanation(OntologyClass c, OntologyClass p) {
+        return r.getExplanation(c.getOWLClass(), p.getOWLClass());
+    }
+
+    public Optional<ExplanationAnalyser> getSubsumptionExplanationRendered(OntologyClass subC, OntologyClass superC) {
+        Optional<Explanation> explanation = getSubsumptionExplanation(subC, superC);
+        if (explanation.isPresent()) {
+            return Optional.of(new ExplantionAnalyserImpl(explanation.get(), new HashSet<>(), o.getRender()));
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Set<PatternGrammar> getSubsumedGrammars(DefinedClass p) {
+        return patternManager.getSubsumedGrammars(p);
+    }
+
+    @Override
+    public Optional<OntologyClassImpact> getImpact(OntologyClass c) {
+        return Optional.empty();
+    }
 }

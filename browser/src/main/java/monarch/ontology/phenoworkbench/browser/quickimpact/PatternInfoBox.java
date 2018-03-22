@@ -8,8 +8,10 @@ import com.vaadin.ui.components.grid.ItemClickListener;
 import monarch.ontology.phenoworkbench.analytics.pattern.generation.DefinedClass;
 import monarch.ontology.phenoworkbench.analytics.pattern.generation.OntologyClass;
 import monarch.ontology.phenoworkbench.analytics.pattern.impact.OntologyClassImpact;
-import monarch.ontology.phenoworkbench.analytics.quickimpact.QuickImpact;
 import monarch.ontology.phenoworkbench.analytics.pattern.generation.PatternGrammar;
+import monarch.ontology.phenoworkbench.analytics.pattern.generation.ExplanationRenderProvider;
+import monarch.ontology.phenoworkbench.analytics.pattern.generation.GrammarProvider;
+import monarch.ontology.phenoworkbench.analytics.pattern.generation.ImpactProvider;
 import monarch.ontology.phenoworkbench.browser.basic.LabelManager;
 
 import java.util.Optional;
@@ -33,12 +35,12 @@ public class PatternInfoBox extends VerticalLayout {
 		addComponent(grid);
 	}
 
-	public void setValue(OntologyClass p, QuickImpact quickImpact) {
-		label.setValue(renderImpact(p, quickImpact));
-		grid.update(quickImpact, p);
+	public void setValue(OntologyClass p, ExplanationRenderProvider explanation,ImpactProvider impact, GrammarProvider grammar) {
+		label.setValue(renderImpact(p, impact,grammar));
+		grid.update(explanation, p);
 	}
 
-	private String renderImpact(OntologyClass p, QuickImpact quickImpact) {
+	private String renderImpact(OntologyClass p, ImpactProvider quickImpact, GrammarProvider grammar) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<div style='background-color: white;'>");
 		sb.append("<h3>" + patternName(p) + "</h3>");
@@ -69,7 +71,7 @@ public class PatternInfoBox extends VerticalLayout {
 			System.out.println(definedClass);
 			System.out.println(quickImpact);
 			
-			for (PatternGrammar g : quickImpact.getSubsumedGrammars(definedClass)) {
+			for (PatternGrammar g : grammar.getSubsumedGrammars(definedClass)) {
 				sb.append("<li>" + g.getOriginal() + "</li>");
 			}
 			sb.append("</ol>");

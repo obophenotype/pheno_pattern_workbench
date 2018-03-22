@@ -104,15 +104,15 @@ public class QuickImpactView extends BasicLayout {
     private void updateInfoBox(QuickImpact p, PatternInfoBox impactbox, Object pi, WeightedPatternGrid g, PatternTree tree) {
         if (pi instanceof PatternTreeItem) {
             OntologyClass pc = ((PatternTreeItem) pi).getPatternClass();
-            impactbox.setValue(pc, p);
+            impactbox.setValue(pc, p,p,p);
             selectPatternInWeightedGrid(g, pc);
         } else if (pi instanceof WeightedPattern) {
             DefinedClass pc = ((WeightedPattern) pi).getPattern();
-            impactbox.setValue(pc, p);
+            impactbox.setValue(pc, p,p,p);
             tree.expandSelect(pc);
         } else if (pi instanceof OntologyClass) {
         		 OntologyClass pc = (OntologyClass) pi;
-             impactbox.setValue(pc, p);
+             impactbox.setValue(pc, p,p,p);
              tree.expandSelect(pc);
              selectPatternInWeightedGrid(g, pc);
         }

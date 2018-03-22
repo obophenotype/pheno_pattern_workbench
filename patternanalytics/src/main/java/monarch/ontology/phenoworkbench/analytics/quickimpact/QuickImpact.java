@@ -13,7 +13,7 @@ import org.semanticweb.owlapi.model.parameters.Imports;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class QuickImpact {
+public class QuickImpact implements GrammarProvider,ExplanationRenderProvider,ImpactProvider {
 
     private DefinedClassImpactCalculator definedClassImpactCalculator;
     private UberOntology o;
