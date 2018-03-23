@@ -11,6 +11,8 @@ import monarch.ontology.phenoworkbench.browser.basic.Branches;
 import monarch.ontology.phenoworkbench.analytics.pattern.report.PatternExtractor;
 
 import monarch.ontology.phenoworkbench.util.Files;
+import org.semanticweb.owlapi.model.parameters.Imports;
+
 
 public class PatternAnalyserView extends BasicLayout{
 	
@@ -38,14 +40,17 @@ public class PatternAnalyserView extends BasicLayout{
 	protected void runAnalysis(Set<String> selectedItems) {
 		selectedItems.forEach(System.out::println);
 
-		boolean imports = runOptionOrNull("imports").equals("yes");
+		Imports imports = runOptionOrNull("imports").equals("yes") ? Imports.INCLUDED : Imports.EXCLUDED;
 		boolean addsubclasses = runOptionOrNull("addsubclasses").equals("yes");
 		int samplesize = Integer.valueOf(runOptionOrNull("samplesize"));
 
 		File resultsdir = deleteMakeTmpDirectory("pa_results").get();
 		File branches = Branches.prepareBranchesFile(Files.getInstance().getTmpdir(),branchGrid.getBranches());
-        PatternExtractor p = new PatternExtractor(selectedItems, branches, imports, addsubclasses, samplesize);
-        p.run();
+        PatternExtractor p = new PatternExtractor(selectedItems, branches);
+        p.setImports(imports);
+        p.setAddsubclasses(addsubclasses);
+        p.setSAMPLESIZE(samplesize);
+        p.runAnalysis();
 		p.printResults(resultsdir);
 		writeMarkdownToResults(p.getReportLines(),true);
 	}

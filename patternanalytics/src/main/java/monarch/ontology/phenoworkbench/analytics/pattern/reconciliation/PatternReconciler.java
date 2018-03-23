@@ -4,159 +4,131 @@ import monarch.ontology.phenoworkbench.analytics.pattern.generation.*;
 import monarch.ontology.phenoworkbench.analytics.pattern.impact.OntologyClassImpact;
 import monarch.ontology.phenoworkbench.util.*;
 import monarch.ontology.phenoworkbench.util.Timer;
-import org.apache.commons.io.FileUtils;
 import org.semanticweb.owlapi.model.*;
-import org.semanticweb.owlapi.model.parameters.Imports;
 
-import java.io.File;
-import java.nio.charset.Charset;
 import java.util.*;
 
-public class PatternReconciler implements GrammarProvider, ImpactProvider, ExplanationRenderProvider {
+public class PatternReconciler extends PhenoAnalysisRunner implements GrammarProvider, ImpactProvider {
 
-    private UberOntology o;
     private PatternManager patternManager;
     private Reasoner r;
-    private Map<OntologyClass, Map<OntologyClass, PatternReconciliationCandidate>> patternReconciliation;
-    private List<PatternReconciliationCandidate> reconciliations = new ArrayList<>();
+    private Map<OntologyClass, Map<OntologyClass, PatternReconciliationCandidate>> patternReconciliation = new HashMap<>();
+    private Set<PatternReconciliationCandidate> reconciliations = new HashSet<>();
     private long maxReconciliationImpact = 0;
     private PatternProvider patternProvider;
+    private ExplanationRenderProvider explanationProvider;
 
-    public PatternReconciler(Set<String> corpus, File mappings, boolean imports, boolean lazyalign, boolean bidirectionmapping, double confidencethreshold) {
-        Timer.start("PatternReconciler::PatternReconciler()");
+    private boolean bidirectionmapping = false;
+    private final List<IRIMapping> mapping;
+
+    public PatternReconciler(Set<String> corpus, List<IRIMapping> mapping) {
+        super(corpus);
+        this.mapping = mapping;
+    }
+
+    public void runAnalysis() {
+        String process = "PatternReconciler::runAnalysis()";
         try {
-            System.out.println("QI: Loading Uber Ontology: " + Timer.getSecondsElapsed("PatternReconciler::PatternReconciler()"));
-            Imports i = imports ? Imports.INCLUDED : Imports.EXCLUDED;
-            o = new UberOntology(i, corpus);
-            System.out.println("QI: Initialising pattern generator.." + Timer.getSecondsElapsed("PatternReconciler::PatternReconciler()"));
-            PatternGenerator patternGenerator = new PatternGenerator(o.getRender());
-            System.out.println("QI: Create new Uber Ontology.." + Timer.getSecondsElapsed("PatternReconciler::PatternReconciler()"));
-            OWLOntology all = o.createNewUberOntology();
-            System.out.println("Done... Axiomct: " + o.getAllAxioms().size() + Timer.getSecondsElapsed("PatternReconciler::PatternReconciler()"));
-            System.out.println("QI: Preparing pattern reasoner" + Timer.getSecondsElapsed("PatternReconciler::PatternReconciler()"));
-            r = new Reasoner(all);
-            Set<DefinedClass> allDefinedClasses = new HashSet<>(patternGenerator.extractDefinedClasses(all.getAxioms(i), true));
-            patternManager = new PatternManager(allDefinedClasses,r,patternGenerator,o.getRender());
-            System.out.println("QI: Preparing patterns" + Timer.getSecondsElapsed("PatternReconciler::PatternReconciler()"));
-            patternReconciliation = preparePatternMap(mappings, bidirectionmapping, lazyalign, confidencethreshold);
-            patternProvider = new PatternProviderDefaultImpl(patternManager);
-            //patternImpact = new DefinedClassImpactCalculator(o, r.getOWLReasoner(), r.getUnsatisfiableClasses(), new HashSet<>());
-            System.out.println("QI: Computing impact.." + Timer.getSecondsElapsed("PatternReconciler::PatternReconciler()"));
-            //patternImpactMap = patternImpact.precomputeImpactMap(allDefinedClasses);
+            log("Initialising pattern generator..", process);
+            PatternGenerator patternGenerator = new PatternGenerator(getRenderManager());
 
-            System.out.println("QI: Done.." + Timer.getSecondsElapsed("PatternReconciler::PatternReconciler()"));
+            log("Create new Union Ontology..", process);
+            OWLOntology all = createUnionOntology().orElseThrow(NullPointerException::new);
+            log("Done... Axiomct: " + all.getAxioms(getImports()).size(), process);
 
+            log("Preparing pattern reasoner");
+            prepareReasoner(all);
+
+            log("Preparing patterns", process);
+            preparePatternManager(patternGenerator, all);
+            preparePatternMap();
+            preparePatternProvider();
+            prepareExplanationProvider();
+
+
+            log("Done..", "PatternReconciler::runAnalysis()");
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
-    private Map<OntologyClass, Map<OntologyClass, PatternReconciliationCandidate>> preparePatternMap(File mappinFile, boolean bidirectionmapping, boolean lazyalign, double confidencethreshold) {
-        Map<OntologyClass, Map<OntologyClass, PatternReconciliationCandidate>> patternReconciliation = new HashMap<>();
-        List<IRIMapping> mapping = parseMappings(mappinFile, confidencethreshold);
+    private void prepareExplanationProvider() {
+        explanationProvider = new DefaultExplanationProvider(r, getRenderManager());
+    }
+
+
+    private void preparePatternProvider() {
+        patternProvider = new PatternProviderDefaultImpl(patternManager);
+    }
+
+    private void prepareReasoner(OWLOntology all) {
+        r = new Reasoner(all);
+    }
+
+    private void preparePatternManager(PatternGenerator patternGenerator, OWLOntology all) {
+        patternManager = new PatternManager(extractDefined(patternGenerator, all.getAxioms(getImports())), r, patternGenerator, getRenderManager());
+    }
+
+
+    private Set<DefinedClass> extractDefined(PatternGenerator patternGenerator, Set<OWLAxiom> axioms) {
+        return patternGenerator.extractDefinedClasses(axioms, true);
+    }
+
+    private void preparePatternMap() {
+
         Map<IRI, DefinedClass> iriPatternMap = new HashMap<>();
-        Map<String,Long> mapGrammarEffect = new HashMap();
 
         patternManager.getAllDefinedClasses().forEach(p -> iriPatternMap.put(p.getOWLClass().getIRI(), p));
-        if (!lazyalign) {
-            System.out.println("QI: Computing alignments.." + Timer.getSecondsElapsed("PatternReconciler::PatternReconciler()"));
+        log("QI: Computing alignments.." + Timer.getSecondsElapsed("PatternReconciler::PatternReconciler()"));
 
-            for (IRIMapping imap : mapping) {
-                IRI iri = imap.getI1();
-                IRI to = imap.getI2();
-                indexReconciliationCandidate(patternReconciliation, iriPatternMap, mapGrammarEffect,imap,iri,to);
-                if(bidirectionmapping) {
-                    indexReconciliationCandidate(patternReconciliation, iriPatternMap, mapGrammarEffect,imap,to,iri);
+        for (IRIMapping imap : mapping) {
+            IRI iri = imap.getI1();
+            IRI to = imap.getI2();
+            if (iriPatternMap.containsKey(iri) && iriPatternMap.containsKey(to)) {
+                DefinedClass p = iriPatternMap.get(iri);
+                DefinedClass p2 = iriPatternMap.get(to);
+                indexReconciliationCandidate(imap, p, p2);
+                if (isBidirectionmapping()) {
+                    indexReconciliationCandidate(imap, p2, p);
                 }
-
             }
         }
-        reconciliations.forEach(r->r.setReconciliationEffect(mapGrammarEffect.get(r.getReconciliationclass())));
-        maxReconciliationImpact = Collections.max(mapGrammarEffect.values());
-        return patternReconciliation;
+        reconciliations.forEach(r -> r.setReconciliationEffect(getReconciliationEffect(r)));
     }
 
-    private void indexReconciliationCandidate(Map<OntologyClass, Map<OntologyClass, PatternReconciliationCandidate>> patternReconciliation, Map<IRI, DefinedClass> iriPatternMap, Map<String,Long> mapGrammarEffect, IRIMapping imap, IRI iri, IRI to) {
+    private long getReconciliationEffect(PatternReconciliationCandidate r) {
+        Timer.start("PatternReconciler::getReconciliationEffect");
+
+        ReconciliationCandidateSet s1 = getReconciliationsRelatedToClassOrChildren(r.getP1());
+        ReconciliationCandidateSet s2 = getReconciliationsRelatedToClassOrChildren(r.getP2());
+        ReconciliationCandidateSet union = s1.union(s2);
+        long impact = union.items().stream().filter(pcr -> pcr.getReconciliationclass().equals(r.getReconciliationclass())).count();
+        if (impact > maxReconciliationImpact) {
+            maxReconciliationImpact = impact;
+        }
+        Timer.end("PatternReconciler::getReconciliationEffect");
+        return impact;
+    }
+
+    private void indexReconciliationCandidate(IRIMapping imap, DefinedClass p, DefinedClass p2) {
         Timer.start("PatternReconciler::indexReconciliationCandidate()");
-
-        if (iriPatternMap.containsKey(iri) && iriPatternMap.containsKey(to)) {
-            DefinedClass p = iriPatternMap.get(iri);
-            DefinedClass p2 = iriPatternMap.get(to);
-            if (!patternReconciliation.containsKey(p)) {
-                patternReconciliation.put(p, new HashMap<>());
-            }
-            if (!patternReconciliation.get(p).containsKey(p2)) {
-                PatternReconciliationCandidate pr = new PatternReconciliationCandidate(p, p2, o.getRender(), r);
-                pr.setJaccardSimiliarity(imap.getJackard());
-                pr.setSubclassSimilarity(imap.getSbcl());
-                patternReconciliation.get(p).put(p2, pr);
-                reconciliations.add(pr);
-                incrementGrammarEffect(mapGrammarEffect, pr);
-            }
+        if (!patternReconciliation.containsKey(p)) {
+            patternReconciliation.put(p, new HashMap<>());
         }
+        if (!patternReconciliation.get(p).containsKey(p2)) {
+            PatternReconciliationCandidate pr = new PatternReconciliationCandidate(p, p2, getRenderManager(), r);
+            pr.setJaccardSimiliarity(imap.getJackard());
+            pr.setSubclassSimilarity(imap.getSbcl());
+            patternReconciliation.get(p).put(p2, pr);
+            reconciliations.add(pr);
+        }
+
         Timer.start("PatternReconciler::indexReconciliationCandidate()");
-    }
-
-    private void incrementGrammarEffect(Map<String, Long> mapGrammarEffect, PatternReconciliationCandidate pr) {
-        String reconclass = pr.getReconciliationclass();
-        if(!mapGrammarEffect.containsKey(reconclass)) {
-            mapGrammarEffect.put(reconclass,0l);
-        }
-        mapGrammarEffect.put(reconclass,mapGrammarEffect.get(reconclass)+1);
-    }
-
-    private List<IRIMapping> parseMappings(File mappinFile, double confidencethreshold) {
-
-        List<IRIMapping> mappings = new ArrayList<>();
-        if (mappinFile.isFile()) {
-            try {
-                List<String> lines = FileUtils.readLines(mappinFile, Charset.forName("utf-8"));
-                for (String line : lines) {
-                    String[] explosion = line.split("\t");
-                    IRI iri1 = getIRI(explosion[0]);
-                    //String logo1 = explosion[1];
-                    IRI iri2 = getIRI(explosion[2]);
-                    //String logo2 = explosion[3];
-                    Double v1 = Double.valueOf(explosion[4]);
-                    Double v2 = Double.valueOf(explosion[5]);
-                    if (v1 < 0 || v1 > confidencethreshold) {
-                        mappings.add(new IRIMapping(iri1, iri2, v1, v2));
-                    }
-
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        }
-        return mappings;
-    }
-
-    private IRI getIRI(String s) {
-        String v = s;
-        if (v.contains(":")) {
-            String prefix = v.substring(0, v.indexOf(":"));
-            v = v.replace(prefix + ":", "http://purl.obolibrary.org/obo/" + prefix + "_");
-        }
-        return IRI.create(v);
     }
 
     public ReconciliationCandidateSet getAllPatternReconciliations() {
         return new ReconciliationCandidateSet(reconciliations);
-    }
-
-    private Optional<Explanation> getSubsumptionExplanation(OntologyClass c, OntologyClass p) {
-        return r.getExplanation(c.getOWLClass(), p.getOWLClass());
-    }
-
-    public Optional<ExplanationAnalyser> getSubsumptionExplanationRendered(OntologyClass subC, OntologyClass superC) {
-        Optional<Explanation> explanation = getSubsumptionExplanation(subC, superC);
-        if (explanation.isPresent()) {
-            return Optional.of(new ExplantionAnalyserImpl(explanation.get(), new HashSet<>(), o.getRender()));
-        }
-        return Optional.empty();
     }
 
     @Override
@@ -187,16 +159,26 @@ public class PatternReconciler implements GrammarProvider, ImpactProvider, Expla
         Timer.start("PatternReconciler::getReconciliationsRelatedToClassOrChildren");
         Set<PatternReconciliationCandidate> pcrs = new HashSet<>();
         addReconciliation(pc, pcrs);
-        pc.indirectChildren().forEach(c-> {
-            addReconciliation(c, pcrs);
-        } );
+        pc.indirectChildren().forEach(c -> addReconciliation(c, pcrs));
         Timer.end("PatternReconciler::getReconciliationsRelatedToClassOrChildren");
         return new ReconciliationCandidateSet(pcrs);
     }
 
     private void addReconciliation(OntologyClass pc, Set<PatternReconciliationCandidate> pcrs) {
-        if(patternReconciliation.containsKey(pc)) {
-            patternReconciliation.get(pc).forEach((k,v)->pcrs.add(v));
+        if (patternReconciliation.containsKey(pc)) {
+            patternReconciliation.get(pc).forEach((k, v) -> pcrs.add(v));
         }
+    }
+
+    private boolean isBidirectionmapping() {
+        return bidirectionmapping;
+    }
+
+    public void setBidirectionmapping(boolean bidirectionmapping) {
+        this.bidirectionmapping = bidirectionmapping;
+    }
+
+    public ExplanationRenderProvider getExplanationProvider() {
+        return explanationProvider;
     }
 }

@@ -2,59 +2,61 @@ package monarch.ontology.phenoworkbench.browser.reconciliation;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import monarch.ontology.phenoworkbench.browser.basic.BasicLayout;
 import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.PatternReconciler;
 
-import com.vaadin.ui.UI;
-import monarch.ontology.phenoworkbench.util.Files;
+import monarch.ontology.phenoworkbench.util.IRIMapping;
+import monarch.ontology.phenoworkbench.util.OBOMappingFileParser;
 import monarch.ontology.phenoworkbench.util.Timer;
+import org.semanticweb.owlapi.model.parameters.Imports;
 
 public class PatternReconciliationView extends BasicLayout {
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 8440240868260139938L;
 
-	public PatternReconciliationView() {
-		super("DefinedClass Reconciliation");
-	}
+    /**
+     *
+     */
+    private static final long serialVersionUID = 8440240868260139938L;
 
-	@Override
-	protected Map<String, String> getRunOptions() {
-		Map<String, String> options = new HashMap<>();
-		options.put("imports", "yes");
-		options.put("lazyalign", "no");
-		options.put("bidirectionalmapping", "yes");
-		options.put("confidencethreshold", "0.9");
-		options.put("mappings", "https://raw.githubusercontent.com/obophenotype/upheno/master/mappings/hp-to-mp-bestmatches.tsv");
-		return options;
-	}
+    public PatternReconciliationView() {
+        super("DefinedClass Reconciliation");
+    }
 
-	@Override
-	protected void runAnalysis(Set<String> selectedItems) {
-		selectedItems.forEach(System.out::println);
+    @Override
+    protected Map<String, String> getRunOptions() {
+        Map<String, String> options = new HashMap<>();
+        options.put("imports", "yes");
+        options.put("bidirectionalmapping", "no");
+        options.put("mappings", "https://raw.githubusercontent.com/obophenotype/upheno/master/mappings/hp-to-mp-bestmatches.tsv");
+        return options;
+    }
 
-		boolean imports = runOptionOrNull("imports").equals("yes");
-		boolean lazyalign = runOptionOrNull("lazyalign").equals("yes");
-		boolean bidirection = runOptionOrNull("bidirectionalmapping").equals("yes");
-		double confidencethreshold = Double.valueOf(runOptionOrNull("confidencethreshold"));
-		String mapping = runOptionOrNull("mappings");
+    @Override
+    protected void runAnalysis(Set<String> selectedItems) {
+        selectedItems.forEach(System.out::println);
 
-		File mappings = downloadFile(mapping, "txt");
+        Imports imports = runOptionOrNull("imports").equals("yes") ? Imports.INCLUDED : Imports.EXCLUDED;
+        boolean bidirection = runOptionOrNull("bidirectionalmapping").equals("yes");
+        String mapping = runOptionOrNull("mappings");
 
-		System.out.println("Prepare DefinedClass Reconciler");
-		PatternReconciler p = new PatternReconciler(selectedItems, mappings, imports, lazyalign, bidirection, confidencethreshold);
-		System.out.println("Layout DefinedClass Reconciler");
-ReconcilerLayoutPanel l_rec = new ReconcilerLayoutPanel(p);
-System.out.println("Done Layout");
+        File mappingf = downloadFile(mapping, "txt");
+        List<IRIMapping> mappings = OBOMappingFileParser.parseMappings(mappingf);
+        System.out.println("Number of mappings: "+mappings.size());
+        System.out.println("Prepare DefinedClass Reconciler");
+        PatternReconciler p = new PatternReconciler(selectedItems, mappings);
+        p.setBidirectionmapping(bidirection);
+        p.setImports(imports);
+        p.runAnalysis();
+        System.out.println("Layout DefinedClass Reconciler");
+        ReconcilerLayoutPanel l_rec = new ReconcilerLayoutPanel(p);
+        System.out.println("Done Layout");
         setResults(l_rec, true);
         System.out.println("Done Setting Results");
         Timer.printTimings();
-	}
+    }
 
-	
+
 }

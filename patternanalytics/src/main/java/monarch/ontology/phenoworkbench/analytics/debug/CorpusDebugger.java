@@ -66,13 +66,13 @@ public class CorpusDebugger {
     }
 
     public void run() {
-        Timer.start("CorpusDebugger::run");
+        Timer.start("CorpusDebugger::runAnalysis");
         for (String ourl : pd) {
             //if(ourl.endsWith("hp.owl"))
             processOntology(imports, ourl);
         }
         preparePrint();
-        Timer.end("CorpusDebugger::run");
+        Timer.end("CorpusDebugger::runAnalysis");
     }
 
     private void preparePrint() {

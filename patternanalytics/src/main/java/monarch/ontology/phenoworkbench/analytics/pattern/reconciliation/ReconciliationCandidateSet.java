@@ -1,17 +1,19 @@
 package monarch.ontology.phenoworkbench.analytics.pattern.reconciliation;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 
 public class ReconciliationCandidateSet {
     private final Collection<PatternReconciliationCandidate> pcrs;
-    float percentageReconciledGrammar = -1.0f;
-    float percentageReconciledSyntax = -1.0f;
-    float percentageReconciledLogical = -1.0f;
+    private float percentageReconciledGrammar = -1.0f;
+    private float percentageReconciledSyntax = -1.0f;
+    private float percentageReconciledLogical = -1.0f;
 
     ReconciliationCandidateSet(Collection<PatternReconciliationCandidate> pcrs) {
-        this.pcrs = pcrs;
+        this.pcrs = new HashSet<>(pcrs);
     }
 
     public Optional<PatternReconciliationCandidate> getClosestMatchCandidate() {
@@ -60,5 +62,11 @@ public class ReconciliationCandidateSet {
 
     public long size() {
         return pcrs.size();
+    }
+
+    public ReconciliationCandidateSet union(ReconciliationCandidateSet s2) {
+        Set<PatternReconciliationCandidate> candidateSet = new HashSet<>(items());
+        candidateSet.addAll(s2.items());
+        return new ReconciliationCandidateSet(candidateSet);
     }
 }

@@ -98,11 +98,11 @@ class ReconciliationPanel extends VerticalLayout {
 			if (e.getSource().equals(p1)) {
 				System.out.println("Set source 2");
 				p2.expandSelect(other);
-				ib2.setValue(other,r,r,r);
+				ib2.setValue(other,r.getExplanationProvider(),r,r);
 			} else if (e.getSource().equals(p2)) {
 				System.out.println("Set source 1");
 				p1.expandSelect(other);
-				ib1.setValue(other,r,r,r);
+				ib1.setValue(other,r.getExplanationProvider(),r,r);
 			}
 		}
 		ib_treeinfobox.update(candidates);
@@ -117,6 +117,6 @@ class ReconciliationPanel extends VerticalLayout {
 	}
 
 	private void updateClassInforBox(PatternReconciler r, PatternInfoBox impactbox, OntologyClass pc) {
-		impactbox.setValue(pc, r, r, r);		
+		impactbox.setValue(pc, r.getExplanationProvider(), r, r);
 	}
 }

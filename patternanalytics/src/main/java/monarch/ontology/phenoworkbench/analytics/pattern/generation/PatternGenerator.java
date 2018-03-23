@@ -217,7 +217,9 @@ public class PatternGenerator {
     }
 
     private void createSample(Set<OWLEquivalentClassesAxiom> allDefinitions, Set<OWLEquivalentClassesAxiom> defs_sample, int SAMPLESIZE) {
-        if(allDefinitions.size()>SAMPLESIZE) {
+        if(SAMPLESIZE<=1) {
+            defs_sample.addAll(allDefinitions);
+        } else if(allDefinitions.size()>SAMPLESIZE) {
             List<OWLEquivalentClassesAxiom> alldefs = new ArrayList<>(allDefinitions);
             Collections.shuffle(alldefs);
             defs_sample.addAll(alldefs.subList(0, SAMPLESIZE));

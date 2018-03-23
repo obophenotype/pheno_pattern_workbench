@@ -1,14 +1,10 @@
 package monarch.ontology.phenoworkbench.util;
 
-import monarch.ontology.phenoworkbench.util.BaseIRIs;
-import monarch.ontology.phenoworkbench.util.OntologyFileExtension;
-import monarch.ontology.phenoworkbench.util.OntologyUtils;
-import monarch.ontology.phenoworkbench.util.RenderManager;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
+import org.semanticweb.owlapi.model.parameters.ChangeApplied;
 import org.semanticweb.owlapi.model.parameters.Imports;
 
-import java.io.File;
 import java.util.*;
 
 public class UberOntology {
@@ -21,10 +17,8 @@ public class UberOntology {
     private final Map<String, Set<OWLEntity>> allSignaturesAcrossOntologies = new HashMap<>();
     private final Map<OWLEntity, Set<String>> allOntologiesAcrossSignature = new HashMap<>();
 
-
     private final Imports imports;
-    Map<String, String> map_oid_name = new HashMap<>();
-    int o_ct = 1;
+    private final Map<String, String> map_oid_name = new HashMap<>();
 
     private final RenderManager render = new RenderManager();
 
@@ -35,7 +29,6 @@ public class UberOntology {
 
     private void processOntology(Imports imports, OWLOntology o, String name) {
         String oid = render.stripKnownIRIs(name);
-        o_ct++;
         map_oid_name.put(oid, name);
 
         try {
@@ -73,27 +66,33 @@ public class UberOntology {
         return map_oid_name;
     }
 
-    public Map<String, Set<OWLEntity>> getAllSignaturesAcrossOntologies() {
-        return allSignaturesAcrossOntologies;
-    }
-
-    public Map<String,Set<OWLAxiom>> getAllAxiomsAcrossOntologies() {
-        return allAxiomsAcrossOntologies;
-    }
-
     private void processOntologies(Set<String> iris) {
         iris.forEach(iri->kb.getOntology(iri).ifPresent(o->processOntology(imports, o,iri)));
     }
 
-    public OWLOntology createNewUberOntology() {
+    public Optional<OWLOntology> createNewUberOntology() {
+        Timer.start("UberOntology::createNewUberOntology");
+        OWLOntology o = null;
         try {
-            OWLOntology o = OWLManager.createOWLOntologyManager().createOntology(IRI.create(BaseIRIs.EBIBASE.replaceAll("#","")+"UnionOntology"));
-            allAxiomsAcrossOntologies.keySet().forEach(oid -> o.getOWLOntologyManager().addAxioms(o, allAxiomsAcrossOntologies.get(oid)));
-            return o;
+            o = createEmptyUnionOntology();
+            addAxiomsForOids(o);
         } catch (OWLOntologyCreationException e) {
             e.printStackTrace();
         }
-        return null;
+        Timer.end("UberOntology::createNewUberOntology");
+        return Optional.ofNullable(o);
+    }
+
+    private OWLOntology createEmptyUnionOntology() throws OWLOntologyCreationException {
+        return OWLManager.createOWLOntologyManager().createOntology(IRI.create(BaseIRIs.EBIBASE.replaceAll("#","")+"UnionOntology"));
+    }
+
+    private void addAxiomsForOids(OWLOntology o) {
+        allAxiomsAcrossOntologies.keySet().forEach(oid -> addAxioms(o, oid));
+    }
+
+    private ChangeApplied addAxioms(OWLOntology o, String oid) {
+        return o.getOWLOntologyManager().addAxioms(o, allAxiomsAcrossOntologies.get(oid));
     }
 
     public Set<String> getOids() {

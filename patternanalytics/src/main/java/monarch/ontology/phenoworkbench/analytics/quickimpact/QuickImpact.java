@@ -8,92 +8,98 @@ import monarch.ontology.phenoworkbench.util.*;
 import monarch.ontology.phenoworkbench.util.Timer;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
-import org.semanticweb.owlapi.model.parameters.Imports;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
-public class QuickImpact implements GrammarProvider,ExplanationRenderProvider,ImpactProvider {
+public class QuickImpact extends PhenoAnalysisRunner implements GrammarProvider,ImpactProvider {
 
+    private final ImpactMode mode;
+    private final String patternsiri;
     private DefinedClassImpactCalculator definedClassImpactCalculator;
-    private UberOntology o;
     private Reasoner r;
     private PatternManager man;
     private PatternProvider patternProviderDefault;
+    private int samplesize = -1;
+    private ExplanationRenderProvider explanationProvider;
 
-    public QuickImpact(Set<String> corpus, String patternsiri, boolean imports, ImpactMode mode, int samplesize) {
-        Timer.start("QuickImpact::QuickImpact()");
+    public QuickImpact(Set<String> corpus, String patternsiri, ImpactMode mode) {
+        super(corpus);
+       this.mode = mode;
+       this.patternsiri = patternsiri;
+    }
 
-        System.out.println("QI: Loading Uber Ontology: " + Timer.getSecondsElapsed("QuickImpact::QuickImpact()"));
-        Imports i = imports ? Imports.INCLUDED : Imports.EXCLUDED;
-        Timer.start("QuickImpact::QuickImpact()::UberOntology()");
-        o = new UberOntology(i, corpus);
-        Timer.end("QuickImpact::QuickImpact()::UberOntology()");
+    @Override
+    public void runAnalysis() {
+        String process = "QuickImpact::QuickImpact()";
+        Timer.start(process);
 
-        PatternGenerator patternGenerator = new PatternGenerator(o.getRender());
+        log("QI: Loading Uber Ontology: ",process);
 
-        System.out.println("QI: Create new Uber Ontology.." + Timer.getSecondsElapsed("QuickImpact::QuickImpact()"));
+        PatternGenerator patternGenerator = new PatternGenerator(getRenderManager());
+
+        log("QI: Create new Union Ontology..",process);
         Timer.start("QuickImpact::QuickImpact()::o.createNewUberOntology()");
-        OWLOntology all = o.createNewUberOntology();
+        OWLOntology all = createUnionOntology().orElseThrow(NullPointerException::new);
         Timer.end("QuickImpact::QuickImpact()::o.createNewUberOntology()");
 
-        System.out.println("QI: Preparing definedClasses" + Timer.getSecondsElapsed("QuickImpact::QuickImpact()"));
+        log("QI: Preparing definedClasses",process);
         Timer.start("QuickImpact::QuickImpact()::preparePatterns()");
-        Set<DefinedClass> definedClasses = preparePatterns(patternsiri, mode, samplesize, i, patternGenerator, all);
+        Set<DefinedClass> definedClasses = preparePatterns(patternGenerator, all);
         Timer.end("QuickImpact::QuickImpact()::preparePatterns()");
 
-        System.out.println("QI: Preparing pattern reasoner" + Timer.getSecondsElapsed("QuickImpact::QuickImpact()"));
+        log("QI: Preparing pattern reasoner",process);
         Timer.start("QuickImpact::QuickImpact()::preparePatternReasoner()");
         r = preparePatternReasoner(definedClasses, all);
         Timer.end("QuickImpact::QuickImpact()::preparePatternReasoner()");
 
         Set<DefinedClass> allDefinedClasses = new HashSet<>(definedClasses);
 
-        System.out.println("QI: Extract definition definedClasses.." + Timer.getSecondsElapsed("QuickImpact::QuickImpact()"));
-        Timer.start("QuickImpact::QuickImpact()::allDefinedClasses.addAll(patternGenerator.extractDefinedClasses(o.getAllAxioms(), true))");
-        allDefinedClasses.addAll(patternGenerator.extractDefinedClasses(o.getAllAxioms(), true));
-        Timer.end("QuickImpact::QuickImpact()::allDefinedClasses.addAll(patternGenerator.extractDefinedClasses(o.getAllAxioms(), true))");
+        log("QI: Extract definition definedClasses..",process);
+        Timer.start("QuickImpact::QuickImpact()::patternGenerator.extractDefinedClasses");
+        allDefinedClasses.addAll(patternGenerator.extractDefinedClasses(getO().getAllAxioms(), true));
+        Timer.end("QuickImpact::QuickImpact()::patternGenerator.extractDefinedClasses");
 
-        System.out.println("QI: Preparing DefinedClass Manager.." + Timer.getSecondsElapsed("QuickImpact::QuickImpact()"));
+        log("QI: Preparing DefinedClass Manager..",process);
         Timer.start("QuickImpact::QuickImpact()::PatternManager()");
-        man = new PatternManager(allDefinedClasses, r, patternGenerator, o.getRender());
+        man = new PatternManager(allDefinedClasses, r, patternGenerator, getRenderManager());
         Timer.end("QuickImpact::QuickImpact()::PatternManager()");
 
-        System.out.println("QI: Preparing pattern impact" + Timer.getSecondsElapsed("QuickImpact::QuickImpact()"));
+        log("QI: Preparing pattern impact",process);
         Timer.start("QuickImpact::QuickImpact()::DefinedClassImpactCalculator()");
-        definedClassImpactCalculator = new DefinedClassImpactCalculator(o, r.getUnsatisfiableClasses(), new HashSet<>());
+        definedClassImpactCalculator = new DefinedClassImpactCalculator(getO(), r.getUnsatisfiableClasses(), new HashSet<>());
         Timer.end("QuickImpact::QuickImpact()::DefinedClassImpactCalculator()");
 
-        System.out.println("QI: Computing impact.." + Timer.getSecondsElapsed("QuickImpact::QuickImpact()"));
+        log("QI: Computing impact..",process);
         Timer.start("QuickImpact::QuickImpact()::precomputeImpactMap()");
         definedClassImpactCalculator.precomputeImpactMap(man.getAllDefinedClasses());
         Timer.end("QuickImpact::QuickImpact()::precomputeImpactMap()");
         patternProviderDefault = new PatternProviderDefaultImpl(man);
-        System.out.println("QI: Done.." + Timer.getSecondsElapsed("QuickImpact::QuickImpact()"));
+        explanationProvider = new DefaultExplanationProvider(r,getRenderManager());
+        log("QI: Done..",process);
         Timer.end("QuickImpact::QuickImpact()");
         Timer.printTimings();
     }
 
-    private Set<DefinedClass> preparePatterns(String patternsfile, ImpactMode mode, int samplesize, Imports i, PatternGenerator patternGenerator, OWLOntology all) {
+    private Set<DefinedClass> preparePatterns(PatternGenerator patternGenerator, OWLOntology all) {
         Set<DefinedClass> definedClasses = new HashSet<>();
         switch (mode) {
             case EXTERNAL:
                 Set<OWLAxiom> axioms = new HashSet<>();
-                KB.getInstance().getOntology(patternsfile).ifPresent(ont -> {
-                    axioms.addAll(ont.getAxioms(i));
-                    this.o.getRender().addLabel(ont);
+                KB.getInstance().getOntology(patternsiri).ifPresent(ont -> {
+                    axioms.addAll(ont.getAxioms(getImports()));
+                    this.getRenderManager().addLabel(ont);
                 });
 
                 definedClasses.addAll(patternGenerator.extractDefinedClasses(axioms, false));
                 break;
             case ALL:
-                definedClasses.addAll(patternGenerator.generateDefinitionPatterns(all.getAxioms(i), new Reasoner(all).getOWLReasoner(), samplesize));
+                definedClasses.addAll(patternGenerator.generateDefinitionPatterns(all.getAxioms(getImports()), new Reasoner(all).getOWLReasoner(), samplesize));
                 break;
             case THING:
-                definedClasses.addAll(patternGenerator.generateThingPatterns(all.getAxioms(i)));
+                definedClasses.addAll(patternGenerator.generateThingPatterns(all.getAxioms(getImports())));
                 break;
             default:
-                definedClasses.addAll(patternGenerator.generateThingPatterns(all.getAxioms(i)));
+                definedClasses.addAll(patternGenerator.generateThingPatterns(all.getAxioms(getImports())));
         }
         return definedClasses;
     }
@@ -118,22 +124,8 @@ public class QuickImpact implements GrammarProvider,ExplanationRenderProvider,Im
         return man.getAllDefinedClasses();
     }
 
-
-
     public Optional<OntologyClassImpact> getImpact(OntologyClass c) {
         return definedClassImpactCalculator.getImpact(c);
-    }
-
-    private Optional<Explanation> getSubsumptionExplanation(OntologyClass c, OntologyClass p) {
-        return r.getExplanation(c.getOWLClass(), p.getOWLClass());
-    }
-
-    public Optional<ExplanationAnalyser> getSubsumptionExplanationRendered(OntologyClass subC, OntologyClass superC) {
-        Optional<Explanation> explanation = getSubsumptionExplanation(subC, superC);
-        if (explanation.isPresent()) {
-            return Optional.of(new ExplantionAnalyserImpl(explanation.get(), new HashSet<>(), o.getRender()));
-        }
-        return Optional.empty();
     }
 
     public PatternProvider getPatternProvider() {
@@ -146,5 +138,9 @@ public class QuickImpact implements GrammarProvider,ExplanationRenderProvider,Im
 
     public Set<PatternClass> getPatternsAmongDefinedClasses() {
         return getPatternProvider().getPatternsAmongDefinedClasses();
+    }
+
+    public ExplanationRenderProvider getExplanationProvider() {
+        return explanationProvider;
     }
 }

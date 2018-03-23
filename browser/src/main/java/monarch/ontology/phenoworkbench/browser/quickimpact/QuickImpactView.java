@@ -14,6 +14,7 @@ import monarch.ontology.phenoworkbench.analytics.pattern.generation.DefinedClass
 import monarch.ontology.phenoworkbench.browser.basic.PatternTree;
 import monarch.ontology.phenoworkbench.browser.basic.PatternTreeItem;
 import monarch.ontology.phenoworkbench.util.Timer;
+import org.semanticweb.owlapi.model.parameters.Imports;
 
 public class QuickImpactView extends BasicLayout {
 
@@ -43,13 +44,15 @@ public class QuickImpactView extends BasicLayout {
         System.out.println("runAnalysis()" + Timer.getSecondsElapsed("QuickImpactView::runAnalysis()"));
         Timer.start("QuickImpactView::runAnalysis()");
 
-        boolean imports = runOptionOrNull("imports").equals("yes");
+        Imports imports = runOptionOrNull("imports").equals("yes") ? Imports.INCLUDED : Imports.EXCLUDED;
         String patternfileiri = runOptionOrNull("patterns");
 
         System.out.println("Initialising quick impact" + Timer.getSecondsElapsed("QuickImpactView::runAnalysis()"));
         ImpactMode mode = sl_quickmode.getSelectedItem();
         Timer.start("QuickImpactView::QuickImpact()");
-        QuickImpact p = new QuickImpact(selectedOntologies, patternfileiri, imports, mode, 10);
+        QuickImpact p = new QuickImpact(selectedOntologies, patternfileiri, mode);
+        p.setImports(imports);
+        p.runAnalysis();
         Timer.end("QuickImpactView::QuickImpact()");
 
         System.out.println("Initialising tree" + Timer.getSecondsElapsed("QuickImpactView::runAnalysis()"));
@@ -96,15 +99,15 @@ public class QuickImpactView extends BasicLayout {
     private void updateInfoBox(QuickImpact p, PatternInfoBox impactbox, Object pi, WeightedPatternGrid g, PatternTree tree) {
         if (pi instanceof PatternTreeItem) {
             OntologyClass pc = ((PatternTreeItem) pi).getPatternClass();
-            impactbox.setValue(pc, p,p,p);
+            impactbox.setValue(pc, p.getExplanationProvider(),p,p);
             selectPatternInWeightedGrid(g, pc);
         } else if (pi instanceof WeightedPattern) {
             DefinedClass pc = ((WeightedPattern) pi).getPattern();
-            impactbox.setValue(pc, p,p,p);
+            impactbox.setValue(pc, p.getExplanationProvider(),p,p);
             tree.expandSelect(pc);
         } else if (pi instanceof OntologyClass) {
         		 OntologyClass pc = (OntologyClass) pi;
-             impactbox.setValue(pc, p,p,p);
+             impactbox.setValue(pc, p.getExplanationProvider(),p,p);
              tree.expandSelect(pc);
              selectPatternInWeightedGrid(g, pc);
         }

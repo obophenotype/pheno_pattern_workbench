@@ -1,4 +1,4 @@
-package monarch.ontology.phenoworkbench.analytics.pattern.reconciliation;
+package monarch.ontology.phenoworkbench.util;
 
 import org.semanticweb.owlapi.model.IRI;
 

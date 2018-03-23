@@ -19,7 +19,8 @@ class QuickImpactTest {
     void setUp() {
         Set<String> corpus = Collections.singleton("https://raw.githubusercontent.com/matentzn/ontologies/master/smalltest.owl");
         String patternsiri = "https://raw.githubusercontent.com/obophenotype/upheno/master/src/patterns_out/patterns_merged.owl";
-        impact = new QuickImpact(corpus,patternsiri, true, ImpactMode.EXTERNAL,Integer.MAX_VALUE);
+        impact = new QuickImpact(corpus,patternsiri,ImpactMode.EXTERNAL);
+
     }
 
     @org.junit.jupiter.api.Test
@@ -59,8 +60,8 @@ class QuickImpactTest {
             if (subC.getOWLClass().getIRI().toString().equals("http://upheno.com#UPHENO_TEST_19")) {
                 for (OntologyClass superC : impact.getAllDefinedClasses()) {
                     if (superC.getOWLClass().getIRI().toString().equals("http://upheno.com#UPHENO_TEST_43")) {
-                        assertTrue(impact.getSubsumptionExplanationRendered(subC, superC).isPresent());
-                        assertFalse(impact.getSubsumptionExplanationRendered(superC, subC).isPresent());
+                        assertTrue(impact.getExplanationProvider().getSubsumptionExplanationRendered(subC, superC).isPresent());
+                        assertFalse(impact.getExplanationProvider().getSubsumptionExplanationRendered(superC, subC).isPresent());
                         tested = true;
                     }
                 }

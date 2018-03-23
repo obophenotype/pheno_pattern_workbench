@@ -24,10 +24,9 @@ import java.io.IOException;
 import java.util.*;
 
 
-public class PatternExtractor {
+public class PatternExtractor extends PhenoAnalysisRunner {
 
-    private final int SAMPLESIZE;
-    private final UberOntology o;
+    private int SAMPLESIZE = -1;
     private final OntologyDebugReport report = new OntologyDebugReport();
     private final PatternOntologyCreator patternCreator = new PatternOntologyCreator();
     private BranchLoader branches = null;
@@ -37,54 +36,54 @@ public class PatternExtractor {
     private Map<OWLEntity, Map<String, Integer>> entityCounts = new HashMap<>();
     private Map<OWLAxiom, Set<String>> definitions = new HashMap<>();
 
-    private final int REPORT_MIN_IDSC = 1000;
+    private int REPORT_MIN_IDSC = 1000;
 
     //private final File pd;
     private final File branchfile;
     //private final Imports imports;
-    private final boolean addsubclasses;
+    private boolean addsubclasses = true;
 
-    public PatternExtractor(Set<String> pd, File branchfile, boolean imports, boolean addsubclasses, int samplesize) {
+    public PatternExtractor(Set<String> pd, File branchfile) {
+        super(pd);
         this.branchfile = branchfile;
-        Imports i = imports ? Imports.INCLUDED : Imports.EXCLUDED;
-        o = new UberOntology(i,pd);
-        this.addsubclasses = addsubclasses;
-        this.SAMPLESIZE = samplesize;
+    }
 
+    @Override
+    public void runAnalysis() {
+        OntologyUtils.p("Process Ontologies" + Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
+        OWLOntology uberontology = createUnionOntology().orElseThrow(NullPointerException::new);
+        this.branches = new BranchLoader(branchfile,uberontology);
+        OntologyUtils.p("Create Reasoner" +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
+        Reasoner rs = new Reasoner(uberontology);
+        OWLReasoner r = rs.getOWLReasoner();
+        OntologyUtils.p("Precompute unsatisfiable classes" +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
+        branches.addUnsatisfiableClasses(r);
+        if (isAddsubclasses()) {
+            OntologyUtils.p("Add subclasses to branches" +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
+            branches.addSubclassesToBranches(r);
+        }
+        OntologyUtils.p("Process axioms" +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
+        processAxioms();
     }
 
     public static void main(String[] args) throws IOException {
         File pd = new File(args[0]);
         File branches = new File(args[1]);
-        boolean imports = args[2].contains("i");
+        Imports imports = args[2].contains("i") ? Imports.INCLUDED : Imports.EXCLUDED;
         boolean addsubclasses = args[2].contains("s");
         File outdir = new File(args[3]);
         int samplesize = Integer.valueOf(args[4]);
 
-        PatternExtractor p = new PatternExtractor(new HashSet<>(FileUtils.readLines(pd,"UTF-8")), branches, imports, addsubclasses, samplesize);
-        p.run();
+        PatternExtractor p = new PatternExtractor(new HashSet<>(FileUtils.readLines(pd,"UTF-8")), branches);
+        p.setImports(imports);
+        p.setAddsubclasses(addsubclasses);
+        p.setSAMPLESIZE(samplesize);
+        p.runAnalysis();
         p.printResults(outdir);
     }
 
-    public void run() {
-        OntologyUtils.p("Process Ontologies" + Timer.getSecondsElapsed("PatternExtractor::run"));
-        OWLOntology uberontology = o.createNewUberOntology();
-        this.branches = new BranchLoader(branchfile,uberontology);
-        OntologyUtils.p("Create Reasoner" +Timer.getSecondsElapsed("PatternExtractor::run"));
-        Reasoner rs = new Reasoner(uberontology);
-        OWLReasoner r = rs.getOWLReasoner();
-        OntologyUtils.p("Precompute unsatisfiable classes" +Timer.getSecondsElapsed("PatternExtractor::run"));
-        branches.addUnsatisfiableClasses(r);
-        if (addsubclasses) {
-            OntologyUtils.p("Add subclasses to branches" +Timer.getSecondsElapsed("PatternExtractor::run"));
-            branches.addSubclassesToBranches(r);
-        }
-        OntologyUtils.p("Process axioms" +Timer.getSecondsElapsed("PatternExtractor::run"));
-        processAxioms();
-    }
-
     private void processAxioms() {
-        o.getAllAxioms().forEach(this::processAxiom);
+        getO().getAllAxioms().forEach(this::processAxiom);
     }
 
     private void processAxiom(OWLAxiom ax) {
@@ -112,7 +111,7 @@ public class PatternExtractor {
         if (!definitions.containsKey(ax)) {
             definitions.put(ax, new HashSet<>());
         }
-        definitions.get(ax).addAll(o.getAllOntologiesAcrossAxioms(ax));
+        definitions.get(ax).addAll(getO().getAllOntologiesAcrossAxioms(ax));
     }
 
     private void indexClassesToDefinitions(OWLAxiom ax) {
@@ -120,7 +119,7 @@ public class PatternExtractor {
             if (!classesToDefinitions.containsKey(c)) {
                 classesToDefinitions.put(c, new HashMap<>());
             }
-            for (String oid : o.getAllOntologiesAcrossAxioms(ax)) {
+            for (String oid : getO().getAllOntologiesAcrossAxioms(ax)) {
                 if (!classesToDefinitions.get(c).containsKey(ax)) {
                     classesToDefinitions.get(c).put(ax, new HashSet<>());
                 }
@@ -134,7 +133,7 @@ public class PatternExtractor {
             if (!entityCounts.containsKey(e)) {
                 entityCounts.put(e, new HashMap<>());
             }
-            for (String oid : o.getAllOntologiesAcrossAxioms(ax)) {
+            for (String oid : getO().getAllOntologiesAcrossAxioms(ax)) {
                 if (!entityCounts.get(e).containsKey(oid)) {
                     entityCounts.get(e).put(oid, 0);
                 }
@@ -151,7 +150,7 @@ public class PatternExtractor {
             if (!relationsToDefinitions.get(p).containsKey(ax)) {
                 relationsToDefinitions.get(p).put(ax, new HashSet<>());
             }
-            relationsToDefinitions.get(p).get(ax).addAll(o.getAllOntologiesAcrossAxioms(ax));
+            relationsToDefinitions.get(p).get(ax).addAll(getO().getAllOntologiesAcrossAxioms(ax));
         }
     }
 
@@ -161,19 +160,19 @@ public class PatternExtractor {
     public void printResults(File out) {
         report.addLine("# DefinedClass Analysis Results");
         report.addLine("* Ontology ids: ");
-        Map<String,String> map_oid_name = o.getMap_oid_name();
+        Map<String,String> map_oid_name = getO().getMap_oid_name();
         for(String oid:map_oid_name.keySet()) {
             report.addLine("  * "+oid+":"+map_oid_name.get(oid));
         }
-        OntologyUtils.p("Print Definition OntologyClassImpact" +Timer.getSecondsElapsed("PatternExtractor::run"));
+        OntologyUtils.p("Print Definition OntologyClassImpact" +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
         printDefinitionImpact(out);
-        OntologyUtils.p("Print Relation to Definition" +Timer.getSecondsElapsed("PatternExtractor::run"));
+        OntologyUtils.p("Print Relation to Definition" +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
         printRelationsToDefinition();
-        OntologyUtils.p("Print Classes to Definition" +Timer.getSecondsElapsed("PatternExtractor::run"));
+        OntologyUtils.p("Print Classes to Definition" +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
         printClassesToDefinition();
-        OntologyUtils.p("Print Entity Counts" +Timer.getSecondsElapsed("PatternExtractor::run"));
+        OntologyUtils.p("Print Entity Counts" +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
         printEntityCounts(out);
-        OntologyUtils.p("Print Definition Analysis" +Timer.getSecondsElapsed("PatternExtractor::run"));
+        OntologyUtils.p("Print Definition Analysis" +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
         printDefinitionAnalysis();
 
         try {
@@ -194,57 +193,57 @@ public class PatternExtractor {
         try {
             OntologyUtils.p("##### Print definition impact");
 
-            OntologyUtils.p("getUberOntology() " +Timer.getSecondsElapsed("PatternExtractor::run"));
-            OWLOntology o_union = o.createNewUberOntology();
+            OntologyUtils.p("getUberOntology() " +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
+            OWLOntology o_union = createUnionOntology().orElseThrow(NullPointerException::new);
 
-            OntologyUtils.p("createReasoner()" +Timer.getSecondsElapsed("PatternExtractor::run"));
+            OntologyUtils.p("createReasoner()" +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
             Reasoner rs = new Reasoner(o_union);
             OWLReasoner r = rs.getOWLReasoner();
             r.precomputeInferences(InferenceType.CLASS_HIERARCHY);
 
-            OntologyUtils.p("generatePatternsFromDefinitios()" +Timer.getSecondsElapsed("PatternExtractor::run"));
-            PatternGenerator patternGen = new PatternGenerator(o.getRender());
-            Set<PatternClass> generatedDefinedClasses = patternGen.generateDefinitionPatterns(definitions.keySet(), r,SAMPLESIZE);
+            OntologyUtils.p("generatePatternsFromDefinitios()" +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
+            PatternGenerator patternGen = new PatternGenerator(getO().getRender());
+            Set<PatternClass> generatedDefinedClasses = patternGen.generateDefinitionPatterns(definitions.keySet(), r, getSAMPLESIZE());
             //Map<OWLClass, OWLClassExpression> namedPatternsSKELETON = generateNamedClassesForExpressions(patternGen.generateThingPatterns(getDefinitionAxioms()));
 
-            OntologyUtils.p("createEmptyOntologies()" +Timer.getSecondsElapsed("PatternExtractor::run"));
+            OntologyUtils.p("createEmptyOntologies()" +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
             String base = BaseIRIs.EBIBASE.replaceAll("#", "");
             OWLOntology o_all_analysis = OWLManager.createOWLOntologyManager().createOntology(IRI.create( base+ "/pattern_union_definitions_analysis.owl"));
             OWLOntology o_definitions = OWLManager.createOWLOntologyManager().createOntology(IRI.create(base + "/pattern_definitions.owl"));
             OWLOntology o_definition_abox = OWLManager.createOWLOntologyManager().createOntology(IRI.create(base + "/pattern_definition_abox.owl"));
 
-            OntologyUtils.p("addPatterns()" +Timer.getSecondsElapsed("PatternExtractor::run"));
+            OntologyUtils.p("addPatterns()" +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
 
             Map<OWLClass, OWLNamedIndividual> classIndividualMap = patternCreator.addPatternsToOntology(generatedDefinedClasses, o_definitions);
-            OntologyUtils.p("addPatternsSkeleton()" +Timer.getSecondsElapsed("PatternExtractor::run"));
+            OntologyUtils.p("addPatternsSkeleton()" +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
 
-            OntologyUtils.p("addPatternsToOntology()" +Timer.getSecondsElapsed("PatternExtractor::run"));
+            OntologyUtils.p("addPatternsToOntology()" +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
             o_all_analysis.getOWLOntologyManager().addAxioms(o_all_analysis, o_definitions.getAxioms());
             o_all_analysis.getOWLOntologyManager().addAxioms(o_all_analysis, o_union.getAxioms());
 
-            OntologyUtils.p("recreateReasonerForOntologyWithPatterns()" +Timer.getSecondsElapsed("PatternExtractor::run"));
+            OntologyUtils.p("recreateReasonerForOntologyWithPatterns()" +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
             rs = new Reasoner(o_all_analysis);
             r = rs.getOWLReasoner();
 
-            OntologyUtils.p("precompute()" +Timer.getSecondsElapsed("PatternExtractor::run"));
+            OntologyUtils.p("precompute()" +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
             r.precomputeInferences(InferenceType.CLASS_HIERARCHY);
 
-            OntologyUtils.p("createInferredHierarchy()" +Timer.getSecondsElapsed("PatternExtractor::run"));
+            OntologyUtils.p("createInferredHierarchy()" +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
 
             OWLOntology o_all_inferred_hierarchy = OWLManager.createOWLOntologyManager().createOntology(IRI.create(base + "/pattern_inferred_ch.owl"));
             rs.createInferredHierarchy(o_all_inferred_hierarchy);
 
-            OntologyUtils.p("exportImpact(): Patterncount: " + generatedDefinedClasses.size() +Timer.getSecondsElapsed("PatternExtractor::run"));
+            OntologyUtils.p("exportImpact(): Patterncount: " + generatedDefinedClasses.size() +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
             List<Map<String, String>> csv = new ArrayList<>();
             exportImpact(generatedDefinedClasses, o_definitions, o_definition_abox, classIndividualMap,csv);
 
-            OntologyUtils.p("addAnnotations()" +Timer.getSecondsElapsed("PatternExtractor::run"));
+            OntologyUtils.p("addAnnotations()" +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
             patternCreator.copyAnnotationAssertionAxioms(o_all_analysis, o_definitions);
 
-            OntologyUtils.p("addDefinedClassesForImpact()" +Timer.getSecondsElapsed("PatternExtractor::run"));
+            OntologyUtils.p("addDefinedClassesForImpact()" +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
             patternCreator.addDefinedClassesForImpact(o_definition_abox);
 
-            OntologyUtils.p("saveOntologies()" +Timer.getSecondsElapsed("PatternExtractor::run"));
+            OntologyUtils.p("saveOntologies()" +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
 
             File out_all_out = new File(out, "pattern_all.owl");
             File outodef_all = new File(out, "pattern_defs.owl");
@@ -258,18 +257,18 @@ public class PatternExtractor {
             o_all_out.getOWLOntologyManager().addAxioms(o_all_out,o_union.getAxioms());
             //o_all_out.getOWLOntologyManager().addAxioms(o_all_out,o_all_inferred_hierarchy.getAxioms());
 
-            OntologyUtils.p("saveOntologies:o_all_out()" +Timer.getSecondsElapsed("PatternExtractor::run"));
+            OntologyUtils.p("saveOntologies:o_all_out()" +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
             o_all_out.getOWLOntologyManager().saveOntology(o_all_out, new RDFXMLDocumentFormat(), new FileOutputStream(out_all_out));
-            OntologyUtils.p("saveOntologies:o_o_definitions()" +Timer.getSecondsElapsed("PatternExtractor::run"));
+            OntologyUtils.p("saveOntologies:o_o_definitions()" +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
             o_definitions.getOWLOntologyManager().saveOntology(o_definitions, new RDFXMLDocumentFormat(), new FileOutputStream(outodef_all));
-            OntologyUtils.p("saveOntologies:o_o_all_inferred_hierarchy()" +Timer.getSecondsElapsed("PatternExtractor::run"));
+            OntologyUtils.p("saveOntologies:o_o_all_inferred_hierarchy()" +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
             o_all_inferred_hierarchy.getOWLOntologyManager().saveOntology(o_all_inferred_hierarchy, new RDFXMLDocumentFormat(), new FileOutputStream(outodef_inferred));
 
-            OntologyUtils.p("saveOntologies:o_definition_abox()" +Timer.getSecondsElapsed("PatternExtractor::run"));
+            OntologyUtils.p("saveOntologies:o_definition_abox()" +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
             o_definition_abox.getOWLOntologyManager().saveOntology(o_definition_abox, new RDFXMLDocumentFormat(), new FileOutputStream(outodef_o_definition_abox));
-            OntologyUtils.p("saveOntologies:csv_save()" +Timer.getSecondsElapsed("PatternExtractor::run"));
+            OntologyUtils.p("saveOntologies:csv_save()" +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
             Export.writeCSV(csv, metadata);
-            OntologyUtils.p("saveOntologies:done()" +Timer.getSecondsElapsed("PatternExtractor::run"));
+            OntologyUtils.p("saveOntologies:done()" +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
 
         } catch (OWLOntologyCreationException | OWLOntologyStorageException | FileNotFoundException e) {
             e.printStackTrace();
@@ -280,21 +279,25 @@ public class PatternExtractor {
         List<OWLOntologyChange> aboxchanges = new ArrayList<>();
         List<OWLOntologyChange> defchanges = new ArrayList<>();
 
-        final DefinedClassImpactCalculator definedClassImpactCalculator = new DefinedClassImpactCalculator(o,branches.getUnsatisfiableClasses(),branches.getAllClassesInBranches());
+        final DefinedClassImpactCalculator definedClassImpactCalculator = new DefinedClassImpactCalculator(getO(),branches.getUnsatisfiableClasses(),branches.getAllClassesInBranches());
         definedClassImpactCalculator.precomputeImpactMap(namedDefinedClasses);
         for (DefinedClass definedClass : namedDefinedClasses) {
             OWLClass patternName = definedClass.getOWLClass();
-            OntologyClassImpact impact = definedClassImpactCalculator.getImpact(definedClass).get();
-            System.out.println(impact);
-            String def_mcr_md = o.getRender().renderForMarkdown(definedClass.getDefiniton());
-            patternCreator.addImpactAxiomsForABox(patternName, classIndividualMap.get(patternName), o_definition_abox, aboxchanges,  def_mcr_md, impact);
-            patternCreator.addImpactAxiomsForTBox(patternName,o_definitions,defchanges, impact);
-            addImpactCSVRecord(csv, patternName, def_mcr_md, impact);
-            writeImpactReport(patternName, impact,def_mcr_md);
+            Optional<OntologyClassImpact> impact = definedClassImpactCalculator.getImpact(definedClass);
+            log(impact);
+            impact.ifPresent(i->processImpact(o_definitions, o_definition_abox, classIndividualMap, csv, aboxchanges, defchanges, definedClass, patternName, i));
         }
 
         o_definition_abox.getOWLOntologyManager().applyChanges(aboxchanges);
         o_definitions.getOWLOntologyManager().applyChanges(defchanges);
+    }
+
+    private void processImpact(OWLOntology o_definitions, OWLOntology o_definition_abox, Map<OWLClass, OWLNamedIndividual> classIndividualMap, List<Map<String, String>> csv, List<OWLOntologyChange> aboxchanges, List<OWLOntologyChange> defchanges, DefinedClass definedClass, OWLClass patternName, OntologyClassImpact impact) {
+        String def_mcr_md = getO().getRender().renderForMarkdown(definedClass.getDefiniton());
+        patternCreator.addImpactAxiomsForABox(patternName, classIndividualMap.get(patternName), o_definition_abox, aboxchanges,  def_mcr_md, impact);
+        patternCreator.addImpactAxiomsForTBox(patternName,o_definitions,defchanges, impact);
+        addImpactCSVRecord(csv, patternName, def_mcr_md, impact);
+        writeImpactReport(patternName, impact,def_mcr_md);
     }
 
     private void writeImpactReport(OWLClass patternName, OntologyClassImpact impact, String patternStringForMarkdown) {
@@ -356,7 +359,7 @@ public class PatternExtractor {
             for (OWLEntity e : labelmapping.get(label)) {
                 report.addLine("  * " + e.getIRI());
                 for (OWLAxiom ax : relationsToDefinitions.get(e).keySet()) {
-                    report.addLine("    * " + this.o.getRender().renderForMarkdown(ax)+" "+relationsToDefinitions.get(e).get(ax));
+                    report.addLine("    * " + this.getO().getRender().renderForMarkdown(ax)+" "+relationsToDefinitions.get(e).get(ax));
                 }
             }
         }
@@ -408,7 +411,7 @@ public class PatternExtractor {
                 report.addLine("* Definitions by relation:");
                 report.addLine("  * " + e.getIRI());
                 for (OWLAxiom ax : classesToDefinitions.get(e).keySet()) {
-                    report.addLine("    * " + this.o.getRender().renderForMarkdown(ax)+" "+classesToDefinitions.get(e).get(ax));
+                    report.addLine("    * " + this.getO().getRender().renderForMarkdown(ax)+" "+classesToDefinitions.get(e).get(ax));
                 }
             }
         }
@@ -484,10 +487,31 @@ public class PatternExtractor {
      */
 
     private String getLabel(OWLEntity k) {
-        return o.getRender().getLabel(k);
+        return getO().getRender().getLabel(k);
     }
 
     public List<String> getReportLines() {
         return report.getLines();
+    }
+
+
+    public void setThresholdForIndirectImpactInReport(int threshold) {
+        this.REPORT_MIN_IDSC = threshold;
+    }
+
+    private boolean isAddsubclasses() {
+        return addsubclasses;
+    }
+
+    public void setAddsubclasses(boolean addsubclasses) {
+        this.addsubclasses = addsubclasses;
+    }
+
+    private int getSAMPLESIZE() {
+        return SAMPLESIZE;
+    }
+
+    public void setSAMPLESIZE(int SAMPLESIZE) {
+        this.SAMPLESIZE = SAMPLESIZE;
     }
 }

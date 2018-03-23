@@ -1,7 +1,5 @@
 package monarch.ontology.phenoworkbench.util;
 
-import monarch.ontology.phenoworkbench.util.OntologyUtils;
-import monarch.ontology.phenoworkbench.util.Reasoner;
 import org.apache.commons.io.FileUtils;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.IRI;
