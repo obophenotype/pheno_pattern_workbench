@@ -17,18 +17,39 @@ public class OntologyUtils {
     }
 
     public static Set<String> getLabels(OWLEntity c, OWLOntology o) {
+
+        Set<OWLAnnotationProperty> annops = new HashSet<>();
+        annops.add(df.getRDFSLabel());
+        annops.add(df.getOWLAnnotationProperty(IRI.create("http://www.w3.org/2004/02/skos/core#prefLabel")));
+        annops.add(df.getOWLAnnotationProperty(IRI.create("http://www.w3.org/2004/02/skos/core#hiddenLabel")));
+        annops.add(df.getOWLAnnotationProperty(IRI.create("http://www.w3.org/2004/02/skos/core#altLabel")));
+        annops.add(df.getOWLAnnotationProperty(IRI.create("http://www.geneontology.org/formats/oboInOwl#hasExactSynonym")));
+
+        return getLabels(c, o, annops);
+    }
+
+    public static Set<String> getLabelsRDFS(OWLEntity c, OWLOntology o) {
+        Set<OWLAnnotationProperty> annops = new HashSet<>();
+        annops.add(df.getRDFSLabel());
+        return getLabels(c, o, annops);
+    }
+
+    private static Set<String> getLabels(OWLEntity c, OWLOntology o, Set<OWLAnnotationProperty> annops) {
         Set<String> labels = new HashSet<>();
         for(OWLOntology i:o.getImportsClosure()) {
-            for (OWLAnnotation a : EntitySearcher.getAnnotations(c, i, df.getRDFSLabel())) {
-                OWLAnnotationValue value = a.getValue();
-                if (value instanceof OWLLiteral) {
-                    String val = ((OWLLiteral) value).getLiteral();
-                    labels.add(val);
+            for(OWLAnnotationProperty annop:annops) {
+                for (OWLAnnotation a : EntitySearcher.getAnnotations(c, i, annop)) {
+                    OWLAnnotationValue value = a.getValue();
+                    if (value instanceof OWLLiteral) {
+                        String val = ((OWLLiteral) value).getLiteral();
+                        labels.add(val);
+                    }
                 }
             }
         }
         return labels;
     }
+
 
     public static TreeMap<Object, Integer> sortMapByValue(HashMap<? extends Object, Integer> map) {
         Comparator<Object> comparator = new MapSortInt(map);

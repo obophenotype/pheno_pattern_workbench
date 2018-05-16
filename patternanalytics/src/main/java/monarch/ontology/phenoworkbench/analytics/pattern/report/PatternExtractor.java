@@ -52,15 +52,24 @@ public class PatternExtractor extends PhenoAnalysisRunner {
     public void runAnalysis() {
         OntologyUtils.p("Process Ontologies" + Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
         OWLOntology uberontology = createUnionOntology().orElseThrow(NullPointerException::new);
-        this.branches = new BranchLoader(branchfile,uberontology);
+        this.branches = new BranchLoader();
         OntologyUtils.p("Create Reasoner" +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
         Reasoner rs = new Reasoner(uberontology);
         OWLReasoner r = rs.getOWLReasoner();
         OntologyUtils.p("Precompute unsatisfiable classes" +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
-        branches.addUnsatisfiableClasses(r);
+
         if (isAddsubclasses()) {
-            OntologyUtils.p("Add subclasses to branches" +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
-            branches.addSubclassesToBranches(r);
+            try {
+                branches.loadBranches(FileUtils.readLines(branchfile, "utf-8"),uberontology.getClassesInSignature(Imports.INCLUDED),true,r);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                branches.loadBranches(FileUtils.readLines(branchfile, "utf-8"),uberontology.getClassesInSignature(Imports.INCLUDED),true);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         OntologyUtils.p("Process axioms" +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
         processAxioms();
@@ -74,7 +83,17 @@ public class PatternExtractor extends PhenoAnalysisRunner {
         File outdir = new File(args[3]);
         int samplesize = Integer.valueOf(args[4]);
 
-        PatternExtractor p = new PatternExtractor(new HashSet<>(FileUtils.readLines(pd,"UTF-8")), branches);
+        Set<String> files = new HashSet<>();
+        if(pd.isDirectory()) {
+            for(File f : pd.listFiles(f->f.getName().endsWith(".owl"))) {
+                files.add(f.toURI().toString());
+            }
+        } else if(pd.isFile()) {
+            files.addAll(FileUtils.readLines(pd,"UTF-8"));
+
+        }
+
+        PatternExtractor p = new PatternExtractor(files, branches);
         p.setImports(imports);
         p.setAddsubclasses(addsubclasses);
         p.setSAMPLESIZE(samplesize);

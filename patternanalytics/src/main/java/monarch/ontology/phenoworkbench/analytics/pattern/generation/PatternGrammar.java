@@ -13,7 +13,7 @@ public class PatternGrammar {
 
     PatternGrammar(String s) {
         this.original = s;
-        this.grammar = s.replaceAll("[^a-zA-Z0-9]","").toLowerCase();
+        this.grammar = s.replaceAll("[^a-zA-Z0-9()]","").toLowerCase();
 
     }
 

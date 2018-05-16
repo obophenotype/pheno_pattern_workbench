@@ -31,7 +31,8 @@ public class SubClassRedundancy {
             p("* Loading ontology..");
             OWLOntology base = KB.getInstance().getOntology(iri).get();
             render.addLabel(base);
-            branches = new BranchLoader(branchfile,base);
+            branches = new BranchLoader();
+
             p("* done.."+Timer.getSecondsElapsed("SubClassRedundancy::SubClassRedundancy()"));
 
             Set<OWLAxiom> all_axioms = new HashSet<>(base.getAxioms(Imports.INCLUDED));
@@ -55,7 +56,7 @@ public class SubClassRedundancy {
             p("* Performing reasoning..");
 
             Reasoner r_exceptbase = new Reasoner(o_exceptbase);
-            branches.addSubclassesToBranches(r_exceptbase);
+            branches.loadBranches(FileUtils.readLines(branchfile, "utf-8"),base.getClassesInSignature(Imports.INCLUDED),true,r_exceptbase.getOWLReasoner());
 
             Set<OWLAxiom> impliedwobase = r_exceptbase.getInferredSubclassOfAxioms();
 
@@ -105,9 +106,10 @@ public class SubClassRedundancy {
 
             i = 0;
             p("## Branches of interest: ");
+            /*
             for(OWLClass c:branches.getBranchHeads()) {
                 render.renderTreeForMarkdown(c,r_all.getOWLReasoner(),lines.getLines(),1);
-            }
+            } */
             p("## How many subclasses are recapitulated (i.e. redundant) wrt. defined classes?");
             p("Restricted to maximum 50 axioms");
             for (OWLAxiom ax : intersection_asserted) {
@@ -128,6 +130,8 @@ public class SubClassRedundancy {
             p("* Only before: " + onlybefore);
 
         } catch (OWLOntologyCreationException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

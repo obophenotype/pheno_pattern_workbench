@@ -11,45 +11,50 @@ import org.semanticweb.owlapi.reasoner.OWLReasoner;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class BranchLoader {
 
-    private Set<String> branches = new HashSet<>();
-    private Set<OWLClass> branchHeads = new HashSet<>();
+    //private Set<OWLClass> branchHeads = new HashSet<>();
     private Set<OWLClass> allClassesInBranches = new HashSet<>();
     private Set<OWLClass> unsatisfiableClasses = new HashSet<>();
     private OWLDataFactory df = OWLManager.getOWLDataFactory();
 
+    /*
     public BranchLoader(File f, OWLOntology o) {
-        loadBranches(f,o.getClassesInSignature(Imports.INCLUDED));
-    }
-
-    private void loadBranches(File branchfile, Set<OWLClass> ontologysignature) {
         try {
-            branches.addAll(FileUtils.readLines(branchfile, "utf-8"));
-            for(String b:branches){
-                OWLClass c = df.getOWLClass(IRI.create(b));
-                if(ontologysignature.contains(c)) {
-                    branchHeads.add(c);
-                }
-            }
-            allClassesInBranches.addAll(branchHeads);
+            loadBranches(FileUtils.readLines(f, "utf-8"),o.getClassesInSignature(Imports.INCLUDED));
         } catch (IOException e) {
             e.printStackTrace();
         }
+    } */
+
+    public BranchLoader() {
+
     }
 
-    public void addSubclassesToBranches(OWLReasoner r) {
+    public void loadBranches(Collection<String> bs, Set<OWLClass> ontologysignature, boolean add_owl_thing) {
+        loadBranches(bs,ontologysignature,add_owl_thing,null);
+    }
+
+    public void loadBranches(Collection<String> bs, Set<OWLClass> ontologysignature, boolean add_owl_thing, OWLReasoner r) {
+        for(String b:bs){
+            OWLClass c = df.getOWLClass(IRI.create(b));
+            if(ontologysignature.contains(c)||(add_owl_thing&&c.equals(df.getOWLThing()))) {
+                allClassesInBranches.add(c);
+            }
+        }
+        if(r!=null) {
+            addUnsatisfiableClasses(r);
+            addSubclassesToBranches(r);
+        }
+    }
+
+    private void addSubclassesToBranches(OWLReasoner r) {
         allClassesInBranches.addAll(OntologyUtils.getSubClasses(allClassesInBranches, r));
         allClassesInBranches.remove(df.getOWLThing());
         allClassesInBranches.remove(df.getOWLNothing());
         allClassesInBranches.removeAll(unsatisfiableClasses);
-    }
-
-    public void addSubclassesToBranches(Reasoner r) {
-        addSubclassesToBranches(r.getOWLReasoner());
     }
 
     public Set<OWLClass> getUnsatisfiableClasses() {
@@ -62,9 +67,7 @@ public class BranchLoader {
 
     public void addUnsatisfiableClasses(OWLReasoner r) {
         unsatisfiableClasses.addAll(r.getUnsatisfiableClasses().getEntities());
+        allClassesInBranches.removeAll(unsatisfiableClasses);
     }
 
-    public Iterable<? extends OWLClass> getBranchHeads() {
-        return branchHeads;
-    }
 }

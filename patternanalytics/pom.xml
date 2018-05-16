@@ -122,24 +122,46 @@
         </plugin>
         <plugin>
             <artifactId>maven-assembly-plugin</artifactId>
-            <configuration>
-                <archive>
-                    <manifest>
-                        <mainClass>ebi.patternextract.main.PatternExtractor</mainClass>
-                    </manifest>
-                </archive>
-                <descriptorRefs>
-                    <descriptorRef>jar-with-dependencies</descriptorRef>
-                </descriptorRefs>
-            </configuration>
+
             <executions>
                 <execution>
-                    <id>make-assembly</id>
+                    <id>make-assembly1</id>
                     <!-- bind to the packaging phase -->
                     <phase>package</phase>
                     <goals>
                         <goal>single</goal>
                     </goals>
+                    <configuration>
+                        <archive>
+                            <manifest>
+                                <mainClass>monarch.ontology.phenoworkbench.analytics.pattern.report.SubClassSurvey</mainClass>
+                            </manifest>
+                        </archive>
+                        <finalName>sbcl</finalName>
+                        <appendAssemblyId>false</appendAssemblyId>
+                        <descriptorRefs>
+                            <descriptorRef>jar-with-dependencies</descriptorRef>
+                        </descriptorRefs>
+                    </configuration>
+                </execution>
+                <execution>
+                    <id>make-assembly2</id>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>single</goal>
+                    </goals>
+                    <configuration>
+                        <archive>
+                            <manifest>
+                                <mainClass>monarch.ontology.phenoworkbench.analytics.pattern.report.PatternSurvey</mainClass>
+                            </manifest>
+                        </archive>
+                        <descriptorRefs>
+                            <descriptorRef>jar-with-dependencies</descriptorRef>
+                        </descriptorRefs>
+                        <finalName>harvest</finalName>
+                        <appendAssemblyId>false</appendAssemblyId>
+                    </configuration>
                 </execution>
             </executions>
         </plugin>
