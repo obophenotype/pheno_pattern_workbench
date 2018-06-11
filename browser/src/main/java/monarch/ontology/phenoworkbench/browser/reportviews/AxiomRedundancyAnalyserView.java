@@ -5,15 +5,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import monarch.ontology.phenoworkbench.browser.basic.BasicLayout;
-import monarch.ontology.phenoworkbench.browser.basic.BranchGrid;
-import monarch.ontology.phenoworkbench.browser.basic.Branches;
+import monarch.ontology.phenoworkbench.util.OntologyEntry;
+import monarch.ontology.phenoworkbench.browser.basic.*;
 import monarch.ontology.phenoworkbench.analytics.subclassredundancy.SubClassRedundancy;
 
 import com.vaadin.ui.Label;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
-import monarch.ontology.phenoworkbench.browser.basic.LabelManager;
 import monarch.ontology.phenoworkbench.util.Files;
 
 public class AxiomRedundancyAnalyserView extends BasicLayout {
@@ -37,7 +34,7 @@ public class AxiomRedundancyAnalyserView extends BasicLayout {
 	}
 
 	@Override
-	protected void runAnalysis(Set<String> selectedItems) {
+	protected void runAnalysis(Set<OntologyEntry> selectedItems) {
 		selectedItems.forEach(System.out::println);
 
 		boolean imports = runOptionOrNull("imports").equals("yes");
@@ -49,7 +46,7 @@ public class AxiomRedundancyAnalyserView extends BasicLayout {
 		vl_sbcl_redundancy.setSpacing(true);
 		
 		
-		for(String ofile:selectedItems) {
+		for(OntologyEntry ofile:selectedItems) {
 			SubClassRedundancy p = new SubClassRedundancy(ofile, branches);
 			Label l = LabelManager.htmlLabelFromMarkdown(p.getReportLines());
 			vl_sbcl_redundancy.addComponent(l);

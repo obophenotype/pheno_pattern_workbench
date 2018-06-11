@@ -42,4 +42,10 @@ public class LabelManager {
 	public static Component labelH2(String s, float width, Unit unit) {
 		return htmlLabel("<h2>"+s+"</h2>",width,unit);
 	}
+
+	public static Component hr(String width) {
+		Label l = htmlLabel("<hr/>");
+		l.setWidth(width);
+		return l;
+	}
 }

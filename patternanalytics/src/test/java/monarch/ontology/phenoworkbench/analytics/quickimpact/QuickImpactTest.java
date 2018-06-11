@@ -4,6 +4,7 @@ import monarch.ontology.phenoworkbench.analytics.pattern.generation.DefinedClass
 import monarch.ontology.phenoworkbench.analytics.pattern.generation.OntologyClass;
 import monarch.ontology.phenoworkbench.analytics.pattern.impact.ImpactMode;
 import monarch.ontology.phenoworkbench.analytics.pattern.impact.OntologyClassImpact;
+import monarch.ontology.phenoworkbench.util.OntologyEntry;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -17,7 +18,7 @@ class QuickImpactTest {
 
     @org.junit.jupiter.api.BeforeEach
     void setUp() {
-        Set<String> corpus = Collections.singleton("https://raw.githubusercontent.com/matentzn/ontologies/master/smalltest.owl");
+        Set<OntologyEntry> corpus = Collections.singleton(new OntologyEntry("test","https://raw.githubusercontent.com/matentzn/ontologies/master/smalltest.owl"));
         String patternsiri = "https://raw.githubusercontent.com/obophenotype/upheno/master/src/patterns_out/patterns_merged.owl";
         impact = new QuickImpact(corpus,patternsiri,ImpactMode.EXTERNAL);
 

@@ -3,19 +3,20 @@ package monarch.ontology.phenoworkbench.analytics.pattern.generation;
 import monarch.ontology.phenoworkbench.util.Timer;
 import org.semanticweb.owlapi.model.OWLClass;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public class OntologyClass {
     private final OWLClass c;
     private String label;
+    private String iri;
+    private Map<String,Set<String>> annotations = new HashMap<>();
     private Set<OntologyClass> parents = new HashSet<>();
     private Set<OntologyClass> children = new HashSet<>();
 
     OntologyClass(OWLClass c) {
         this.c = c;
         this.label = c.toString();
+        this.iri = c.getIRI().toString();
     }
 
     @Override
@@ -31,6 +32,21 @@ public class OntologyClass {
     public int hashCode() {
 
         return Objects.hash(c, label);
+    }
+
+    public String getIri() {
+        return iri;
+    }
+
+    public void addMetadata(String key, String value) {
+        if(!annotations.containsKey(key)) {
+            annotations.put(key,new HashSet<>());
+        }
+        annotations.get(key).add(value);
+    }
+
+    public Map<String,Set<String>> getMetadata() {
+        return annotations;
     }
 
     public final void addChild(OntologyClass c) {

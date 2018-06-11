@@ -19,17 +19,18 @@ public class UberOntology {
 
     private final Imports imports;
     private final Map<String, String> map_oid_name = new HashMap<>();
+    private final Set<OntologyEntry> ontologyEntries = new HashSet<>();
 
     private final RenderManager render = new RenderManager();
 
-    public UberOntology(Imports imports, Set<String> iris) {
+    public UberOntology(Imports imports, Set<OntologyEntry> iris) {
         this.imports = imports;
         processOntologies(iris);
     }
 
-    private void processOntology(Imports imports, OWLOntology o, String name) {
-        String oid = render.stripKnownIRIs(name);
-        map_oid_name.put(oid, name);
+    private void processOntology(Imports imports, OWLOntology o, OntologyEntry e) {
+        String oid = e.getOid();
+        map_oid_name.put(oid, e.getIri());
 
         try {
                Set<OWLAxiom> axioms = new HashSet<>(o.getAxioms(imports));
@@ -49,9 +50,10 @@ public class UberOntology {
                 allOntologiesAcrossSignature.get(ax).add(oid);
             }
             getRender().addLabel(o);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
+        ontologyEntries.add(e);
     }
 
     public Set<OWLAxiom> getAllAxioms() {
@@ -66,8 +68,8 @@ public class UberOntology {
         return map_oid_name;
     }
 
-    private void processOntologies(Set<String> iris) {
-        iris.forEach(iri->kb.getOntology(iri).ifPresent(o->processOntology(imports, o,iri)));
+    private void processOntologies(Set<OntologyEntry> iris) {
+        iris.forEach(iri->kb.getOntology(iri.getIri()).ifPresent(o->processOntology(imports, o,iri)));
     }
 
     public Optional<OWLOntology> createNewUberOntology() {
@@ -109,5 +111,16 @@ public class UberOntology {
 
     public RenderManager getRender() {
         return render;
+    }
+
+    public Set<OWLAxiom> getAxioms(String oid) {
+        if(allAxiomsAcrossOntologies.containsKey(oid)) {
+            return allAxiomsAcrossOntologies.get(oid);
+        }
+        return new HashSet<>();
+    }
+
+    public Collection<? extends OntologyEntry> getOntologyEntries() {
+        return ontologyEntries;
     }
 }

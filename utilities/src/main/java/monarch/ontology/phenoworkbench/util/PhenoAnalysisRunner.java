@@ -8,11 +8,11 @@ import java.util.Set;
 
 public abstract class PhenoAnalysisRunner {
 
-    private final Set<String> corpus;
+    private final Set<OntologyEntry> corpus;
     private Imports imports = Imports.INCLUDED;
     private UberOntology o;
 
-    public PhenoAnalysisRunner(Set<String> corpus) {
+    public PhenoAnalysisRunner(Set<OntologyEntry> corpus) {
         this.corpus = corpus;
     }
 
@@ -40,7 +40,7 @@ public abstract class PhenoAnalysisRunner {
         return getO().createNewUberOntology();
     }
 
-    public Set<String> getCorpus() {
+    public Set<OntologyEntry> getCorpus() {
         return corpus;
     }
 

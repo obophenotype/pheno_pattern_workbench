@@ -38,14 +38,11 @@ public class PatternExtractor extends PhenoAnalysisRunner {
 
     private int REPORT_MIN_IDSC = 1000;
 
-    //private final File pd;
-    private final File branchfile;
     //private final Imports imports;
     private boolean addsubclasses = true;
 
-    public PatternExtractor(Set<String> pd, File branchfile) {
+    public PatternExtractor(Set<OntologyEntry> pd) {
         super(pd);
-        this.branchfile = branchfile;
     }
 
     @Override
@@ -58,18 +55,12 @@ public class PatternExtractor extends PhenoAnalysisRunner {
         OWLReasoner r = rs.getOWLReasoner();
         OntologyUtils.p("Precompute unsatisfiable classes" +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
 
+        Set<String> bs = new HashSet<>();
+        getCorpus().forEach(e->e.getRoots().forEach(bs::add));
         if (isAddsubclasses()) {
-            try {
-                branches.loadBranches(FileUtils.readLines(branchfile, "utf-8"),uberontology.getClassesInSignature(Imports.INCLUDED),true,r);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            branches.loadBranches(bs,uberontology.getClassesInSignature(Imports.INCLUDED),true,r);
         } else {
-            try {
-                branches.loadBranches(FileUtils.readLines(branchfile, "utf-8"),uberontology.getClassesInSignature(Imports.INCLUDED),true);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            branches.loadBranches(bs,uberontology.getClassesInSignature(Imports.INCLUDED),true);
         }
         OntologyUtils.p("Process axioms" +Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
         processAxioms();
@@ -83,17 +74,9 @@ public class PatternExtractor extends PhenoAnalysisRunner {
         File outdir = new File(args[3]);
         int samplesize = Integer.valueOf(args[4]);
 
-        Set<String> files = new HashSet<>();
-        if(pd.isDirectory()) {
-            for(File f : pd.listFiles(f->f.getName().endsWith(".owl"))) {
-                files.add(f.toURI().toString());
-            }
-        } else if(pd.isFile()) {
-            files.addAll(FileUtils.readLines(pd,"UTF-8"));
+        OntologyRegistry phenotypeontologies = new OntologyRegistry(pd,branches);
 
-        }
-
-        PatternExtractor p = new PatternExtractor(files, branches);
+        PatternExtractor p = new PatternExtractor(phenotypeontologies.getOntologies());
         p.setImports(imports);
         p.setAddsubclasses(addsubclasses);
         p.setSAMPLESIZE(samplesize);

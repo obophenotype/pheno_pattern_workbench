@@ -16,6 +16,7 @@ import com.vaadin.ui.Layout;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.MenuItem;
 
+import monarch.ontology.phenoworkbench.browser.candident.CandidentView;
 import monarch.ontology.phenoworkbench.browser.quickimpact.QuickImpactView;
 import monarch.ontology.phenoworkbench.browser.reconciliation.PatternReconciliationView;
 import monarch.ontology.phenoworkbench.browser.reportviews.AxiomRedundancyAnalyserView;
@@ -31,12 +32,13 @@ import com.vaadin.ui.VerticalLayout;
 @Push 
 public class PhenoUI extends UI {
 
-	public static String PATTERNANALYTICSVIEW = "DefinedClass Analysis";
+	public static String PATTERNANALYTICSVIEW = "Pattern Analysis";
 	public static String UNIONANALYTICSVIEW = "Ontology Union Debugger";
 	public static String INFERENCEANALYTICSVIEW = "Inference Analysis";
 	public static String SUBCLASSREDUNDANCYVEIW = "Subclass Redundancy";
 	public static String QUICKCLASSIMPACT = "Quick Impact";
 	public static String RECONCILIATION = "Reconciliation";
+	public static String CANDIDENT = "CandIdent";
 	Map<String, Layout> views = new HashMap<>();
 
 	@Override
@@ -94,6 +96,12 @@ public class PhenoUI extends UI {
 					}
 					setNewView(views.get(RECONCILIATION));
 				}
+				else if (menuitem.equals(CANDIDENT)) {
+					if (!views.containsKey(CANDIDENT)) {
+						views.put(CANDIDENT, new CandidentView());
+					}
+					setNewView(views.get(CANDIDENT));
+				}
 			}
 
 			private void setNewView(Component c) {
@@ -108,6 +116,7 @@ public class PhenoUI extends UI {
 		barmenu.addItem(QUICKCLASSIMPACT, null, mycommand);
 		barmenu.addItem(SUBCLASSREDUNDANCYVEIW, null, mycommand);
 		barmenu.addItem(RECONCILIATION, null, mycommand);
+		barmenu.addItem(CANDIDENT, null, mycommand);
 
 	}
 

@@ -22,7 +22,7 @@ public class QuickImpact extends PhenoAnalysisRunner implements GrammarProvider,
     private int samplesize = -1;
     private ExplanationRenderProvider explanationProvider;
 
-    public QuickImpact(Set<String> corpus, String patternsiri, ImpactMode mode) {
+    public QuickImpact(Set<OntologyEntry> corpus, String patternsiri, ImpactMode mode) {
         super(corpus);
        this.mode = mode;
        this.patternsiri = patternsiri;

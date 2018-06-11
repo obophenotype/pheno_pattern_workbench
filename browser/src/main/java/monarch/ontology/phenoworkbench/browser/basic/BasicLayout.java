@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.vaadin.ui.Component;
+import monarch.ontology.phenoworkbench.util.OntologyEntry;
 import monarch.ontology.phenoworkbench.util.Downloader;
 
 import com.vaadin.ui.Label;
@@ -49,7 +50,7 @@ public abstract class BasicLayout extends VerticalLayout {
 		UI.getCurrent().access(()->{sub.close();});
 	}
 	protected abstract Map<String, String> getRunOptions();
-	protected abstract void runAnalysis(Set<String> selectedOntologies);
+	protected abstract void runAnalysis(Set<OntologyEntry> selectedOntologies);
 
 	private RunAnalysisPanel getRunAnalysisPanel() {
 		return runAnalysisPanel;

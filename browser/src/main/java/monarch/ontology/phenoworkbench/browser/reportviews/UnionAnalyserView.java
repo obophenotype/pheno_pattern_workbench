@@ -9,6 +9,7 @@ import com.vaadin.ui.UI;
 
 import monarch.ontology.phenoworkbench.browser.basic.BasicLayout;
 import monarch.ontology.phenoworkbench.analytics.debug.CorpusDebugger;
+import monarch.ontology.phenoworkbench.util.OntologyEntry;
 
 public class UnionAnalyserView extends BasicLayout {
 
@@ -32,7 +33,7 @@ public class UnionAnalyserView extends BasicLayout {
 	}
 
 	@Override
-	protected void runAnalysis(Set<String> selectedItems) {
+	protected void runAnalysis(Set<OntologyEntry> selectedItems) {
 		selectedItems.forEach(System.out::println);
 
 		boolean imports = runOptionOrNull("imports").equals("yes");

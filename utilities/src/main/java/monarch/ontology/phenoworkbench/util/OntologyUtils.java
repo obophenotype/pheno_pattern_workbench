@@ -50,6 +50,24 @@ public class OntologyUtils {
         return labels;
     }
 
+    private static  Map<OWLAnnotationProperty,Set<String>> getAllAnnotations(OWLEntity c, OWLOntology o, Set<OWLAnnotationProperty> annops) {
+        Map<OWLAnnotationProperty,Set<String>> labels = new HashMap<>();
+        for(OWLOntology i:o.getImportsClosure()) {
+            for(OWLAnnotationProperty annop:annops) {
+                labels.put(annop,new HashSet<>());
+
+                for (OWLAnnotation a : EntitySearcher.getAnnotations(c, i, annop)) {
+                    OWLAnnotationValue value = a.getValue();
+                    if (value instanceof OWLLiteral) {
+                        String val = ((OWLLiteral) value).getLiteral();
+                        labels.get(annop).add(val);
+                    }
+                }
+            }
+        }
+        return labels;
+    }
+
 
     public static TreeMap<Object, Integer> sortMapByValue(HashMap<? extends Object, Integer> map) {
         Comparator<Object> comparator = new MapSortInt(map);

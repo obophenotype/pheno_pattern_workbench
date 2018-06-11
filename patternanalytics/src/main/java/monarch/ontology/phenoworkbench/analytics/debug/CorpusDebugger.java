@@ -30,7 +30,7 @@ public class CorpusDebugger {
     private String BASE = "http://ebi.debug.owl#";
     private OntologyDebugReport report = new OntologyDebugReport();
 
-    private final Set<String> pd;
+    private final Set<OntologyEntry> pd;
     private final String reasoner;
     private final int MAXUNSAT;
     private final int MAXEXPLANATIONPERUNSAT;
@@ -38,7 +38,7 @@ public class CorpusDebugger {
     private final Map<IRI, OWLOntology> allAxiomsAcrossOntologies = new HashMap<>();
     private final Map<OWLAxiom, Set<IRI>> allOntologiesAcrossAxioms = new HashMap<>();
 
-    public CorpusDebugger(Set<String> pd, String reasoner, boolean imports, int maxunsat,int maxexplunsat) {
+    public CorpusDebugger(Set<OntologyEntry> pd, String reasoner, boolean imports, int maxunsat,int maxexplunsat) {
         this.pd = pd;
         this.reasoner = reasoner;
         this.MAXUNSAT = maxunsat;
@@ -54,8 +54,8 @@ public class CorpusDebugger {
         String reasoner = args[4];
         File outdir = new File(args[5]);
 
-
-        CorpusDebugger p = new CorpusDebugger(new HashSet<>(FileUtils.readLines(pd,"UTF-8")), reasoner, imports, maxunsat, maxexplunsat);
+        OntologyRegistry phenotypeontologies = new OntologyRegistry(pd,new File(UUID.randomUUID().toString()));
+        CorpusDebugger p = new CorpusDebugger(phenotypeontologies.getOntologies(), reasoner, imports, maxunsat, maxexplunsat);
         p.run();
         try {
             p.printResults(outdir);
@@ -67,9 +67,9 @@ public class CorpusDebugger {
 
     public void run() {
         Timer.start("CorpusDebugger::runAnalysis");
-        for (String ourl : pd) {
+        for (OntologyEntry ourl : pd) {
             //if(ourl.endsWith("hp.owl"))
-            processOntology(imports, ourl);
+            processOntology(imports, ourl.getIri());
         }
         preparePrint();
         Timer.end("CorpusDebugger::runAnalysis");

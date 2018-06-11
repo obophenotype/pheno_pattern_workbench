@@ -13,9 +13,9 @@ public class ReconciliationInfoBox extends HorizontalLayout {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 2254864769616615100L;	;
+	private static final long serialVersionUID = 2254864769616615100L;
 
-	public ReconciliationInfoBox(PatternReconciliationCandidate recon) {
+    public ReconciliationInfoBox(PatternReconciliationCandidate recon) {
 		setWidth("100%");
 		setHeightUndefined();
 		setMargin(true);

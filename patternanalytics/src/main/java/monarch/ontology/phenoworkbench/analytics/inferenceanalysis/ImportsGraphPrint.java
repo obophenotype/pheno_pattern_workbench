@@ -21,6 +21,7 @@ public class ImportsGraphPrint {
     private final long start = System.currentTimeMillis();
     private final Set<String> pd;
     private final Map<String, OWLOntology> allImportsAcrossOntologies = new HashMap<>();
+    Map<String,String> import_location_to_iri = new HashMap<>();
 
 
     public ImportsGraphPrint(Set<String> pd) {
@@ -56,20 +57,22 @@ public class ImportsGraphPrint {
             OntologyUtils.p("#### ANALYSING ONTOLOGY: "+f);
 
             OWLOntology imports = allImportsAcrossOntologies.get(f);
-
-            printRecursive(imports,1);
+            for(OWLImportsDeclaration dec:imports.getImportsDeclarations()) {
+                printRecursive(imports.getOWLOntologyManager(),dec, 1);
+            }
             report.addEmptyLine();
         }
 
         FileUtils.writeLines(new File(out,"report_import_analysis.md"), report.getLines());
     }
 
-    private void printRecursive(OWLOntology o, int level) {
+    private void printRecursive(OWLOntologyManager man, OWLImportsDeclaration dec, int level) {
 
         String repeated = new String(new char[level]).replace("\0", "  ");
-        report.addLine(repeated+" * "+iri(o));
-        for (OWLOntology imp : o.getDirectImports()) {
-            printRecursive(imp,level+1);
+        OWLOntology o = man.getImportedOntology(dec);
+        report.addLine(repeated+" * "+iri(o)+ " ("+o.getAxioms(Imports.EXCLUDED).size()+"/"+o.getAxioms(Imports.INCLUDED).size()+" axioms): "+dec.getIRI());
+        for(OWLImportsDeclaration imp:o.getImportsDeclarations()) {
+            printRecursive(man,imp,level+1);
         }
     }
 

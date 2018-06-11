@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Grid;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -19,13 +20,13 @@ public class SuperClassGrid extends Grid<OntologyClass>{
 	private ExplanationRenderProvider qi;
 	private OntologyClass current;
 	
-	SuperClassGrid() {
+	public SuperClassGrid() {
 		addColumn(OntologyClass::getLabel).setCaption("Superclasses");
 		addComponentColumn(this::createEntailmentButton).setCaption("?").setWidth(60.0);
 		updateHeight(0);
 	}
 	
-	void update(ExplanationRenderProvider qi,OntologyClass c) {
+	public void update(ExplanationRenderProvider qi,OntologyClass c) {
 		this.current = c;
 		this.qi = qi;
 		List<OntologyClass> weightedPatterns = new ArrayList<>(c.directParents());
@@ -47,10 +48,13 @@ public class SuperClassGrid extends Grid<OntologyClass>{
     }
 
 	private void showExplanation(OntologyClass p) {
+		if(qi!=null) {
 		Window sub = new ExplanationWindow(qi,p, current);
 		  this.getUI().addWindow(sub);
 		  this.getUI().push(); 
-		  
+		} else {
+			Notification.show("Failed to generate Explanation.");
+		}
 	}
 
 }

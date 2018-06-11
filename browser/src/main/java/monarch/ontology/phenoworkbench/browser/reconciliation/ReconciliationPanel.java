@@ -111,7 +111,7 @@ class ReconciliationPanel extends VerticalLayout {
 
 
 	private void updateInfoBox(PatternReconciler r, PatternInfoBox impactbox, PatternTreeItem pi, PatternTree tree) {
-		OntologyClass pc = ((PatternTreeItem) pi).getPatternClass();
+		OntologyClass pc = pi.getPatternClass();
 		updateClassInforBox(r, impactbox, pc);
 		this.getUI().push();
 	}

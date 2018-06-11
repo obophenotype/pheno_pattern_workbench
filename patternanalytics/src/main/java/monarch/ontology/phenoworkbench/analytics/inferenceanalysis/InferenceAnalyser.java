@@ -1,5 +1,6 @@
 package monarch.ontology.phenoworkbench.analytics.inferenceanalysis;
 
+import monarch.ontology.phenoworkbench.analytics.subclassredundancy.SubClassRedundancy;
 import monarch.ontology.phenoworkbench.util.*;
 import org.apache.commons.io.FileUtils;
 import org.semanticweb.HermiT.ReasonerFactory;
@@ -21,11 +22,11 @@ public class InferenceAnalyser {
     private OntologyDebugReport report = new OntologyDebugReport();
 
     private final long start = System.currentTimeMillis();
-    private final Set<String> pd;
+    private final Set<OntologyEntry> pd;
     private final Imports imports;
     private final Map<String, Set<OWLAxiom>> allAxiomsAcrossOntologies = new HashMap<>();
 
-    public InferenceAnalyser(Set<String> pd, boolean imports) {
+    public InferenceAnalyser(Set<OntologyEntry> pd, boolean imports) {
         this.pd = pd;
         this.imports = imports ? Imports.INCLUDED : Imports.EXCLUDED;
     }
@@ -34,9 +35,12 @@ public class InferenceAnalyser {
         File pd = new File(args[0]);
         boolean imports = args[1].contains("i");
         File out = new File(args[2]);
+        ClassLoader classLoader = InferenceAnalyser.class.getClassLoader();
+        File os = new File(classLoader.getResource("ontologies").getFile());
+        File roots = new File(classLoader.getResource("phenotypeclasses").getFile());
+        OntologyRegistry phenotypeontologies = new OntologyRegistry(os,roots);
 
-
-        InferenceAnalyser p = new InferenceAnalyser(new HashSet<>(FileUtils.readLines(pd,"UTF-8")), imports);
+        InferenceAnalyser p = new InferenceAnalyser(phenotypeontologies.getOntologies(), imports);
         p.prepare();
         try {
             p.printResults(out);
@@ -47,9 +51,9 @@ public class InferenceAnalyser {
     }
 
     public void prepare() {
-        for (String ourl : pd) {
+        for (OntologyEntry ourl : pd) {
             //if(ourl.endsWith("hp.owl"))
-            processOntology(imports, ourl);
+            processOntology(imports, ourl.getIri());
         }
     }
 

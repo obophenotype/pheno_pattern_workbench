@@ -1,5 +1,10 @@
 package monarch.ontology.phenoworkbench.browser.basic;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -7,8 +12,10 @@ import java.util.Set;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBoxGroup;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.Layout;
 import com.vaadin.ui.VerticalLayout;
+import monarch.ontology.phenoworkbench.analytics.subclassredundancy.SubClassRedundancy;
+import monarch.ontology.phenoworkbench.util.OntologyEntry;
+import monarch.ontology.phenoworkbench.util.OntologyRegistry;
 
 public class RunAnalysisPanel extends VerticalLayout {
 	
@@ -16,14 +23,18 @@ public class RunAnalysisPanel extends VerticalLayout {
 	 * 
 	 */
 	private static final long serialVersionUID = -5663467371143185799L;
-	OntologyRegistry registry = new OntologyRegistry();
-	CheckBoxGroup<String> cb_selectontologies = new CheckBoxGroup<>("Select Ontologies");
+	OntologyRegistry registry;
+	CheckBoxGroup<OntologyEntry> cb_selectontologies = new CheckBoxGroup<>("Select Ontologies");
 	private final VerticalLayout vl_addtional_options = new VerticalLayout();
 	RunAnalysisComponent rac = new RunAnalysisComponent();
 	VerticalLayout results = new VerticalLayout();
 	OptionPanel runoptions;
 	
 public RunAnalysisPanel(Map<String, String> runoptions) {
+	ClassLoader classLoader = RunAnalysisPanel.class.getClassLoader();
+	File os = new File(classLoader.getResource("ontologies").getFile());
+	File roots = new File(classLoader.getResource("phenotypeclasses").getFile());
+	registry =  new OntologyRegistry(os,roots);
 	setMargin(false);
 	setSpacing(true);
 	setWidth("100%");
@@ -31,7 +42,9 @@ public RunAnalysisPanel(Map<String, String> runoptions) {
 	results.setMargin(false);
 	results.setSpacing(false);
 	this.runoptions = new OptionPanel(runoptions);
-	cb_selectontologies.setItems(registry.getOntologies());
+	List<OntologyEntry> cb = new ArrayList<>(registry.getOntologies());
+	Collections.sort(cb, (o1,o2) -> o1.toString().compareTo(o2.toString()));
+	cb_selectontologies.setItems(cb);
 	vl_addtional_options.setMargin(false);
 	vl_addtional_options.setSpacing(false);
 	addComponent(LabelManager.labelH2("Select Ontologies for the analysis"));
@@ -48,7 +61,7 @@ public void addClickListener(Button.ClickListener l) {
 }
 
 
-public Set<String> getSelectedItems() {
+public Set<OntologyEntry> getSelectedItems() {
 	return cb_selectontologies.getSelectedItems();
 }
 

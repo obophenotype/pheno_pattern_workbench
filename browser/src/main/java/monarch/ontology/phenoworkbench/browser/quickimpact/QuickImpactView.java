@@ -13,6 +13,7 @@ import monarch.ontology.phenoworkbench.browser.basic.LayoutUtils;
 import monarch.ontology.phenoworkbench.analytics.pattern.generation.DefinedClass;
 import monarch.ontology.phenoworkbench.browser.basic.PatternTree;
 import monarch.ontology.phenoworkbench.browser.basic.PatternTreeItem;
+import monarch.ontology.phenoworkbench.util.OntologyEntry;
 import monarch.ontology.phenoworkbench.util.Timer;
 import org.semanticweb.owlapi.model.parameters.Imports;
 
@@ -40,7 +41,7 @@ public class QuickImpactView extends BasicLayout {
     }
 
     @Override
-    protected void runAnalysis(Set<String> selectedOntologies) {
+    protected void runAnalysis(Set<OntologyEntry> selectedOntologies) {
         System.out.println("runAnalysis()" + Timer.getSecondsElapsed("QuickImpactView::runAnalysis()"));
         Timer.start("QuickImpactView::runAnalysis()");
 

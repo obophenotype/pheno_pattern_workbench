@@ -11,6 +11,7 @@ import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.PatternR
 
 import monarch.ontology.phenoworkbench.util.IRIMapping;
 import monarch.ontology.phenoworkbench.util.OBOMappingFileParser;
+import monarch.ontology.phenoworkbench.util.OntologyEntry;
 import monarch.ontology.phenoworkbench.util.Timer;
 import org.semanticweb.owlapi.model.parameters.Imports;
 
@@ -35,7 +36,7 @@ public class PatternReconciliationView extends BasicLayout {
     }
 
     @Override
-    protected void runAnalysis(Set<String> selectedItems) {
+    protected void runAnalysis(Set<OntologyEntry> selectedItems) {
         selectedItems.forEach(System.out::println);
 
         Imports imports = runOptionOrNull("imports").equals("yes") ? Imports.INCLUDED : Imports.EXCLUDED;

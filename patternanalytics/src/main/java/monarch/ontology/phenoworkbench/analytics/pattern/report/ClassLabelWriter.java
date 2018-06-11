@@ -8,6 +8,8 @@ import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.model.parameters.Imports;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
 
@@ -22,6 +24,7 @@ public class ClassLabelWriter {
     private final Set<String> uris;
     private final String id;
     private OWLOntology o = null;
+    private OWLOntology o_imp = null;
 
     private ClassLabelWriter(Set<String> uris, String id, Map<String,String> ns2pre) {
         this.uris = uris;
@@ -32,10 +35,17 @@ public class ClassLabelWriter {
     public void runAnalysis() {
         OntologyUtils.p("Process Ontologies" + Timer.getSecondsElapsed("PatternExtractor::runAnalysis"));
 
+        try {
+            o_imp = OWLManager.createOWLOntologyManager().createOntology();
+        } catch (OWLOntologyCreationException e) {
+            e.printStackTrace();
+        }
+OWLDataFactory df = OWLManager.getOWLDataFactory();
         for(String uri:uris) {
             try {
                 o = OWLManager.createOWLOntologyManager().loadOntology(IRI.create(uri));
                 render.addLabel(o);
+                o_imp.getOWLOntologyManager().applyChange(new AddImport(o_imp,df.getOWLImportsDeclaration(IRI.create(uri))));
             } catch (OWLOntologyCreationException e) {
                 e.printStackTrace();
             }
@@ -59,6 +69,8 @@ public class ClassLabelWriter {
                 data_i.add(rec);
             }
         }
+
+
 
     }
 
@@ -90,6 +102,13 @@ public class ClassLabelWriter {
     private void exportAll(File out) {
         String id = this.id.replaceAll("[^a-zA-z0-9_]","");
         Export.writeCSV(data_i, new File(out,"data_sig_"+id+".csv"));
+        try {
+            o_imp.getOWLOntologyManager().saveOntology(o_imp,new FileOutputStream(new File(out,"onts_necessary.owl")));
+        } catch (OWLOntologyStorageException e) {
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
 }

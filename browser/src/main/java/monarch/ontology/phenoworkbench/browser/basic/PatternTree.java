@@ -72,6 +72,10 @@ public class PatternTree extends Tree<PatternTreeItem> {
 	public void collapseAll() {
 		mapPatternTree.keySet().forEach(x -> mapPatternTree.get(x).forEach(this::collapse));
 	}
+	
+	public void expandAll() {
+		mapPatternTree.keySet().forEach(x -> mapPatternTree.get(x).forEach(this::expand));
+	}
 
 	private void loadSubTree(PatternTreeItem c) {
 		Timer.start("PatternTree::loadSubTree()");

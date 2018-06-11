@@ -21,7 +21,7 @@ public class PatternReconciler extends PhenoAnalysisRunner implements GrammarPro
     private boolean bidirectionmapping = false;
     private final List<IRIMapping> mapping;
 
-    public PatternReconciler(Set<String> corpus, List<IRIMapping> mapping) {
+    public PatternReconciler(Set<OntologyEntry> corpus, List<IRIMapping> mapping) {
         super(corpus);
         this.mapping = mapping;
     }
