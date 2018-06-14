@@ -13,19 +13,27 @@ public class Subsumption {
         if (this == o) return true;
         if (!(o instanceof Subsumption)) return false;
         Subsumption that = (Subsumption) o;
-        return Objects.equals(super_c, that.super_c) &&
-                Objects.equals(sub_c, that.sub_c);
+        return Objects.equals(getSuper_c(), that.getSuper_c()) &&
+                Objects.equals(getSub_c(), that.getSub_c());
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(super_c, sub_c);
+        return Objects.hash(getSuper_c(), getSub_c());
     }
 
     public Subsumption(OWLClass super_c, OWLClass sub_c) {
         this.super_c = super_c;
         this.sub_c = sub_c;
 
+    }
+
+    public OWLClass getSuper_c() {
+        return super_c;
+    }
+
+    public OWLClass getSub_c() {
+        return sub_c;
     }
 }

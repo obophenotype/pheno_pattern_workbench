@@ -29,7 +29,7 @@ public class DefinedClass extends OntologyClass {
     private String patternstring= "Definition not loaded";
 
 
-    DefinedClass(OWLClass c, OWLClassExpression definition) {
+    public DefinedClass(OWLClass c, OWLClassExpression definition) {
         super(c);
         this.definiton = definition;
     }

@@ -13,11 +13,11 @@ import monarch.ontology.phenoworkbench.browser.basic.LabelManager;
 class CandidentLayoutPanel extends VerticalLayout {
 
 	private static final long serialVersionUID = -8301978468694076930L;
-	private final CandidateIdentifierApp p;
     private final OntologySearchBoxContainer searchBoxContainer;
     private final CandidateGridPanel candidateGridPanel;
     private final CurrentCandidateGridPanel currentCandidateGridPanel;
     private final BucketGridPanel bucketGridPanel;
+    private final BlacklistGridPanel blacklistGridPanel;
     private final TextField tf_search = new TextField();
     private final TextField tf_bucket = new TextField();
     private final Button bt_search = new Button("S");
@@ -26,22 +26,24 @@ class CandidentLayoutPanel extends VerticalLayout {
 
     
     CandidentLayoutPanel(CandidateIdentifierApp p) {
-        this.p = p;
         setSizeFull();
         setMargin(false);
         
         kb = new CandidateKBImpl();
         currentCandidateGridPanel = new CurrentCandidateGridPanel(kb);
         candidateGridPanel = new CandidateGridPanel(kb,p);
-        bucketGridPanel = new BucketGridPanel();
+        bucketGridPanel = new BucketGridPanel(kb,p);
+        blacklistGridPanel = new BlacklistGridPanel(kb, p);
 
-        searchBoxContainer = new OntologySearchBoxContainer(this.p.getCandidatesByOntology().values(),kb);
+        searchBoxContainer = new OntologySearchBoxContainer(p,kb);
         addComponent(layoutSearchBox());
-        addComponent(layoutBucketCandidates());
+        addComponent(layoutCandidatePanels());
+        addComponent(layoutBucketPanels());
 
         bt_search.addClickListener(e -> filter());
-        bt_search.addClickListener(e -> addBucket());
+        bt_bucket.addClickListener(e -> addBucket());
         tf_search.setValue(".*behaviou?r.*");
+        tf_bucket.setValue("behaviour");
         filter();
     }
 
@@ -49,13 +51,21 @@ class CandidentLayoutPanel extends VerticalLayout {
 		kb.addBucket(new Bucket(tf_bucket.getValue(),searchBoxContainer.getSearchConfig()));
 	}
 
-	private Component layoutBucketCandidates() {
+	private Component layoutCandidatePanels() {
         HorizontalLayout hl = new HorizontalLayout();
         hl.setMargin(false);
         hl.setWidthUndefined();
         hl.addComponent(currentCandidateGridPanel);
         hl.addComponent(candidateGridPanel);
+        return hl;
+    }
+	
+	private Component layoutBucketPanels() {
+        HorizontalLayout hl = new HorizontalLayout();
+        hl.setMargin(false);
+        hl.setWidthUndefined();
         hl.addComponent(bucketGridPanel);
+        hl.addComponent(blacklistGridPanel);
         return hl;
     }
 

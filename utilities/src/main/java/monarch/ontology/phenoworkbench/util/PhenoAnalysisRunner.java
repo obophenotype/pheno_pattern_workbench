@@ -3,6 +3,7 @@ package monarch.ontology.phenoworkbench.util;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.parameters.Imports;
 
+import java.io.File;
 import java.util.Optional;
 import java.util.Set;
 
@@ -62,4 +63,5 @@ public abstract class PhenoAnalysisRunner {
     protected RenderManager getRenderManager() {
         return getO().getRender();
     }
+
 }

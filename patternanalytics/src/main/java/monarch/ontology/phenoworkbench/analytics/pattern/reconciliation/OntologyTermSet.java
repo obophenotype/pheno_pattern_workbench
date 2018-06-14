@@ -13,6 +13,7 @@ import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.parameters.Imports;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class OntologyTermSet implements GrammarProvider, ImpactProvider,ExplanationRenderProvider {
 
@@ -87,5 +88,14 @@ public class OntologyTermSet implements GrammarProvider, ImpactProvider,Explanat
             return Optional.of(classes.get(iri));
         }
         return Optional.empty();
+    }
+
+    public Collection<OntologyClass> searchTerms(String s) {
+        return classes.values().stream().filter(o->matchesSearch(o,s)).collect(Collectors.toSet());
+    }
+
+    private boolean matchesSearch(OntologyClass o, String s) {
+        //TODO extend to take into account additional fields
+        return o.getLabel().matches(s);
     }
 }

@@ -1,6 +1,7 @@
 package monarch.ontology.phenoworkbench.browser.candident;
 
 import com.vaadin.ui.HorizontalLayout;
+import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.CandidateIdentifierApp;
 import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.OntologyTermSet;
 
 import java.util.Collection;
@@ -14,11 +15,11 @@ public class OntologySearchBoxContainer extends HorizontalLayout {
 	private static final long serialVersionUID = -3231970522503848146L;
 	Set<OntologyTermWidget> widgets = new HashSet<>();
 
-    OntologySearchBoxContainer(Collection<OntologyTermSet> termsets, CandidateKB editor) {
+    OntologySearchBoxContainer(CandidateIdentifierApp app, CandidateKB editor) {
     		setMargin(false);
     		setWidth("100%");
-        for(OntologyTermSet ts:termsets) {
-            widgets.add(new OntologyTermWidget(ts, editor));
+        for(OntologyTermSet ts:app.getCandidatesByOntology().values()) {
+            widgets.add(new OntologyTermWidget(ts, app, editor));
         }
         for(OntologyTermWidget tw:widgets) {
             addComponent(tw);

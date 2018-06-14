@@ -1,6 +1,7 @@
 package monarch.ontology.phenoworkbench.browser.basic;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.DataProvider;
@@ -74,7 +75,14 @@ public class PatternTree extends Tree<PatternTreeItem> {
 	}
 	
 	public void expandAll() {
-		mapPatternTree.keySet().forEach(x -> mapPatternTree.get(x).forEach(this::expand));
+		Set<String> items = new HashSet<>(mapPatternTree.keySet());
+		expandAllRecursive(items);
+	}
+	
+	private void expandAllRecursive(Set<String> items) {
+		for(String iri:items) {
+			mapPatternTree.get(iri).forEach(this::expandLoad);
+		}
 	}
 
 	private void loadSubTree(PatternTreeItem c) {

@@ -12,6 +12,7 @@ import monarch.ontology.phenoworkbench.analytics.pattern.generation.PatternGramm
 import monarch.ontology.phenoworkbench.analytics.pattern.generation.ExplanationRenderProvider;
 import monarch.ontology.phenoworkbench.analytics.pattern.generation.GrammarProvider;
 import monarch.ontology.phenoworkbench.analytics.pattern.generation.ImpactProvider;
+import monarch.ontology.phenoworkbench.browser.basic.HTMLRenderUtils;
 import monarch.ontology.phenoworkbench.browser.basic.LabelManager;
 
 import java.util.Optional;
@@ -46,10 +47,10 @@ public class PatternInfoBox extends VerticalLayout {
 		sb.append("<h3>" + patternName(p) + "</h3>");
 		if (p instanceof DefinedClass) {
 			DefinedClass definedClass = (DefinedClass) p;
+			sb.append(HTMLRenderUtils.renderDefinedClass(definedClass));
 			Optional<OntologyClassImpact> impactOptional = quickImpact.getImpact(definedClass);
 			if(impactOptional.isPresent()) {
 				OntologyClassImpact impact = impactOptional.get();
-				sb.append("<strong>" + definedClass.getPatternString() + "</strong>");
 				sb.append("<ol>");
 				sb.append("<li>Direct: " + impact.getDirectImpact() + "</li>");
 				sb.append("<li>Indirect: " + impact.getIndirectImpact() + "</li>");

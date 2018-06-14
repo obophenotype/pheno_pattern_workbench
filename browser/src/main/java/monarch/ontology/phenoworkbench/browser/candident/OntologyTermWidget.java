@@ -8,6 +8,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.CandidateIdentifierApp;
 import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.OntologyTermSet;
 import monarch.ontology.phenoworkbench.browser.basic.LabelManager;
 
@@ -22,10 +23,10 @@ public class OntologyTermWidget extends VerticalLayout{
     Button bt_search = new Button("S");
     TermGrid grid;
 
-    OntologyTermWidget(OntologyTermSet ts, CandidateKB editor) {
+    OntologyTermWidget(OntologyTermSet ts, CandidateIdentifierApp app, CandidateKB editor) {
     		setMargin(false);
     		//setSpacing(false);
-        grid = new TermGrid(ts,editor);
+        grid = new TermGrid(ts,app,editor);
         l = LabelManager.htmlLabel("<strong>"+ts.getOid().toUpperCase()+"</strong>");
         bt_search.addClickListener(new Button.ClickListener() {
 			private static final long serialVersionUID = -3059032648139411370L;

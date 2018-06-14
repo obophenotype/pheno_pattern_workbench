@@ -1,6 +1,4 @@
-package monarch.ontology.phenoworkbench.browser.basic;
-
-import java.util.Collections;
+package monarch.ontology.phenoworkbench.browser.candident;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Panel;
@@ -8,14 +6,16 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
 import monarch.ontology.phenoworkbench.analytics.pattern.generation.OntologyClass;
-import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.OntologyTermSet;
-import monarch.ontology.phenoworkbench.browser.quickimpact.PatternInfoBox;
+import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.CandidateIdentifierApp;
+import monarch.ontology.phenoworkbench.browser.basic.LabelManager;
+
+import java.util.HashSet;
 
 //Define a sub-window by inheritance
-public class TermInfoWindow extends Window {
+public class SuggestSimilarWindow extends Window {
 	private static final long serialVersionUID = 7544515480410218589L;
 
-	public TermInfoWindow(OntologyClass p,OntologyTermSet ts) {
+	public SuggestSimilarWindow(OntologyClass p,CandidateIdentifierApp app,CandidateKB kb) {
 		super(null);
 		center();
 		setWidth("600px");
@@ -25,16 +25,12 @@ public class TermInfoWindow extends Window {
 		VerticalLayout l = new VerticalLayout();
 		l.setWidth("100%");
 		l.setHeightUndefined();
-		
-		PatternTree pt = new PatternTree(Collections.singleton(p));
-		pt.expandAll();
-		PatternInfoBox sc = new PatternInfoBox();
-		l.addComponent(sc);
-		l.addComponent(LabelManager.labelH2("Class Hierarchy"));
-		l.addComponent(pt);
+		l.addComponent(LabelManager.labelH2("Suggested Related Candidates"));
+		SuggestedCandidateGrid grid = new SuggestedCandidateGrid(kb);
+		grid.setItems(app.getSuggestions(p,kb.getBuckets()));
+		l.addComponent(grid);
 		Panel c = preparePanel(l, "Term Info");
 		setContent(c);
-		sc.setValue(p, ts, ts, ts);
 	}
 
 	private Panel preparePanel(Component c, String label) {

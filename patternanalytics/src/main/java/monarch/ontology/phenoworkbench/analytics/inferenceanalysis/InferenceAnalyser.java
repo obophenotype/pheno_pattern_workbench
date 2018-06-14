@@ -71,22 +71,22 @@ public class InferenceAnalyser {
                 //OWLReasoner rdl = createDLReasoner(o);
                 OWLReasoner rsl = createStructuralReasoner(o);
                 OntologyUtils.p("Subs: EL"+printTime());
-                Set<Subsumption> subsEL = getSubsumptions(rel, o);
+                Set<Subsumption> subsEL = SubsumptionUtils.getSubsumptions(rel, o);
                 OntologyUtils.p("Subs: DL"+printTime());
                 //Set<Subsumption> subsDL = getSubsumptions(rdl, o);
                 OntologyUtils.p("Subs: Structural"+printTime());
-                Set<Subsumption> subsSL = getSubsumptions(rsl, o);
+                Set<Subsumption> subsSL = SubsumptionUtils.getSubsumptions(rsl, o);
                 OntologyUtils.p("Subs: Syntactic"+printTime());
-                Set<Subsumption> subsSYN = getSubsumptions(null, o);
+                Set<Subsumption> subsSYN = SubsumptionUtils.getSubsumptions(null, o);
 
                 OntologyUtils.p("Super: EL"+printTime());
-                Map<OWLClass,Set<OWLClass>> superclassmapEL = getSuperClassMap(rel, o);
+                Map<OWLClass,Set<OWLClass>> superclassmapEL = SubsumptionUtils.getSuperClassMap(rel, o);
                 OntologyUtils.p("Subs: DL"+printTime());
                 //Map<OWLClass,Set<OWLClass>> superclassmapDL = getSuperClassMap(rdl, o);
                 OntologyUtils.p("Super: Structural"+printTime());
-                Map<OWLClass,Set<OWLClass>> superclassmapSL = getSuperClassMap(rsl, o);
+                Map<OWLClass,Set<OWLClass>> superclassmapSL = SubsumptionUtils.getSuperClassMap(rsl, o);
                 OntologyUtils.p("Super: Syntactic"+printTime());
-                Map<OWLClass,Set<OWLClass>> superclassmapSYN = getSuperClassMap(null, o);
+                Map<OWLClass,Set<OWLClass>> superclassmapSYN = SubsumptionUtils.getSuperClassMap(null, o);
                 OntologyUtils.p("");
                 OntologyUtils.p("RESULTS:"+printTime());
                 //printSubsInfo(subsDL,"DL");
@@ -133,60 +133,7 @@ public class InferenceAnalyser {
         report.addLine("* "+label+": Number subs: "+subs.size());
     }
 
-    private Map<OWLClass,Set<OWLClass>> getSuperClassMap(OWLReasoner r,OWLOntology o) {
-        Map<OWLClass,Set<OWLClass>> superclasses = new HashMap<>();
-        if(r!=null) {
-            for(OWLClass c:r.getRootOntology().getClassesInSignature(Imports.INCLUDED)) {
-                if(!superclasses.containsKey(c)) {
-                    superclasses.put(c,new HashSet<>());
-                }
-                for (OWLClass s : r.getSuperClasses(c, true).getFlattened()) {
-                    superclasses.get(c).add(s);
-                }
-            } }
-        else {
-            for(OWLAxiom ax:o.getAxioms(Imports.INCLUDED)) {
-                if(ax instanceof OWLSubClassOfAxiom){
-                    OWLSubClassOfAxiom sbcl = (OWLSubClassOfAxiom)ax;
-                    OWLClassExpression subc = sbcl.getSubClass();
-                    OWLClassExpression superc = sbcl.getSuperClass();
-                    if(!subc.isAnonymous() && !superc.isAnonymous()) {
-                     OWLClass c = (OWLClass)subc;
-                        if(!superclasses.containsKey(c)) {
-                            superclasses.put(c,new HashSet<>());
-                        }
-                        superclasses.get(c).add((OWLClass)superc);
-                    }
-                }
-            }
 
-        }
-        return superclasses;
-    }
-
-    private Set<Subsumption> getSubsumptions(OWLReasoner r,OWLOntology o) {
-        Set<Subsumption> subs = new HashSet<>();
-        if(r!=null) {
-        for(OWLClass c:r.getRootOntology().getClassesInSignature(Imports.INCLUDED)) {
-            for (OWLClass sub : r.getSubClasses(c, false).getFlattened()) {
-                subs.add(new Subsumption(c, sub));
-            }
-        } }
-        else {
-            for(OWLAxiom ax:o.getAxioms(Imports.INCLUDED)) {
-                if(ax instanceof OWLSubClassOfAxiom){
-                    OWLSubClassOfAxiom sbcl = (OWLSubClassOfAxiom)ax;
-                    OWLClassExpression subc = sbcl.getSubClass();
-                    OWLClassExpression superc = sbcl.getSuperClass();
-                    if(!subc.isAnonymous() && !superc.isAnonymous()) {
-                       subs.add(new Subsumption((OWLClass)subc,(OWLClass)superc));
-                    }
-                }
-            }
-        }
-
-        return subs;
-    }
 
 
     private void processOntology(Imports imports, String ofile) {

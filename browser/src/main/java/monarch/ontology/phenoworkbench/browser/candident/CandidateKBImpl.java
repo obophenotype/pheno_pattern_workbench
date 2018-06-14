@@ -22,6 +22,7 @@ public class CandidateKBImpl implements CandidateKB {
 	private final List<Bucket> buckets = new ArrayList<>();
     private final List<Candidate> candidates = new ArrayList<>();
     private final Set<OntologyClass> classesAcrossAllCandidatesInKB = new HashSet<>();
+    private final Set<BlacklistItem> blacklist = new HashSet<>();
 	
 	public CandidateKBImpl() {
 		
@@ -142,6 +143,121 @@ public class CandidateKBImpl implements CandidateKB {
 	@Override
 	public void addBucket(Bucket bucket) {
 		buckets.add(bucket);
+		refresh();
+	}
+
+	@Override
+	public void removeBucket(Bucket bucket) {
+		buckets.remove(bucket);
+		refresh();
+	}
+
+	@Override
+	public Collection<Bucket> getBuckets() {
+		return buckets;
+	}
+
+	@Override
+	public String exportBuckets() {
+		ObjectMapper mapper = new ObjectMapper();		 
+        ArrayNode arrayNode = mapper.createArrayNode();
+        
+        for(Bucket c:getBuckets()) {
+			ArrayNode candidateArray = mapper.createArrayNode();
+			ObjectNode n = mapper.createObjectNode();
+	        n.put("description", c.getLabel());
+	        n.putPOJO("searches",candidateArray);
+	        for(String oid:c.getBucket().keySet()) {
+	        		ObjectNode no = mapper.createObjectNode();
+		        no.put("oid", oid);
+		        no.put("search", c.getBucket().get(oid));
+		        candidateArray.add(no);
+	        }
+	        arrayNode.add(n);
+		}
+		try {
+			return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(arrayNode);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		return "empty";
+	}
+
+	@Override
+	public void blacklistClassForCurrentCandidate(OntologyClass c) {
+		for(OntologyClass current:getClassesForCurrentCandidate()) {
+			blacklist(c, current);
+		}
+		refresh();
+	}
+
+	@Override
+	public void blacklist(OntologyClass context, OntologyClass blacklistitem) {
+		blacklist.add(new BlacklistItem(context,blacklistitem));
+	}
+	
+	@Override
+	public void blacklist(OntologyClass c) {
+		blacklist.add(new BlacklistItem(c));
+		refresh();
+	}
+
+	@Override
+	public boolean isBlacklisted(OntologyClass c) {
+		boolean blacklisted = false;
+		
+		if(blacklist.contains(new BlacklistItem(c))) {
+			return true;
+		}
+		for(OntologyClass current:getClassesForCurrentCandidate()) {
+			if(blacklist.contains(new BlacklistItem(current,c))) {
+				return true;
+			}
+		}
+		return blacklisted;
+	}
+
+	@Override
+	public String exportBlacklist() {
+		ObjectMapper mapper = new ObjectMapper();	
+		ObjectNode root = mapper.createObjectNode();
+        ArrayNode arrayBlacklist = mapper.createArrayNode();
+        root.putPOJO("blacklist", arrayBlacklist);
+        for(BlacklistItem c:blacklist) {
+        		ObjectNode cb = mapper.createObjectNode();
+        		cb.put("blacklisted",c.getBlacklisted().getIri());
+        		cb.put("context", c.getContext().toString());
+        		arrayBlacklist.add(cb);
+        }
+		try {
+			return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(root);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		return "empty";
+	}
+
+	@Override
+	public void removeBlacklisted(OntologyClass c) {
+		blacklist.remove(new BlacklistItem(c));
+		refresh();
+	}
+	
+	@Override
+	public void removeBlacklisted(OntologyClass cl,OntologyClass remove) {
+		blacklist.remove(new BlacklistItem(cl,remove));
+		refresh();
+	}
+
+	@Override
+	public Set<BlacklistItem> getBlacklist() {
+		return blacklist;
+	}
+
+	@Override
+	public void removeBlacklist(BlacklistItem c) {
+		blacklist.remove(c);
+		refresh();
 	}
 
 }
