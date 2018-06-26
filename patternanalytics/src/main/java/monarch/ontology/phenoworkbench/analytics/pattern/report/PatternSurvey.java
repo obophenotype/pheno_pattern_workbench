@@ -22,6 +22,7 @@ public class PatternSurvey  {
     private List<Map<String,String>> data_c = new ArrayList<>();
     private List<Map<String,String>> data_d = new ArrayList<>();
     private List<Map<String,String>> data_e = new ArrayList<>();
+    private List<Map<String,String>> data_exp = new ArrayList<>();
     private Set<Map<String,String>> data_l = new HashSet<>();
     private List<Map<String,String>> data_i = new ArrayList<>();
     private Map<OWLClass,Set<DefinedClass>> definedClasses = new HashMap<>();
@@ -201,6 +202,19 @@ public class PatternSurvey  {
                     rec_e.put("entity",render.renderForMarkdown(e));
                     rec_e.put("category","sub_expression");
                     rec_e.put("type",e.getClassExpressionType().getName());
+                    if(e instanceof OWLObjectSomeValuesFrom) {
+                        OWLObjectSomeValuesFrom es = (OWLObjectSomeValuesFrom) e;
+                        if (!es.getProperty().isAnonymous()) {
+                            for (OWLClass clazz : es.getFiller().getClassesInSignature()) {
+                                Map<String, String> rec_exp = new HashMap<>();
+                                rec_exp.put("id", id);
+                                rec_exp.put("o", uri);
+                                rec_exp.put("iri", clazz.getIRI().toString());
+                                rec_exp.put("property",es.getProperty().asOWLObjectProperty().getIRI().toString());
+                                data_exp.add(rec_exp);
+                            }
+                        }
+                    }
                     data_e.add(rec_e);
                 }
             }
@@ -227,6 +241,7 @@ public class PatternSurvey  {
         List<Map<String,String>> labels = new ArrayList<>(data_l);
         Export.writeCSV(labels, new File(out,"data_l_"+id+".csv"));
         Export.writeCSV(data_i, new File(out,"data_i_"+id+".csv"));
+        Export.writeCSV(data_exp, new File(out,"data_exp_"+id+".csv"));
     }
 
 }

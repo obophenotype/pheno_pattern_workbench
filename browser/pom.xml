@@ -82,11 +82,6 @@
 		</dependency>
 		<dependency>
 			<groupId>monarch.ontology.phenoworkbench</groupId>
-			<artifactId>unionanalytics</artifactId>
-			<version>0.0.1</version>
-		</dependency>
-		<dependency>
-			<groupId>monarch.ontology.phenoworkbench</groupId>
 			<artifactId>analytics</artifactId>
 			<version>0.0.1</version>
 		</dependency>

@@ -1,11 +1,15 @@
 package monarch.ontology.phenoworkbench.analytics.pattern.generation;
 
+import org.semanticweb.owlapi.io.OWLObjectRenderer;
+import org.semanticweb.owlapi.manchestersyntax.renderer.ManchesterOWLSyntaxOWLObjectRendererImpl;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLClassExpression;
 
 import java.util.Objects;
 
 public class DefinedClass extends OntologyClass {
+
+    private static OWLObjectRenderer renderer = new ManchesterOWLSyntaxOWLObjectRendererImpl();
     private final OWLClassExpression definiton;
     private PatternGrammar grammar = new PatternGrammar();
 
@@ -32,6 +36,7 @@ public class DefinedClass extends OntologyClass {
     public DefinedClass(OWLClass c, OWLClassExpression definition) {
         super(c);
         this.definiton = definition;
+        this.patternstring = renderer.render(definition);
     }
 
     public final String getPatternString() {

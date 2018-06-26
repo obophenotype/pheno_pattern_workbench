@@ -119,7 +119,7 @@ public class PatternTree extends Tree<PatternTreeItem> {
 	public void expandSelect(OntologyClass pc) {
 		Timer.start("PatternTree::expandSelect");
 		//System.out.print("PatternTree::ExpandSelect");
-		addTreeItemsRecursively(pc);
+		addTreeItemsRecursively(pc,new HashSet<>());
 		 for (PatternTreeItem pp : getMapPatternTreeItem(pc)) {
 			 expand(pp);
 			 select(pp);
@@ -128,13 +128,16 @@ public class PatternTree extends Tree<PatternTreeItem> {
          }
 		 Timer.end("PatternTree::expandSelect");
 	}
-	private void addTreeItemsRecursively(OntologyClass c) {
+	
+	private void addTreeItemsRecursively(OntologyClass c, Set<String> done) {
 		String iri = keyString(c);
-		if(mapPatternTree.containsKey(iri)) {
+		if(done.contains(iri)) {
 			return;
-		} 
+		} else {
+			done.add(iri);
+		}
 		for(OntologyClass parent: c.directParents()) {
-			addTreeItemsRecursively(parent);
+			addTreeItemsRecursively(parent,done);
 			getMapPatternTreeItem(parent).forEach(this::expandLoad);
 		}
 	}

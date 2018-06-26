@@ -178,6 +178,7 @@ public class Reasoner {
     public Collection<? extends OWLClass> getSubclassesOf(OWLClass c, boolean direct, boolean removeUnsatisfiable) {
         Timer.start("Reasoner::getSubclassesOf()");
         Set<OWLClass> sbcl = r.getSubClasses(c,direct).getFlattened();
+        sbcl.addAll(r.getEquivalentClasses(c).getEntities());
         sbcl.remove(c);
         sbcl.remove(df.getOWLNothing());
         if(removeUnsatisfiable) {
@@ -190,6 +191,7 @@ public class Reasoner {
     public Collection<? extends OWLClass> getSuperClassesOf(OWLClass c, boolean direct, boolean removeUnsatisfiable) {
         Timer.start("Reasoner::getSuperClassesOf()");
         Set<OWLClass> sbcl = r.getSuperClasses(c,direct).getFlattened();
+        sbcl.addAll(r.getEquivalentClasses(c).getEntities());
         sbcl.remove(c);
         sbcl.remove(df.getOWLThing());
         if(removeUnsatisfiable) {
@@ -209,6 +211,15 @@ public class Reasoner {
         Optional<org.semanticweb.owl.explanation.api.Explanation<OWLAxiom>> o = expl.stream().findFirst();
         if(o.isPresent()) {
             return Optional.of(new Explanation(o.get()));
+        }
+        return Optional.empty();
+    }
+
+    public Optional<Boolean> isEntailed(OWLAxiom ax) {
+        try {
+            return Optional.of(r.isEntailed(ax));
+        } catch( Exception e) {
+            e.printStackTrace();
         }
         return Optional.empty();
     }

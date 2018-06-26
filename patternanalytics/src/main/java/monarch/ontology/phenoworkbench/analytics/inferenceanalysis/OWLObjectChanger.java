@@ -135,7 +135,7 @@ public class OWLObjectChanger implements OWLObjectVisitorEx<OWLObject> {
         df = dataFactory;
     }
 
-    private <T extends OWLObject> T duplicate(T object) {
+    protected <T extends OWLObject> T duplicate(T object) {
         return (T) object.accept(this);
     }
 

@@ -1,6 +1,7 @@
 package monarch.ontology.phenoworkbench.analytics.pattern.reconciliation;
 
 import monarch.ontology.phenoworkbench.analytics.pattern.generation.*;
+import monarch.ontology.phenoworkbench.analytics.pattern.impact.GrammarIndex;
 import monarch.ontology.phenoworkbench.analytics.pattern.impact.OntologyClassImpact;
 import monarch.ontology.phenoworkbench.util.*;
 import monarch.ontology.phenoworkbench.util.Timer;
@@ -44,8 +45,6 @@ public class PatternReconciler extends PhenoAnalysisRunner implements GrammarPro
             preparePatternMap();
             preparePatternProvider();
             prepareExplanationProvider();
-
-
             log("Done..", "PatternReconciler::runAnalysis()");
 
         } catch (Exception e) {
@@ -134,6 +133,11 @@ public class PatternReconciler extends PhenoAnalysisRunner implements GrammarPro
     @Override
     public Set<PatternGrammar> getSubsumedGrammars(DefinedClass p) {
         return patternManager.getSubsumedGrammars(p);
+    }
+
+    @Override
+    public int getInstanceCount(PatternGrammar grammar) {
+        return 0;
     }
 
     @Override

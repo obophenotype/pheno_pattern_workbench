@@ -9,4 +9,5 @@ public interface GrammarProvider {
 
 	Set<PatternGrammar> getSubsumedGrammars(DefinedClass definedClass);
 
+    int getInstanceCount(PatternGrammar grammar);
 }

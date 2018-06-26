@@ -23,7 +23,7 @@ public class RenderManager {
     }
 
     public void addLabel(OWLOntology o) {
-        o.getSignature(Imports.INCLUDED).forEach(s -> OntologyUtils.getLabels(s, o).forEach(l -> labels.put(s, hackLabel(l))));
+        o.getSignature(Imports.INCLUDED).forEach(s -> OntologyUtils.getLabelsRDFSIfExistsElseOther(s, o).forEach(l -> labels.put(s, hackLabel(l))));
     }
 
     private String hackLabel(String l) {

@@ -2,6 +2,7 @@ package monarch.ontology.phenoworkbench.analytics.quickimpact;
 
 import monarch.ontology.phenoworkbench.analytics.pattern.generation.*;
 import monarch.ontology.phenoworkbench.analytics.pattern.impact.DefinedClassImpactCalculator;
+import monarch.ontology.phenoworkbench.analytics.pattern.impact.GrammarIndex;
 import monarch.ontology.phenoworkbench.analytics.pattern.impact.OntologyClassImpact;
 import monarch.ontology.phenoworkbench.analytics.pattern.impact.ImpactMode;
 import monarch.ontology.phenoworkbench.util.*;
@@ -21,6 +22,7 @@ public class QuickImpact extends PhenoAnalysisRunner implements GrammarProvider,
     private PatternProvider patternProviderDefault;
     private int samplesize = -1;
     private ExplanationRenderProvider explanationProvider;
+private GrammarIndex grammarIndex;
 
     public QuickImpact(Set<OntologyEntry> corpus, String patternsiri, ImpactMode mode) {
         super(corpus);
@@ -75,6 +77,7 @@ public class QuickImpact extends PhenoAnalysisRunner implements GrammarProvider,
         Timer.end("QuickImpact::QuickImpact()::precomputeImpactMap()");
         patternProviderDefault = new PatternProviderDefaultImpl(man);
         explanationProvider = new DefaultExplanationProvider(r,getRenderManager());
+        grammarIndex = new GrammarIndex(getAllDefinedClasses());
         log("QI: Done..",process);
         Timer.end("QuickImpact::QuickImpact()");
         Timer.printTimings();
@@ -118,6 +121,11 @@ public class QuickImpact extends PhenoAnalysisRunner implements GrammarProvider,
 
     public Set<PatternGrammar> getSubsumedGrammars(DefinedClass p) {
         return man.getSubsumedGrammars(p);
+    }
+
+    @Override
+    public int getInstanceCount(PatternGrammar g) {
+        return grammarIndex.getInstanceCount(g);
     }
 
     public Set<DefinedClass> getAllDefinedClasses() {

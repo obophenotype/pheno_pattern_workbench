@@ -19,14 +19,17 @@ public class WeightedPatternGrid extends Grid<WeightedPattern>{
 	
 	WeightedPatternGrid(QuickImpact p) {
 		for (PatternClass definedClass : p.getPatternsAmongDefinedClasses()) {
-				WeightedPattern wp = new WeightedPattern(definedClass, p.getImpact(definedClass).map(OntologyClassImpact::getIndirectImpact).orElse(0));
+				WeightedPattern wp = new WeightedPattern(definedClass);
+				wp.setWeight(p.getImpact(definedClass).map(OntologyClassImpact::getIndirectImpact).orElse(0));
+				wp.setInstancecount(p.getInstanceCount(wp.getPattern().getGrammar()));
 				mapPatternGrid.put(definedClass, wp);
 				weightedPatterns.add(wp);
 		}
 
 		setItems(weightedPatterns);
 		addColumn(WeightedPattern::getLabel).setCaption("Name");
-		addColumn(WeightedPattern::getWeight).setCaption("OntologyClassImpact");
+		addColumn(WeightedPattern::getWeight).setCaption("Subclasses");
+		addColumn(WeightedPattern::getInstancecount).setCaption("Instances");
 	}
 
 	public boolean containsPattern(PatternClass pc) {

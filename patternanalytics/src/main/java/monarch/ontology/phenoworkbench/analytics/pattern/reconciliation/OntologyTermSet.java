@@ -70,6 +70,11 @@ public class OntologyTermSet implements GrammarProvider, ImpactProvider,Explanat
     }
 
     @Override
+    public int getInstanceCount(PatternGrammar grammar) {
+        return 0;
+    }
+
+    @Override
     public Optional<OntologyClassImpact> getImpact(OntologyClass c) {
         return Optional.empty();
     }

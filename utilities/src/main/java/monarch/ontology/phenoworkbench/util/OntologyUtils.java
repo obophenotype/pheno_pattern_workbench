@@ -21,7 +21,6 @@ public class OntologyUtils {
         Set<OWLAnnotationProperty> annops = new HashSet<>();
         annops.add(df.getRDFSLabel());
         annops.add(df.getOWLAnnotationProperty(IRI.create("http://www.w3.org/2004/02/skos/core#prefLabel")));
-        annops.add(df.getOWLAnnotationProperty(IRI.create("http://www.w3.org/2004/02/skos/core#hiddenLabel")));
         annops.add(df.getOWLAnnotationProperty(IRI.create("http://www.w3.org/2004/02/skos/core#altLabel")));
         annops.add(df.getOWLAnnotationProperty(IRI.create("http://www.geneontology.org/formats/oboInOwl#hasExactSynonym")));
 
@@ -33,6 +32,16 @@ public class OntologyUtils {
         annops.add(df.getRDFSLabel());
         return getLabels(c, o, annops);
     }
+
+    public static Set<String> getLabelsRDFSIfExistsElseOther(OWLEntity c, OWLOntology o) {
+        Set<String> labels = getLabelsRDFS(c,o);
+        if(labels.isEmpty()) {
+            labels = getLabels(c,o);
+        }
+        return labels;
+    }
+
+
 
     private static Set<String> getLabels(OWLEntity c, OWLOntology o, Set<OWLAnnotationProperty> annops) {
         Set<String> labels = new HashSet<>();
