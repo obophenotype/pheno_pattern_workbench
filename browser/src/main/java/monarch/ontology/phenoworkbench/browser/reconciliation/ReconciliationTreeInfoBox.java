@@ -3,8 +3,8 @@ package monarch.ontology.phenoworkbench.browser.reconciliation;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.OntologyClass;
-import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.PatternReconciliationCandidate;
+import monarch.ontology.phenoworkbench.util.OntologyClass;
+import monarch.ontology.phenoworkbench.util.PatternReconciliationCandidate;
 import monarch.ontology.phenoworkbench.browser.basic.HTMLRenderUtils;
 import monarch.ontology.phenoworkbench.browser.basic.LabelManager;
 

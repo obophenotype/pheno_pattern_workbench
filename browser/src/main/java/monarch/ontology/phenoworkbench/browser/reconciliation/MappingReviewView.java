@@ -15,15 +15,15 @@ import monarch.ontology.phenoworkbench.util.OntologyEntry;
 import monarch.ontology.phenoworkbench.util.Timer;
 import org.semanticweb.owlapi.model.parameters.Imports;
 
-public class PatternReconciliationView extends BasicLayout {
+public class MappingReviewView extends BasicLayout {
 
     /**
      *
      */
     private static final long serialVersionUID = 8440240868260139938L;
 
-    public PatternReconciliationView() {
-        super("DefinedClass Reconciliation");
+    public MappingReviewView() {
+        super("Mapping Validation");
     }
 
     @Override
@@ -31,7 +31,7 @@ public class PatternReconciliationView extends BasicLayout {
         Map<String, String> options = new HashMap<>();
         options.put("imports", "yes");
         options.put("bidirectionalmapping", "no");
-        options.put("mappings", "https://raw.githubusercontent.com/obophenotype/upheno/master/mappings/hp-to-mp-bestmatches.tsv");
+        options.put("mappings", "https://raw.githubusercontent.com/matentzn/ontologies/master/pheno_bestmatches.tsv");
         return options;
     }
 
@@ -52,7 +52,7 @@ public class PatternReconciliationView extends BasicLayout {
         p.setImports(imports);
         p.runAnalysis();
         System.out.println("Layout DefinedClass Reconciler");
-        ReconcilerLayoutPanel l_rec = new ReconcilerLayoutPanel(p);
+        MappingLayoutPanel l_rec = new MappingLayoutPanel(p);
         System.out.println("Done Layout");
         setResults(l_rec, true);
         System.out.println("Done Setting Results");

@@ -1,8 +1,13 @@
 package monarch.ontology.phenoworkbench.browser.reconciliation;
 
 import com.vaadin.ui.*;
-import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.ReconciliationCandidateSet;
+import monarch.ontology.phenoworkbench.util.PatternReconciliationCandidate;
+import monarch.ontology.phenoworkbench.util.ReconciliationCandidateSet;
 import monarch.ontology.phenoworkbench.browser.basic.LabelManager;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
 
 public class ReconcilerStatusPanel extends VerticalLayout {
     /**
@@ -22,11 +27,18 @@ public class ReconcilerStatusPanel extends VerticalLayout {
         addComponent(layoutStatusPanel());
     }
 
-    void updateProgress(ReconciliationCandidateSet stream) {
-    		l_all.setValue("Reconciliations: "+stream.size());
-        updateProgress(pb_grammar, l_grammar, stream.getPercentageReconciledGrammarEquivalence());
-        updateProgress(pb_equal, l_equal, stream.getPercentageReconciledSyntaxEquivalence());
-        updateProgress(pb_logical, l_logical, stream.getPercentageReconciledLogicalEquivalence());
+    void updateProgress(Collection<PatternReconciliationCandidate> candidates) {
+    		l_all.setValue("Reconciliations: "+candidates.size());
+        updateProgress(pb_grammar, l_grammar, div(candidates.stream().filter(PatternReconciliationCandidate::isGrammarEquivalent).count(),candidates.size()));
+        updateProgress(pb_equal, l_equal, div(candidates.stream().filter(PatternReconciliationCandidate::isSyntacticallyEquivalent).count(),candidates.size()));
+        updateProgress(pb_logical, l_logical, div(candidates.stream().filter(PatternReconciliationCandidate::isLogicallyEquivalent).count(),candidates.size()));
+    }
+
+    private float div(long count, long all) {
+        if(all==0) {
+            return 0.0f;
+        }
+        return (float)count/(float)all;
     }
 
     private void updateProgress(ProgressBar pb, Label label,float percent ) {

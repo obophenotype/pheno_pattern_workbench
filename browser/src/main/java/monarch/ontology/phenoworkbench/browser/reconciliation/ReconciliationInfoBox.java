@@ -3,8 +3,8 @@ package monarch.ontology.phenoworkbench.browser.reconciliation;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.OntologyClass;
-import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.PatternReconciliationCandidate;
+import monarch.ontology.phenoworkbench.util.OntologyClass;
+import monarch.ontology.phenoworkbench.util.PatternReconciliationCandidate;
 import monarch.ontology.phenoworkbench.browser.basic.HTMLRenderUtils;
 import monarch.ontology.phenoworkbench.browser.basic.LabelManager;
 
@@ -33,8 +33,8 @@ public class ReconciliationInfoBox extends HorizontalLayout {
 				+ "<li>Impact: " + recon.getReconciliationEffect() + "</li>" 
 				+ "</ul></div>";
 		Label l_info = LabelManager.htmlLabel(sb);
-		Label l_p1 = LabelManager.htmlLabel(HTMLRenderUtils.renderDefinedClass(recon.getP1()));
-		Label l_p2 = LabelManager.htmlLabel(HTMLRenderUtils.renderDefinedClass(recon.getP2()));
+		Label l_p1 = LabelManager.htmlLabel(HTMLRenderUtils.renderOntologyClass(recon.getP1()));
+		Label l_p2 = LabelManager.htmlLabel(HTMLRenderUtils.renderOntologyClass(recon.getP2()));
 		l_info.setWidth("100%");
 		l_p1.setWidth("100%");
 		l_p2.setWidth("100%");

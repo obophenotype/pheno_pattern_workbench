@@ -2,10 +2,7 @@ package monarch.ontology.phenoworkbench.analytics.pattern.reconciliation;
 
 import monarch.ontology.phenoworkbench.analytics.pattern.generation.*;
 import monarch.ontology.phenoworkbench.analytics.pattern.impact.OntologyClassImpact;
-import monarch.ontology.phenoworkbench.util.ExplanationAnalyser;
-import monarch.ontology.phenoworkbench.util.OntologyEntry;
-import monarch.ontology.phenoworkbench.util.Reasoner;
-import monarch.ontology.phenoworkbench.util.RenderManager;
+import monarch.ontology.phenoworkbench.util.*;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;

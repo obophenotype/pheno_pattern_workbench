@@ -23,7 +23,9 @@ public class CandidateIdentifierApp extends PhenoAnalysisRunner  {
 
             log("Create new Union Ontology..", process);
             for(OntologyEntry oid:getO().getOntologyEntries()) {
-                ontologyTermSets.put(oid.getOid(),new OntologyTermSet(oid, getO().getAxioms(oid.getOid()),patternGenerator, getRenderManager()));
+                OntologyTermSet ts = new OntologyTermSet(oid, getO().getAxioms(oid.getOid()),patternGenerator, getRenderManager());
+                ontologyTermSets.put(oid.getOid(),ts);
+                KB.getInstance().cacheClasses(oid.getOid(),ts.items());
             }
 
             log("Done..", "PatternReconciler::runAnalysis()");

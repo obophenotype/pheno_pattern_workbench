@@ -1,14 +1,12 @@
 package monarch.ontology.phenoworkbench.browser.candident;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.StyleGenerator;
 import com.vaadin.ui.renderers.HtmlRenderer;
 
-import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.Candidate;
+import monarch.ontology.phenoworkbench.util.Candidate;
+import monarch.ontology.phenoworkbench.util.CandidateKB;
 
 class CandidateGrid extends Grid<Candidate> {
 
@@ -21,7 +19,7 @@ class CandidateGrid extends Grid<Candidate> {
 
 	public CandidateGrid(CandidateKB kb) {
 		this.kb = kb;
-		kb.addGridChangeListener(this::refresh);
+		kb.addCandidateChangeListener(this::refresh);
 		setWidth("100%");
 		setHeight("100%");
 		setStyleName("termgrid");

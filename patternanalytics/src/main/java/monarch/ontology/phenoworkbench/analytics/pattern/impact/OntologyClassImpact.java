@@ -1,6 +1,6 @@
 package monarch.ontology.phenoworkbench.analytics.pattern.impact;
 
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.OntologyClass;
+import monarch.ontology.phenoworkbench.util.OntologyClass;
 
 import java.util.HashMap;
 import java.util.Map;

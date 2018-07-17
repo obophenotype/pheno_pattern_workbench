@@ -24,7 +24,10 @@ public class OBOMappingFileParser {
                     //String logo2 = explosion[3];
                     Double v1 = Double.valueOf(explosion[4]);
                     Double v2 = Double.valueOf(explosion[5]);
-                    mappings.add(new IRIMapping(iri1, iri2, v1, v2));
+                    IRIMapping map = new IRIMapping(iri1, iri2, "jaccard", v1 );
+                    map.addMetric("jaccard",v1);
+                    map.addMetric("sbcl",v2);
+                    mappings.add(map);
                 }
             } catch (Exception e) {
                 e.printStackTrace();

@@ -11,7 +11,8 @@ import com.vaadin.ui.StyleGenerator;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.renderers.HtmlRenderer;
 
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.OntologyClass;
+import monarch.ontology.phenoworkbench.util.CandidateKB;
+import monarch.ontology.phenoworkbench.util.OntologyClass;
 import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.CandidateIdentifierApp;
 import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.OntologyTermSet;
 import monarch.ontology.phenoworkbench.browser.basic.TermInfoWindow;
@@ -37,7 +38,7 @@ class TermGrid extends Grid<OntologyClass> {
 
 		addColumn(c -> c.indirectChildren().size()).setCaption("Impact").setWidth(70.0);
 
-		kb.addGridChangeListener(this::refreshFilter);
+		kb.addCandidateChangeListener(this::refreshFilter);
 		addComponentColumn(recon -> {
 			Button button = new Button("");
 			button.addClickListener(click -> suggestSimilar(recon,app));

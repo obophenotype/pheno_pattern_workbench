@@ -1,0 +1,6 @@
+mfoem,http://purl.obolibrary.org/obo/MFOEM.owl
+abo,http://purl.obolibrary.org/obo/abo_in_nbo.owl
+doid,http://purl.obolibrary.org/obo/doid.owl
+monarch,https://raw.githubusercontent.com/monarch-initiative/monarch-ontology/master/monarch.owl
+zfa,http://purl.obolibrary.org/obo/zfa.owl
+xao,http://purl.obolibrary.org/obo/xao.owl

@@ -18,17 +18,29 @@ public class RenderManager {
     private Map<OWLEntity, String> labels = new HashMap<>();
     private OWLDataFactory df = OWLManager.getOWLDataFactory();
 
-    public RenderManager() {
-        System.out.println("Warning: Unnecessary RenderManager::hackLabelMethod still in place, should be retired.");
+    private static RenderManager instance = null;
+
+
+    private RenderManager() {
+    }
+
+    public static RenderManager getInstance() {
+        if(instance==null) {
+            instance = new RenderManager();
+        }
+        return instance;
     }
 
     public void addLabel(OWLOntology o) {
-        o.getSignature(Imports.INCLUDED).forEach(s -> OntologyUtils.getLabelsRDFSIfExistsElseOther(s, o).forEach(l -> labels.put(s, hackLabel(l))));
+        o.getSignature(Imports.INCLUDED).forEach(s -> OntologyUtils.getLabelsRDFSIfExistsElseOther(s, o).forEach(l -> labels.put(s, hackLabel(s,l))));
     }
 
-    private String hackLabel(String l) {
-        //TODO This should not be necessary
-        return replaceIRIWithLabel(l, df.getOWLThing(), "Thing");
+    private String hackLabel(OWLEntity e,String l) {
+        if(e.equals(df.getOWLThing())) {
+            return replaceIRIWithLabel(l, df.getOWLThing(), "Thing");
+        } else {
+            return l;
+        }
     }
 
     public String render(OWLObject ax) {
@@ -63,7 +75,7 @@ public class RenderManager {
 
     public void renderTreeForMarkdown(OWLClass c, OWLReasoner r, List<String> sb, int level, Set<OWLEntity> k, Map<OWLClass,OWLClassExpression> g, Set<OWLClass> u) {
         for (OWLClass sub : r.getSubClasses(c, true).getFlattened()) {
-            if(u.contains(sub)||sub.equals(df.getOWLNothing())) {
+            if(sub.equals(df.getOWLNothing())) {
               continue;
             }
             String repeated = new String(new char[level]).replace("\0", "  ");

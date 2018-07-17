@@ -1,6 +1,6 @@
 package monarch.ontology.phenoworkbench.analytics.inferenceanalysis;
 
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.DefinedClass;
+import monarch.ontology.phenoworkbench.util.DefinedClass;
 import monarch.ontology.phenoworkbench.util.Reasoner;
 import monarch.ontology.phenoworkbench.util.Subsumption;
 import monarch.ontology.phenoworkbench.util.Timer;

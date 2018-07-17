@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import com.vaadin.ui.*;
 
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.OntologyClass;
+import monarch.ontology.phenoworkbench.util.OntologyClass;
 import monarch.ontology.phenoworkbench.browser.basic.MarkDownTools;
 import monarch.ontology.phenoworkbench.analytics.pattern.generation.ExplanationRenderProvider;
 import monarch.ontology.phenoworkbench.browser.basic.LabelManager;

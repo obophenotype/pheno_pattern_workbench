@@ -1,5 +1,7 @@
 package monarch.ontology.phenoworkbench.util;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class StringUtils {
@@ -33,5 +35,15 @@ public class StringUtils {
             index += period;
         }
         return builder.toString();
+    }
+
+    public static String lcStripNonAlpha(String s) {
+        return s.toLowerCase().replaceAll(" ","_").replaceAll("[^a-z_]","");
+    }
+
+    public static String getCurrentDateString() {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss");
+        LocalDateTime now = LocalDateTime.now();
+        return dtf.format(now);
     }
 }

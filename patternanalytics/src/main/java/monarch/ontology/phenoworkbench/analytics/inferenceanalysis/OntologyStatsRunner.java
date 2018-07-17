@@ -12,7 +12,7 @@ import java.util.*;
 
 public class OntologyStatsRunner {
 
-    private RenderManager render = new RenderManager();
+    private RenderManager render = RenderManager.getInstance();
     private OntologyDebugReport report = new OntologyDebugReport();
 
     private final long start = System.currentTimeMillis();

@@ -4,13 +4,13 @@ import java.util.*;
 
 import com.vaadin.ui.*;
 
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.OntologyClass;
+import monarch.ontology.phenoworkbench.util.OntologyClass;
 import monarch.ontology.phenoworkbench.analytics.pattern.generation.PatternClass;
 import monarch.ontology.phenoworkbench.analytics.pattern.impact.ImpactMode;
 import monarch.ontology.phenoworkbench.analytics.quickimpact.QuickImpact;
 import monarch.ontology.phenoworkbench.browser.basic.BasicLayout;
 import monarch.ontology.phenoworkbench.browser.basic.LayoutUtils;
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.DefinedClass;
+import monarch.ontology.phenoworkbench.util.DefinedClass;
 import monarch.ontology.phenoworkbench.browser.basic.PatternTree;
 import monarch.ontology.phenoworkbench.browser.basic.PatternTreeItem;
 import monarch.ontology.phenoworkbench.util.OntologyEntry;

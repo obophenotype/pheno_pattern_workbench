@@ -18,11 +18,8 @@ import com.vaadin.ui.MenuBar.MenuItem;
 
 import monarch.ontology.phenoworkbench.browser.candident.CandidentView;
 import monarch.ontology.phenoworkbench.browser.quickimpact.QuickImpactView;
-import monarch.ontology.phenoworkbench.browser.reconciliation.PatternReconciliationView;
-import monarch.ontology.phenoworkbench.browser.reportviews.AxiomRedundancyAnalyserView;
-import monarch.ontology.phenoworkbench.browser.reportviews.InferenceAnalyserView;
-import monarch.ontology.phenoworkbench.browser.reportviews.PatternAnalyserView;
-import monarch.ontology.phenoworkbench.browser.reportviews.UnionAnalyserView;
+import monarch.ontology.phenoworkbench.browser.reconciliation.MappingReviewView;
+import monarch.ontology.phenoworkbench.browser.reportviews.*;
 
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
@@ -36,9 +33,10 @@ public class PhenoUI extends UI {
 	public static String UNIONANALYTICSVIEW = "Ontology Union Debugger";
 	public static String INFERENCEANALYTICSVIEW = "Inference Analysis";
 	public static String SUBCLASSREDUNDANCYVEIW = "Subclass Redundancy";
-	public static String QUICKCLASSIMPACT = "Quick Impact";
-	public static String RECONCILIATION = "Reconciliation";
-	public static String CANDIDENT = "CandIdent";
+	public static String QUICKCLASSIMPACT = "Pattern Browser";
+	public static String RECONCILIATION = "Mapping Validation";
+	public static String CANDIDENT = "Candidate Identification";
+	public static String KB = "Reconciliation Candidates";
 	Map<String, Layout> views = new HashMap<>();
 
 	@Override
@@ -65,7 +63,13 @@ public class PhenoUI extends UI {
 						views.put(PATTERNANALYTICSVIEW, new PatternAnalyserView());
 					}
 					setNewView(views.get(PATTERNANALYTICSVIEW));
-				} 
+				}
+				else if (menuitem.equals(KB)) {
+					if (!views.containsKey(KB)) {
+						views.put(KB, new ReconciliationView());
+					}
+					setNewView(views.get(KB));
+				}
 				else if (menuitem.equals(UNIONANALYTICSVIEW)) {
 					if (!views.containsKey(UNIONANALYTICSVIEW)) {
 						views.put(UNIONANALYTICSVIEW, new UnionAnalyserView());
@@ -92,7 +96,7 @@ public class PhenoUI extends UI {
 				}
 				else if (menuitem.equals(RECONCILIATION)) {
 					if (!views.containsKey(RECONCILIATION)) {
-						views.put(RECONCILIATION, new PatternReconciliationView());
+						views.put(RECONCILIATION, new MappingReviewView());
 					}
 					setNewView(views.get(RECONCILIATION));
 				}
@@ -113,10 +117,11 @@ public class PhenoUI extends UI {
 		barmenu.addItem(PATTERNANALYTICSVIEW, null, mycommand);
 		barmenu.addItem(UNIONANALYTICSVIEW, null, mycommand);
 		barmenu.addItem(INFERENCEANALYTICSVIEW, null, mycommand);
-		barmenu.addItem(QUICKCLASSIMPACT, null, mycommand);
 		barmenu.addItem(SUBCLASSREDUNDANCYVEIW, null, mycommand);
+		barmenu.addItem(QUICKCLASSIMPACT, null, mycommand);
 		barmenu.addItem(RECONCILIATION, null, mycommand);
 		barmenu.addItem(CANDIDENT, null, mycommand);
+		barmenu.addItem(KB, null, mycommand);
 
 	}
 

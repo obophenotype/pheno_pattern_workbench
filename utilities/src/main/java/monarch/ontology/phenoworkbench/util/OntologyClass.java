@@ -1,6 +1,5 @@
-package monarch.ontology.phenoworkbench.analytics.pattern.generation;
+package monarch.ontology.phenoworkbench.util;
 
-import monarch.ontology.phenoworkbench.util.Timer;
 import org.semanticweb.owlapi.model.OWLClass;
 
 import java.util.*;
@@ -13,7 +12,7 @@ public class OntologyClass {
     private Set<OntologyClass> parents = new HashSet<>();
     private Set<OntologyClass> children = new HashSet<>();
 
-    OntologyClass(OWLClass c) {
+    public OntologyClass(OWLClass c) {
         this.c = c;
         this.label = c.toString();
         this.iri = c.getIRI().toString();

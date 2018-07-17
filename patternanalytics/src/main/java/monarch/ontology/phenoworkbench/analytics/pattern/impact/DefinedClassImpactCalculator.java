@@ -1,6 +1,6 @@
 package monarch.ontology.phenoworkbench.analytics.pattern.impact;
 
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.OntologyClass;
+import monarch.ontology.phenoworkbench.util.OntologyClass;
 import monarch.ontology.phenoworkbench.util.OntologyUtils;
 import monarch.ontology.phenoworkbench.util.Timer;
 import monarch.ontology.phenoworkbench.util.UberOntology;

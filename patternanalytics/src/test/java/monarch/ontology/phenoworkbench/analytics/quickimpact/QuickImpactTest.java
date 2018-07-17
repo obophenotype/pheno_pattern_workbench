@@ -1,7 +1,7 @@
 package monarch.ontology.phenoworkbench.analytics.quickimpact;
 
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.DefinedClass;
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.OntologyClass;
+import monarch.ontology.phenoworkbench.util.DefinedClass;
+import monarch.ontology.phenoworkbench.util.OntologyClass;
 import monarch.ontology.phenoworkbench.analytics.pattern.impact.ImpactMode;
 import monarch.ontology.phenoworkbench.analytics.pattern.impact.OntologyClassImpact;
 import monarch.ontology.phenoworkbench.util.OntologyEntry;

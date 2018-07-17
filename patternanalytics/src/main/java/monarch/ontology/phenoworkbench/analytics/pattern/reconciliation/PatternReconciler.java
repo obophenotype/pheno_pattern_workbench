@@ -1,7 +1,6 @@
 package monarch.ontology.phenoworkbench.analytics.pattern.reconciliation;
 
 import monarch.ontology.phenoworkbench.analytics.pattern.generation.*;
-import monarch.ontology.phenoworkbench.analytics.pattern.impact.GrammarIndex;
 import monarch.ontology.phenoworkbench.analytics.pattern.impact.OntologyClassImpact;
 import monarch.ontology.phenoworkbench.util.*;
 import monarch.ontology.phenoworkbench.util.Timer;
@@ -76,20 +75,23 @@ public class PatternReconciler extends PhenoAnalysisRunner implements GrammarPro
 
     private void preparePatternMap() {
 
-        Map<IRI, DefinedClass> iriPatternMap = new HashMap<>();
+        Map<IRI, OntologyClass> iriPatternMap = new HashMap<>();
 
-        patternManager.getAllDefinedClasses().forEach(p -> iriPatternMap.put(p.getOWLClass().getIRI(), p));
+        patternManager.getAllClasses().forEach(p -> iriPatternMap.put(p.getOWLClass().getIRI(), p));
+
         log("QI: Computing alignments.." + Timer.getSecondsElapsed("PatternReconciler::PatternReconciler()"));
 
         for (IRIMapping imap : mapping) {
             IRI iri = imap.getI1();
             IRI to = imap.getI2();
-            if (iriPatternMap.containsKey(iri) && iriPatternMap.containsKey(to)) {
-                DefinedClass p = iriPatternMap.get(iri);
-                DefinedClass p2 = iriPatternMap.get(to);
-                indexReconciliationCandidate(imap, p, p2);
-                if (isBidirectionmapping()) {
-                    indexReconciliationCandidate(imap, p2, p);
+            if (iriPatternMap.containsKey(iri) ) {
+                if(iriPatternMap.containsKey(to)) {
+                    OntologyClass p = iriPatternMap.get(iri);
+                    OntologyClass p2 = iriPatternMap.get(to);
+                    indexReconciliationCandidate(imap, p, p2);
+                    if (isBidirectionmapping()) {
+                        indexReconciliationCandidate(imap, p2, p);
+                    }
                 }
             }
         }
@@ -110,15 +112,15 @@ public class PatternReconciler extends PhenoAnalysisRunner implements GrammarPro
         return impact;
     }
 
-    private void indexReconciliationCandidate(IRIMapping imap, DefinedClass p, DefinedClass p2) {
+    private void indexReconciliationCandidate(IRIMapping imap, OntologyClass p, OntologyClass p2) {
         Timer.start("PatternReconciler::indexReconciliationCandidate()");
         if (!patternReconciliation.containsKey(p)) {
             patternReconciliation.put(p, new HashMap<>());
         }
         if (!patternReconciliation.get(p).containsKey(p2)) {
-            PatternReconciliationCandidate pr = new PatternReconciliationCandidate(p, p2, getRenderManager(), r);
-            pr.setJaccardSimiliarity(imap.getJackard());
-            pr.setSubclassSimilarity(imap.getSbcl());
+            PatternReconciliationCandidate pr = new PatternReconciliationCandidate(p, p2, r);
+            pr.setSimiliarity(imap.getSimilarity());
+            pr.setOtherMetrics(imap.getMetrics());
             patternReconciliation.get(p).put(p2, pr);
             reconciliations.add(pr);
         }

@@ -33,7 +33,8 @@ public abstract class PhenoAnalysisRunner {
 
     protected void prepareUberOntology() {
         Timer.start("PhenoAnalysisRunner::prepareUberOntology()");
-        o = new UberOntology(getImports(), getCorpus());
+        o = UberOntology.instance();
+        o.processOntologies(getCorpus(), getImports());
         Timer.end("PhenoAnalysisRunner::prepareUberOntology()");
     }
 

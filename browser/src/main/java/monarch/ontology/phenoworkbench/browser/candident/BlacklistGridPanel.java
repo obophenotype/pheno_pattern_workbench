@@ -15,7 +15,8 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.VerticalLayout;
 
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.OntologyClass;
+import monarch.ontology.phenoworkbench.util.CandidateKB;
+import monarch.ontology.phenoworkbench.util.OntologyClass;
 import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.CandidateIdentifierApp;
 import monarch.ontology.phenoworkbench.browser.basic.LabelManager;
 
@@ -32,7 +33,7 @@ class BlacklistGridPanel extends VerticalLayout {
 		this.gp = gp;
 		setSizeFull();
 		setMargin(false);
-		JSONFileUploader receiver = new JSONFileUploader(gp, app) {
+		JSONFileUploader receiver = new JSONFileUploader(gp) {
 
 			private static final long serialVersionUID = 4955354018657336505L;
 

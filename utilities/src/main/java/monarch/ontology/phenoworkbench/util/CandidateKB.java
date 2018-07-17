@@ -1,11 +1,7 @@
-package monarch.ontology.phenoworkbench.browser.candident;
+package monarch.ontology.phenoworkbench.util;
 
 import java.util.Collection;
 import java.util.Set;
-
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.OntologyClass;
-import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.Bucket;
-import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.Candidate;
 
 public interface CandidateKB {
 
@@ -31,7 +27,7 @@ public interface CandidateKB {
 
 	void addCandidate(Candidate c);
 
-	void addGridChangeListener(CandidateKBListener listener);
+	void addCandidateChangeListener(CandidateKBListener listener);
 
 	void saveCurrentCandidate();
 

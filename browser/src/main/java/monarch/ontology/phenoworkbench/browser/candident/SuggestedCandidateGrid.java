@@ -10,7 +10,8 @@ import com.vaadin.ui.Grid;
 import com.vaadin.ui.StyleGenerator;
 import com.vaadin.ui.renderers.HtmlRenderer;
 
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.OntologyClass;
+import monarch.ontology.phenoworkbench.util.CandidateKB;
+import monarch.ontology.phenoworkbench.util.OntologyClass;
 import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.OntologyClassMatch;
 
 class SuggestedCandidateGrid extends Grid<OntologyClassMatch> {
@@ -34,7 +35,7 @@ class SuggestedCandidateGrid extends Grid<OntologyClassMatch> {
         addColumn(c->c.getJacc_substring()).setCaption("JSS").setWidth(50.0);
         addColumn(c->c.getJacc_bucketsim()).setCaption("JSB").setWidth(50.0);
         
-        kb.addGridChangeListener(this::refreshFilter);
+        kb.addCandidateChangeListener(this::refreshFilter);
         addComponentColumn(recon -> {
             Button button = new Button("");
             button.addClickListener(click -> blacklist(recon.getS2()));

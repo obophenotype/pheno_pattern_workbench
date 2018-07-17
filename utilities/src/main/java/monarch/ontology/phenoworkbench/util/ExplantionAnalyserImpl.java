@@ -3,7 +3,10 @@ package monarch.ontology.phenoworkbench.util;
 import org.semanticweb.elk.owlapi.ElkReasonerFactory;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
+import org.semanticweb.owlapi.reasoner.InferenceType;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
+import org.semanticweb.owlapi.reasoner.structural.StructuralReasoner;
+import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory;
 
 import java.util.*;
 
@@ -26,7 +29,7 @@ public class ExplantionAnalyserImpl implements ExplanationAnalyser {
         try {
             OWLOntologyManager man = OWLManager.createOWLOntologyManager();
             OWLDataFactory df = man.getOWLDataFactory();
-            OWLOntology o = man.createOntology(normaliseAxioms(ex.getAxioms()));
+            OWLOntology o = man.createOntology(ex.getAxioms());
 
 
             String base = "http://tmp.owl#";
@@ -46,6 +49,8 @@ public class ExplantionAnalyserImpl implements ExplanationAnalyser {
             }
 
             OWLReasoner r = new ElkReasonerFactory().createReasoner(o);
+            OWLReasoner r_struct = new StructuralReasonerFactory().createReasoner(o);
+            r_struct.precomputeInferences(InferenceType.CLASS_HIERARCHY);
             unsatisfiable.addAll(r.getUnsatisfiableClasses().getEntitiesMinus(OWLManager.getOWLDataFactory().getOWLNothing()));
 
             String prefixed_whitespace = new String(new char[indendationlevel]).replace("\0", "  ");
@@ -58,19 +63,19 @@ public class ExplantionAnalyserImpl implements ExplanationAnalyser {
             }
             sb.add(prefixed_whitespace+"* Class Hierarchy of Explanation");
             for (OWLClass sub : r.getSubClasses(df.getOWLThing(), true).getFlattened()) {
-                if(unsatisfiable.contains(sub)||sub.equals(df.getOWLNothing())) {
+                if(sub.equals(df.getOWLNothing())) {
                     continue;
                 }
-                Set<OWLClass> utop = r.getSubClasses(sub,true).getFlattened();
+                /*Set<OWLClass> utop = r_struct.getSubClasses(sub,true).getFlattened();
                 utop.remove(df.getOWLNothing());
                 utop.remove(keyentities);
                 if(utop.isEmpty()) {
                     continue;
-                }
+                }*/
 
 
                 sb.add(new String(new char[indendationlevel+1]).replace("\0", "  ")+  "  * " + render.renderTreeEntity(sub,keyentities,generated,unsatisfiable));
-                render.renderTreeForMarkdown(sub, r, sb, indendationlevel+2,keyentities,generated,unsatisfiable);
+                render.renderTreeForMarkdown(sub, r_struct, sb, indendationlevel+3,keyentities,generated,unsatisfiable);
             }
 
             sb.add(prefixed_whitespace+"* Other unsatisfiable classes in explanation: ");
@@ -122,36 +127,30 @@ public class ExplantionAnalyserImpl implements ExplanationAnalyser {
     }
 
     private boolean potentiallyPainfulAxiom(OWLAxiom ax) {
-        boolean pain = true;
         if (ax instanceof OWLSubClassOfAxiom) {
             OWLSubClassOfAxiom sbcl = (OWLSubClassOfAxiom) ax;
-            boolean harmless = true;
-            harmless = isHarmless(sbcl.getSubClass(), harmless);
-            if (harmless) { // Check only if still deemed harmless.
-                harmless = isHarmless(sbcl.getSubClass(), harmless);
-            }
-            return !harmless;
+            return isHarmless(sbcl.getSubClass())&&isHarmless(sbcl.getSuperClass());
         } else if (ax instanceof OWLEquivalentClassesAxiom) {
-            boolean harmless = true;
             for (OWLClassExpression ce : ((OWLEquivalentClassesAxiom) ax).getClassExpressionsAsList()) {
-                harmless = isHarmless(ce, harmless);
+                if(!isHarmless(ce)) {
+                    return true;
+                }
             }
-            return !harmless;
+            return false;
         }
-        return pain;
+        return true;
     }
 
-    private boolean isHarmless(OWLClassExpression classExpression, boolean harmless) {
+    private boolean isHarmless(OWLClassExpression classExpression) {
         for (OWLClassExpression ce : classExpression.getNestedClassExpressions()) {
             if (ce instanceof OWLClass) {
             } else if (ce instanceof OWLObjectSomeValuesFrom) {
             } else if (ce instanceof OWLObjectIntersectionOf) {
             } else {
-                harmless = false;
-                break;
+               return false;
             }
         }
-        return harmless;
+        return true;
     }
 
 

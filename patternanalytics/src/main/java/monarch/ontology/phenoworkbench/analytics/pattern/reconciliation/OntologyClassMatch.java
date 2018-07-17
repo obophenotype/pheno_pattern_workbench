@@ -1,7 +1,6 @@
 package monarch.ontology.phenoworkbench.analytics.pattern.reconciliation;
 
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.OntologyClass;
-import org.semanticweb.owlapi.model.OWLClass;
+import monarch.ontology.phenoworkbench.util.OntologyClass;
 
 public class OntologyClassMatch {
 

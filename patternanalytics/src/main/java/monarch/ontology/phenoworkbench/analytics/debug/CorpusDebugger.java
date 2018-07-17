@@ -26,7 +26,7 @@ import java.util.*;
 public class CorpusDebugger {
 
     private OWLDataFactory df = OWLManager.createOWLOntologyManager().getOWLDataFactory();
-    private RenderManager render = new RenderManager();
+    private RenderManager render = RenderManager.getInstance();
     private String BASE = "http://ebi.debug.owl#";
     private OntologyDebugReport report = new OntologyDebugReport();
 

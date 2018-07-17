@@ -1,4 +1,4 @@
-package monarch.ontology.phenoworkbench.analytics.pattern.generation;
+package monarch.ontology.phenoworkbench.util;
 
 import java.util.Objects;
 
@@ -11,7 +11,7 @@ public class PatternGrammar {
         this("none");
     }
 
-    PatternGrammar(String s) {
+    public PatternGrammar(String s) {
         this.original = s;
         this.grammar = s.replaceAll("[^a-zA-Z0-9()]","").toLowerCase();
 

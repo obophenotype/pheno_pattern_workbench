@@ -26,7 +26,7 @@ public class UnionAnalyserView extends BasicLayout {
 	protected Map<String, String> getRunOptions() {
 		Map<String, String> options = new HashMap<>();
 		options.put("imports", "yes");
-		options.put("maxunsat", "1");
+		options.put("maxunsat", "10");
 		options.put("maxexplanation", "1");
 		options.put("reasoner", "elk");
 		return options;

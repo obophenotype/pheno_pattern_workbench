@@ -5,10 +5,10 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.components.grid.ItemClickListener;
 
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.DefinedClass;
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.OntologyClass;
+import monarch.ontology.phenoworkbench.util.DefinedClass;
+import monarch.ontology.phenoworkbench.util.OntologyClass;
 import monarch.ontology.phenoworkbench.analytics.pattern.impact.OntologyClassImpact;
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.PatternGrammar;
+import monarch.ontology.phenoworkbench.util.PatternGrammar;
 import monarch.ontology.phenoworkbench.analytics.pattern.generation.ExplanationRenderProvider;
 import monarch.ontology.phenoworkbench.analytics.pattern.generation.GrammarProvider;
 import monarch.ontology.phenoworkbench.analytics.pattern.generation.ImpactProvider;
@@ -47,7 +47,7 @@ public class PatternInfoBox extends VerticalLayout {
 		sb.append("<h3>" + patternName(p) + "</h3>");
 		if (p instanceof DefinedClass) {
 			DefinedClass definedClass = (DefinedClass) p;
-			sb.append(HTMLRenderUtils.renderDefinedClass(definedClass));
+			sb.append(HTMLRenderUtils.renderOntologyClass(definedClass));
 			Optional<OntologyClassImpact> impactOptional = quickImpact.getImpact(definedClass);
 			if(impactOptional.isPresent()) {
 				OntologyClassImpact impact = impactOptional.get();

@@ -5,7 +5,8 @@ import com.vaadin.ui.Grid;
 import com.vaadin.ui.StyleGenerator;
 import com.vaadin.ui.renderers.HtmlRenderer;
 
-import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.Bucket;
+import monarch.ontology.phenoworkbench.util.Bucket;
+import monarch.ontology.phenoworkbench.util.CandidateKB;
 
 class BucketGrid extends Grid<Bucket> {
 
@@ -14,7 +15,7 @@ class BucketGrid extends Grid<Bucket> {
 
     public BucketGrid(CandidateKB kb) {
     		this.kb = kb;
-    		kb.addGridChangeListener(this::refresh);
+    		kb.addCandidateChangeListener(this::refresh);
         setWidth("100%");
         setHeight("100%");
         setStyleName("termgrid");

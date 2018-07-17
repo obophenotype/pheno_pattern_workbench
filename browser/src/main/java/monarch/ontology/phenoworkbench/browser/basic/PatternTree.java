@@ -1,7 +1,6 @@
 package monarch.ontology.phenoworkbench.browser.basic;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.DataProvider;
@@ -9,7 +8,7 @@ import com.vaadin.data.provider.TreeDataProvider;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Tree;
 
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.OntologyClass;
+import monarch.ontology.phenoworkbench.util.OntologyClass;
 import monarch.ontology.phenoworkbench.util.Timer;
 
 public class PatternTree extends Tree<PatternTreeItem> {

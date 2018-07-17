@@ -3,8 +3,8 @@ package monarch.ontology.phenoworkbench.browser.candident;
 import com.vaadin.ui.HorizontalLayout;
 import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.CandidateIdentifierApp;
 import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.OntologyTermSet;
+import monarch.ontology.phenoworkbench.util.CandidateKB;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;

@@ -16,7 +16,7 @@ import java.util.Set;
 
 public class SubClassRedundancy {
     private BranchLoader branches = null;
-    private RenderManager render = new RenderManager();
+    private RenderManager render = RenderManager.getInstance();
     OntologyDebugReport lines = new OntologyDebugReport();
 
     private String BASEIRI = "http://ebi.ac.uk/";

@@ -17,12 +17,15 @@ import com.vaadin.ui.Notification;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.VerticalLayout;
 
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.OntologyClass;
-import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.Candidate;
+import monarch.ontology.phenoworkbench.browser.basic.IOUtils;
+import monarch.ontology.phenoworkbench.util.CandidateKB;
+import monarch.ontology.phenoworkbench.util.KB;
+import monarch.ontology.phenoworkbench.util.OntologyClass;
+import monarch.ontology.phenoworkbench.util.Candidate;
 import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.CandidateIdentifierApp;
 import monarch.ontology.phenoworkbench.browser.basic.LabelManager;
 
-class CandidateGridPanel extends VerticalLayout {
+public class CandidateGridPanel extends VerticalLayout {
 	private static final long serialVersionUID = 3484502786500683355L;
 
 	private final CandidateGrid grid;
@@ -30,12 +33,12 @@ class CandidateGridPanel extends VerticalLayout {
 	private final Button bt_load = new Button("Download");
 	private final CandidateKB gp;
 
-	CandidateGridPanel(CandidateKB gp, CandidateIdentifierApp app) {
+	public CandidateGridPanel() {
+		gp = KB.getInstance();
 		grid = new CandidateGrid(gp);
-		this.gp = gp;
 		setSizeFull();
 		setMargin(false);
-		JSONFileUploader receiver = new JSONFileUploader(gp,app) {
+		JSONFileUploader receiver = new JSONFileUploader(gp) {
 
 			@Override
 			protected void parseCandidateJson(JsonNode n) {
@@ -48,7 +51,7 @@ class CandidateGridPanel extends VerticalLayout {
 							System.out.println("Loading candidate "+label);
 							for (JsonNode c : candidate.path("classes")) {
 								String iri = c.path("iri").asText();
-								Set<OntologyClass> ontologyClasses = app.getOntologyClasses(iri);
+								Set<OntologyClass> ontologyClasses = KB.getInstance().getOntologyClasses(iri);
 								if (ontologyClasses.isEmpty()) {
 									Notification.show(iri + " not in currently loaded classes!");
 									candidate_complete = false;
@@ -81,35 +84,11 @@ class CandidateGridPanel extends VerticalLayout {
 	}
 
 	private void downloadExportFile(byte[] toDownload) {
-		StreamResource.StreamSource source = new StreamResource.StreamSource() {
-			private static final long serialVersionUID = 21828054412044862L;
-
-			@Override
-			public InputStream getStream() {
-				return new ByteArrayInputStream(toDownload);
-			}
-		};
-
-		StreamResource resource = new StreamResource(source, "candidates.xml") {
-			private static final long serialVersionUID = -552993349680185987L;
-			DownloadStream downloadStream;
-
-			@Override
-			public DownloadStream getStream() {
-				if (downloadStream == null)
-					downloadStream = super.getStream();
-				return downloadStream;
-			}
-		};
-		resource.getStream().setParameter("Content-Disposition", "attachment;filename=\"candidates.xml\"");
-		resource.getStream().setParameter("Content-Type", "application/octet-stream");
-		resource.getStream().setCacheTime(0);
+		StreamResource resource = IOUtils.getStreamResource(toDownload,"candidates.xml");
 		ResourceReference ref = new ResourceReference(resource, this, "download");
 		this.setResource("download", resource);
 		Page.getCurrent().open(ref.getURL(), null);
 	}
-
-	
 
 	private Component layoutHeader() {
 		HorizontalLayout vl = new HorizontalLayout();

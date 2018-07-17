@@ -9,8 +9,9 @@ import com.vaadin.ui.Grid;
 import com.vaadin.ui.StyleGenerator;
 import com.vaadin.ui.renderers.HtmlRenderer;
 
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.OntologyClass;
-import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.Candidate;
+import monarch.ontology.phenoworkbench.util.CandidateKB;
+import monarch.ontology.phenoworkbench.util.OntologyClass;
+import monarch.ontology.phenoworkbench.util.Candidate;
 
 class CurrentCandidateGrid extends Grid<OntologyClass> {
 
@@ -22,7 +23,7 @@ class CurrentCandidateGrid extends Grid<OntologyClass> {
 	private final CandidateKB kb;
 	public CurrentCandidateGrid(CandidateKB kb) {
 		this.kb = kb;
-		kb.addGridChangeListener(this::refresh);
+		kb.addCandidateChangeListener(this::refresh);
 		setWidth("100%");
 		setHeight("100%");
 		setStyleName("termgrid");

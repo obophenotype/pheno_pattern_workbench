@@ -1,6 +1,4 @@
-package monarch.ontology.phenoworkbench.browser.candident;
-
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.OntologyClass;
+package monarch.ontology.phenoworkbench.util;
 
 public class BlacklistItem {
 

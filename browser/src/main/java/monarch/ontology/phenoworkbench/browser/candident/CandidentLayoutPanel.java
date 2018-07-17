@@ -6,9 +6,10 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
-import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.Bucket;
+import monarch.ontology.phenoworkbench.util.Bucket;
 import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.CandidateIdentifierApp;
 import monarch.ontology.phenoworkbench.browser.basic.LabelManager;
+import monarch.ontology.phenoworkbench.util.KB;
 
 class CandidentLayoutPanel extends VerticalLayout {
 
@@ -22,16 +23,14 @@ class CandidentLayoutPanel extends VerticalLayout {
     private final TextField tf_bucket = new TextField();
     private final Button bt_search = new Button("S");
     private final Button bt_bucket = new Button("Add Bucket");
-    private final CandidateKB kb;
+    private final KB kb = KB.getInstance();
 
     
     CandidentLayoutPanel(CandidateIdentifierApp p) {
         setSizeFull();
         setMargin(false);
-        
-        kb = new CandidateKBImpl();
         currentCandidateGridPanel = new CurrentCandidateGridPanel(kb);
-        candidateGridPanel = new CandidateGridPanel(kb,p);
+        candidateGridPanel = new CandidateGridPanel();
         bucketGridPanel = new BucketGridPanel(kb,p);
         blacklistGridPanel = new BlacklistGridPanel(kb, p);
 

@@ -1,7 +1,6 @@
 package monarch.ontology.phenoworkbench.analytics.pattern.generation;
 
-import monarch.ontology.phenoworkbench.util.Reasoner;
-import monarch.ontology.phenoworkbench.util.RenderManager;
+import monarch.ontology.phenoworkbench.util.*;
 import monarch.ontology.phenoworkbench.util.Timer;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.parameters.Imports;

@@ -1,8 +1,8 @@
 package monarch.ontology.phenoworkbench.analytics.pattern.impact;
 
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.DefinedClass;
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.OntologyClass;
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.PatternGrammar;
+import monarch.ontology.phenoworkbench.util.DefinedClass;
+import monarch.ontology.phenoworkbench.util.OntologyClass;
+import monarch.ontology.phenoworkbench.util.PatternGrammar;
 
 import java.util.HashMap;
 import java.util.HashSet;

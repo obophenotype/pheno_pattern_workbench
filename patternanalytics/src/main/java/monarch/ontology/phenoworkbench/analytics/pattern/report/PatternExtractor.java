@@ -6,7 +6,7 @@ import monarch.ontology.phenoworkbench.util.BranchLoader;
 import monarch.ontology.phenoworkbench.analytics.pattern.generation.PatternGenerator;
 import monarch.ontology.phenoworkbench.analytics.pattern.impact.DefinedClassImpactCalculator;
 import monarch.ontology.phenoworkbench.analytics.pattern.generation.PatternOntologyCreator;
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.DefinedClass;
+import monarch.ontology.phenoworkbench.util.DefinedClass;
 import monarch.ontology.phenoworkbench.util.*;
 import monarch.ontology.phenoworkbench.util.Timer;
 import org.apache.commons.io.FileUtils;
@@ -162,7 +162,7 @@ public class PatternExtractor extends PhenoAnalysisRunner {
     public void printResults(File out) {
         report.addLine("# DefinedClass Analysis Results");
         report.addLine("* Ontology ids: ");
-        Map<String,String> map_oid_name = getO().getMap_oid_name();
+        Map<String,String> map_oid_name = getO().getOid_name();
         for(String oid:map_oid_name.keySet()) {
             report.addLine("  * "+oid+":"+map_oid_name.get(oid));
         }

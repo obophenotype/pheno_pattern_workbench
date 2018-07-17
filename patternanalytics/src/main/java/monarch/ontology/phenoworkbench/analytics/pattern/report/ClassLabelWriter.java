@@ -16,7 +16,7 @@ import java.util.*;
 
 public class ClassLabelWriter {
 
-    private RenderManager render = new RenderManager();
+    private RenderManager render = RenderManager.getInstance();
 
     private List<Map<String,String>> data_i = new ArrayList<>();
     private IRIManager iriManager;

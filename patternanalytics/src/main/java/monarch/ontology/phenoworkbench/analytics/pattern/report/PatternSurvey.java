@@ -16,7 +16,7 @@ import java.util.*;
 
 public class PatternSurvey  {
 
-    private RenderManager render = new RenderManager();
+    private RenderManager render = RenderManager.getInstance();
     private PatternGenerator patternGenerator = new PatternGenerator(render);
 
     private List<Map<String,String>> data_c = new ArrayList<>();

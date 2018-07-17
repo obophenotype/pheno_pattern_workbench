@@ -1,4 +1,4 @@
-package monarch.ontology.phenoworkbench.analytics.pattern.generation;
+package monarch.ontology.phenoworkbench.util;
 
 import org.semanticweb.owlapi.io.OWLObjectRenderer;
 import org.semanticweb.owlapi.manchestersyntax.renderer.ManchesterOWLSyntaxOWLObjectRendererImpl;

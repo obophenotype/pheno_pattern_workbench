@@ -4,7 +4,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.Candidate;
+import monarch.ontology.phenoworkbench.util.Candidate;
 
 public class CandidateParser {
 

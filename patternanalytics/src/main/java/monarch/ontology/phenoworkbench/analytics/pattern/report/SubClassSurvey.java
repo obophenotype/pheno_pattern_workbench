@@ -14,7 +14,7 @@ import java.util.*;
 
 public class SubClassSurvey {
 
-    private RenderManager render = new RenderManager();
+    private RenderManager render = RenderManager.getInstance();
     private List<Map<String,String>> data_i = new ArrayList<>();
     private Set<OWLClassExpression> nested = new HashSet<>();
     private Map<OWLEntity,OWLClassExpression> map_e = new HashMap<>();

@@ -10,44 +10,67 @@ import java.util.*;
 public class UberOntology {
 
     private final KB kb = KB.getInstance();
+    private final RenderManager render = RenderManager.getInstance();
 
-    private final Map<String, Set<OWLAxiom>> allAxiomsAcrossOntologies = new HashMap<>();
-    private final Map<OWLAxiom, Set<String>> allOntologiesAcrossAxioms = new HashMap<>();
+    private final Map<String, Set<OWLAxiom>> oid_axioms = new HashMap<>();
+    private final Map<OWLAxiom, Set<String>> axioms_oid = new HashMap<>();
 
-    private final Map<String, Set<OWLEntity>> allSignaturesAcrossOntologies = new HashMap<>();
-    private final Map<OWLEntity, Set<String>> allOntologiesAcrossSignature = new HashMap<>();
+    private final Map<String, Set<OWLEntity>> oid_signature = new HashMap<>();
+    private final Map<OWLEntity, Set<String>> signature_oid = new HashMap<>();
+    private final Map<String, Reasoner> oid_reasoner = new HashMap<>();
+    private final Map<String, BranchLoader> oid_branches = new HashMap<>();
 
-    private final Imports imports;
-    private final Map<String, String> map_oid_name = new HashMap<>();
+
+    private final Map<String, String> oid_name = new HashMap<>();
     private final Set<OntologyEntry> ontologyEntries = new HashSet<>();
 
-    private final RenderManager render = new RenderManager();
+    private static UberOntology instance = null;
 
-    public UberOntology(Imports imports, Set<OntologyEntry> iris) {
-        this.imports = imports;
-        processOntologies(iris);
+    private UberOntology() {
+    }
+
+    public static UberOntology instance() {
+        if(instance==null) {
+            instance = new UberOntology();
+        }
+        return instance;
+    }
+
+
+    public void reset() {
+        instance = new UberOntology();
     }
 
     private void processOntology(Imports imports, OWLOntology o, OntologyEntry e) {
         String oid = e.getOid();
-        map_oid_name.put(oid, e.getIri());
+        if(oid_axioms.containsKey(oid)) {
+            System.out.println(oid+" already loaded, aborting.");
+            return;
+        }
+        oid_name.put(oid, e.getIri());
 
         try {
-               Set<OWLAxiom> axioms = new HashSet<>(o.getAxioms(imports));
+            Reasoner r = new Reasoner(o);
+            BranchLoader branchLoader = new BranchLoader();
+            branchLoader.loadBranches(e.getRoots(),o.getClassesInSignature(imports),false,r.getOWLReasoner());
+
+            Set<OWLAxiom> axioms = new HashSet<>(o.getAxioms(imports));
             Set<OWLEntity> signature = new HashSet<>(o.getSignature(imports));
-            allAxiomsAcrossOntologies.put(oid, axioms);
-            allSignaturesAcrossOntologies.put(oid, signature);
+            oid_reasoner.put(oid, r);
+            oid_branches.put(oid, branchLoader);
+            oid_axioms.put(oid, axioms);
+            oid_signature.put(oid, signature);
             for (OWLAxiom ax : axioms) {
-                if (!allOntologiesAcrossAxioms.containsKey(ax)) {
-                    allOntologiesAcrossAxioms.put(ax, new HashSet<>());
+                if (!axioms_oid.containsKey(ax)) {
+                    axioms_oid.put(ax, new HashSet<>());
                 }
-                allOntologiesAcrossAxioms.get(ax).add(oid);
+                axioms_oid.get(ax).add(oid);
             }
             for (OWLEntity ax : signature) {
-                if (!allOntologiesAcrossSignature.containsKey(ax)) {
-                    allOntologiesAcrossSignature.put(ax, new HashSet<>());
+                if (!signature_oid.containsKey(ax)) {
+                    signature_oid.put(ax, new HashSet<>());
                 }
-                allOntologiesAcrossSignature.get(ax).add(oid);
+                signature_oid.get(ax).add(oid);
             }
             getRender().addLabel(o);
         } catch (Exception ex) {
@@ -57,19 +80,23 @@ public class UberOntology {
     }
 
     public Set<OWLAxiom> getAllAxioms() {
-        return allOntologiesAcrossAxioms.keySet();
+        return axioms_oid.keySet();
     }
 
     public Collection<? extends String> getAllOntologiesAcrossAxioms(OWLAxiom ax) {
-        return allOntologiesAcrossAxioms.get(ax);
+        return axioms_oid.get(ax);
     }
 
-    public Map<String,String> getMap_oid_name() {
-        return map_oid_name;
+    public Map<String,String> getOid_name() {
+        return oid_name;
     }
 
-    private void processOntologies(Set<OntologyEntry> iris) {
-        iris.forEach(iri->kb.getOntology(iri.getIri()).ifPresent(o->processOntology(imports, o,iri)));
+    public void processOntologies(Set<OntologyEntry> iris, Imports imports) {
+        iris.forEach(entry->processOntology(entry,imports));
+    }
+
+    public void processOntology(OntologyEntry e, Imports imports) {
+        kb.getOntology(e.getIri()).ifPresent(o->processOntology(imports, o,e));
     }
 
     public Optional<OWLOntology> createNewUberOntology() {
@@ -90,21 +117,21 @@ public class UberOntology {
     }
 
     private void addAxiomsForOids(OWLOntology o) {
-        allAxiomsAcrossOntologies.keySet().forEach(oid -> addAxioms(o, oid));
+        oid_axioms.keySet().forEach(oid -> addAxioms(o, oid));
     }
 
     private ChangeApplied addAxioms(OWLOntology o, String oid) {
-        return o.getOWLOntologyManager().addAxioms(o, allAxiomsAcrossOntologies.get(oid));
+        return o.getOWLOntologyManager().addAxioms(o, oid_axioms.get(oid));
     }
 
     public Set<String> getOids() {
-        return allAxiomsAcrossOntologies.keySet();
+        return oid_axioms.keySet();
     }
 
     public Set<OWLEntity> getSignature(String oid) {
        // Set<OWLEntity> e = new HashSet<>();
-        if(allSignaturesAcrossOntologies.containsKey(oid)) {
-           return allSignaturesAcrossOntologies.get(oid);
+        if(oid_signature.containsKey(oid)) {
+           return oid_signature.get(oid);
         }
         return new HashSet<>();
     }
@@ -114,13 +141,20 @@ public class UberOntology {
     }
 
     public Set<OWLAxiom> getAxioms(String oid) {
-        if(allAxiomsAcrossOntologies.containsKey(oid)) {
-            return allAxiomsAcrossOntologies.get(oid);
+        if(oid_axioms.containsKey(oid)) {
+            return oid_axioms.get(oid);
         }
         return new HashSet<>();
     }
 
     public Collection<? extends OntologyEntry> getOntologyEntries() {
         return ontologyEntries;
+    }
+
+    public Set<OWLClass> getBranches(String oid) {
+        if(oid_branches.containsKey(oid)) {
+            return oid_branches.get(oid).getAllClassesInBranches();
+        }
+        return new HashSet<>();
     }
 }

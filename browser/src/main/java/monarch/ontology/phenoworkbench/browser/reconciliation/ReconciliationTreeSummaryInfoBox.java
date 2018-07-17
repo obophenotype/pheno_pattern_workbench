@@ -3,7 +3,7 @@ package monarch.ontology.phenoworkbench.browser.reconciliation;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.VerticalLayout;
 
-import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.ReconciliationCandidateSet;
+import monarch.ontology.phenoworkbench.util.ReconciliationCandidateSet;
 
 public class ReconciliationTreeSummaryInfoBox extends VerticalLayout {
 
@@ -23,7 +23,7 @@ public class ReconciliationTreeSummaryInfoBox extends VerticalLayout {
 	}
 	
 	public void update(ReconciliationCandidateSet rcs) {
-		rsp.updateProgress(rcs);
+		rsp.updateProgress(rcs.items());
 	}
 
 }

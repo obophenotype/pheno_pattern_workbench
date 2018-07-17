@@ -2,8 +2,10 @@ package monarch.ontology.phenoworkbench.browser.reconciliation;
 
 import com.vaadin.ui.*;
 import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.PatternReconciler;
+import monarch.ontology.phenoworkbench.util.KB;
+import monarch.ontology.phenoworkbench.util.PatternReconciliationCandidate;
 
-class ReconcilerLayoutPanel extends VerticalLayout {
+class MappingLayoutPanel extends VerticalLayout {
 
     /**
      *
@@ -12,17 +14,24 @@ class ReconcilerLayoutPanel extends VerticalLayout {
    
     private final VerticalLayout tab_reconciliation = new VerticalLayout();
     private final ReconciliationTreePanel tab_tree;
-    private final ReconciliationGridPanel tab_grid;
+    private final MappingGridPanel tab_grid;
     private final TabSheet tabsheet = new TabSheet();
+    private final KB kb = KB.getInstance();
 
-    ReconcilerLayoutPanel(PatternReconciler p) {
+    MappingLayoutPanel(PatternReconciler p) {
         setSizeFull();
         setMargin(false);
-        tab_grid = new ReconciliationGridPanel(p,tab_reconciliation);
+        tab_grid = new MappingGridPanel(p.getAllPatternReconciliations(), c -> infoClick(c,p,tab_reconciliation), c -> kb.addMapping(c), c->kb.blacklistMapping(c),true);
         tab_tree = new ReconciliationTreePanel(p.getPatternProvider(),p,tab_reconciliation);
         tab_reconciliation.addListener(this::switchTabToReconciliation);
         addComponent(prepareTabs());    
     }
+
+    private void infoClick(PatternReconciliationCandidate recon, PatternReconciler r, VerticalLayout vl) {
+        vl.removeAllComponents();
+        vl.addComponent(new ReconciliationPanel(recon, r));
+    }
+
 
     private void switchTabToReconciliation(Event event) {
         System.out.println(event);

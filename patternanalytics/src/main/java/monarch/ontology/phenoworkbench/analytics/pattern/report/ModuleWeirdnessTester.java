@@ -21,7 +21,7 @@ import java.util.*;
 
 public class ModuleWeirdnessTester {
 
-    private RenderManager render = new RenderManager();
+    private RenderManager render = RenderManager.getInstance();
 
 
     private ModuleWeirdnessTester(Set<String> uris, String id, Map<String,String> ns2pre) {

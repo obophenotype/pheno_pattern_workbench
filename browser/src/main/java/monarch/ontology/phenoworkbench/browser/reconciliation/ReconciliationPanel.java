@@ -2,17 +2,16 @@ package monarch.ontology.phenoworkbench.browser.reconciliation;
 
 import java.util.Collections;
 import java.util.Optional;
-import java.util.Set;
 
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.Tree.ItemClick;
 import com.vaadin.ui.VerticalLayout;
 
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.OntologyClass;
+import monarch.ontology.phenoworkbench.util.OntologyClass;
 import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.PatternReconciler;
-import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.PatternReconciliationCandidate;
-import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.ReconciliationCandidateSet;
+import monarch.ontology.phenoworkbench.util.PatternReconciliationCandidate;
+import monarch.ontology.phenoworkbench.util.ReconciliationCandidateSet;
 import monarch.ontology.phenoworkbench.browser.basic.LabelManager;
 import monarch.ontology.phenoworkbench.browser.basic.LayoutUtils;
 import monarch.ontology.phenoworkbench.browser.basic.PatternTree;
@@ -33,7 +32,7 @@ class ReconciliationPanel extends VerticalLayout {
 	PatternInfoBox ib1 = new PatternInfoBox();
 	PatternInfoBox ib2 = new PatternInfoBox();
 
-	ReconciliationPanel(PatternReconciliationCandidate recon, PatternReconciler r) {
+	public ReconciliationPanel(PatternReconciliationCandidate recon, PatternReconciler r) {
 		setWidth("100%");
 		setMargin(false);
 		this.r = r;

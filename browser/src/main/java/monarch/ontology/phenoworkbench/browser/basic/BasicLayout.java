@@ -7,15 +7,12 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.vaadin.ui.Component;
-import monarch.ontology.phenoworkbench.util.OntologyEntry;
-import monarch.ontology.phenoworkbench.util.Downloader;
+import monarch.ontology.phenoworkbench.util.*;
 
 import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import monarch.ontology.phenoworkbench.util.Files;
-import monarch.ontology.phenoworkbench.util.KB;
 
 
 public abstract class BasicLayout extends VerticalLayout {
@@ -45,7 +42,8 @@ public abstract class BasicLayout extends VerticalLayout {
 		Window sub = new WaitingPopup();
 		getUI().addWindow(sub);
 		getUI().push();
-		if(runAnalysisPanel.reDownload()) {kb.clearCache();}
+		if(runAnalysisPanel.reDownload()) {kb.clearOntologyCache();
+			UberOntology.instance().reset();}
 		runAnalysis(runAnalysisPanel.getSelectedItems());
 		UI.getCurrent().access(()->{sub.close();});
 	}

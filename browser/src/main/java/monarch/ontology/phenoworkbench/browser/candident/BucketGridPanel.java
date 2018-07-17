@@ -16,9 +16,10 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.VerticalLayout;
 
-import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.Bucket;
+import monarch.ontology.phenoworkbench.util.Bucket;
 import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.CandidateIdentifierApp;
 import monarch.ontology.phenoworkbench.browser.basic.LabelManager;
+import monarch.ontology.phenoworkbench.util.CandidateKB;
 
 class BucketGridPanel extends VerticalLayout {
 
@@ -33,7 +34,7 @@ class BucketGridPanel extends VerticalLayout {
 		this.grid = new BucketGrid(kb);
 		this.kb = kb;
 
-		JSONFileUploader receiver = new JSONFileUploader(kb, app) {
+		JSONFileUploader receiver = new JSONFileUploader(kb) {
 
 			private static final long serialVersionUID = -2745475701397147980L;
 
