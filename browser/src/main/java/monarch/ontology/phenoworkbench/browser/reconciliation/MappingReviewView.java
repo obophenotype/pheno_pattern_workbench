@@ -9,10 +9,7 @@ import java.util.Set;
 import monarch.ontology.phenoworkbench.browser.basic.BasicLayout;
 import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.PatternReconciler;
 
-import monarch.ontology.phenoworkbench.util.IRIMapping;
-import monarch.ontology.phenoworkbench.util.OBOMappingFileParser;
-import monarch.ontology.phenoworkbench.util.OntologyEntry;
-import monarch.ontology.phenoworkbench.util.Timer;
+import monarch.ontology.phenoworkbench.util.*;
 import org.semanticweb.owlapi.model.parameters.Imports;
 
 public class MappingReviewView extends BasicLayout {
@@ -47,12 +44,14 @@ public class MappingReviewView extends BasicLayout {
         List<IRIMapping> mappings = OBOMappingFileParser.parseMappings(mappingf);
         System.out.println("Number of mappings: "+mappings.size());
         System.out.println("Prepare DefinedClass Reconciler");
-        PatternReconciler p = new PatternReconciler(selectedItems, mappings);
+        PatternReconciler p = new PatternReconciler(selectedItems);
         p.setBidirectionmapping(bidirection);
         p.setImports(imports);
         p.runAnalysis();
         System.out.println("Layout DefinedClass Reconciler");
-        MappingLayoutPanel l_rec = new MappingLayoutPanel(p);
+        ReconciliationCandidateSet cset = new ReconciliationCandidateSet();
+        cset.addCandidates(p.preparePatternMap(mappings));
+        MappingLayoutPanel l_rec = new MappingLayoutPanel(p,cset);
         System.out.println("Done Layout");
         setResults(l_rec, true);
         System.out.println("Done Setting Results");

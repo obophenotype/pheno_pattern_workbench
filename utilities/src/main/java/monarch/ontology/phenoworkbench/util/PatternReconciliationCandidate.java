@@ -203,30 +203,6 @@ public class PatternReconciliationCandidate {
         return reconciliationclass;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PatternReconciliationCandidate)) return false;
-        PatternReconciliationCandidate that = (PatternReconciliationCandidate) o;
-        return logicallyEquivalent == that.logicallyEquivalent &&
-                syntacticallyEquivalent == that.syntacticallyEquivalent &&
-                grammarEquivalent == that.grammarEquivalent &&
-                Double.compare(that.reconciliationComplexity, reconciliationComplexity) == 0 &&
-                reconciliationEffect == that.reconciliationEffect &&
-                Double.compare(that.jaccardSimiliarity, jaccardSimiliarity) == 0 &&
-                Objects.equals(p1, that.p1) &&
-                Objects.equals(p2, that.p2) &&
-                Objects.equals(id, that.id) &&
-                Objects.equals(commonAncestors, that.commonAncestors) &&
-                Objects.equals(reconciliationclass, that.reconciliationclass);
-    }
-
-    @Override
-    public int hashCode() {
-
-        return Objects.hash(p1, p2, id, commonAncestors, logicallyEquivalent, syntacticallyEquivalent, grammarEquivalent, reconciliationComplexity, reconciliationEffect, jaccardSimiliarity, reconciliationclass);
-    }
-
     public void setOtherMetrics(Map<String, Double> otherMetrics) {
         this.otherMetrics = otherMetrics;
     }
@@ -242,6 +218,38 @@ public class PatternReconciliationCandidate {
     public String stringForSearch() {
         String s = getP1().toString();
         s += getP2().toString();
+        s+=" " + getP1().getIri() +" " + getP2().getIri();
         return s;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PatternReconciliationCandidate)) return false;
+        PatternReconciliationCandidate that = (PatternReconciliationCandidate) o;
+        return logicallyEquivalent == that.logicallyEquivalent &&
+                p1_sub_p2 == that.p1_sub_p2 &&
+                p2_sub_p1 == that.p2_sub_p1 &&
+                syntacticallyEquivalent == that.syntacticallyEquivalent &&
+                grammarEquivalent == that.grammarEquivalent &&
+                Double.compare(that.reconciliationComplexity, reconciliationComplexity) == 0 &&
+                reconciliationEffect == that.reconciliationEffect &&
+                Double.compare(that.jaccardSimiliarity, jaccardSimiliarity) == 0 &&
+                Objects.equals(p1, that.p1) &&
+                Objects.equals(p2, that.p2) &&
+                Objects.equals(id, that.id) &&
+                Objects.equals(commonAncestors, that.commonAncestors) &&
+                Objects.equals(reconciliationclass, that.reconciliationclass) &&
+                Objects.equals(otherMetrics, that.otherMetrics);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(p1, p2, id, commonAncestors, logicallyEquivalent, p1_sub_p2, p2_sub_p1, syntacticallyEquivalent, grammarEquivalent, reconciliationComplexity, reconciliationEffect, jaccardSimiliarity, reconciliationclass, otherMetrics);
+    }
+
+    public boolean isBothDefinitionSet() {
+        return ((getP1() instanceof DefinedClass) && (getP2() instanceof DefinedClass));
     }
 }

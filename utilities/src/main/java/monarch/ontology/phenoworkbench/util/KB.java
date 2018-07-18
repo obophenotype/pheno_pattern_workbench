@@ -69,6 +69,9 @@ public class KB implements CandidateKB{
         for(Candidate c:getAllCandidates()) {
             for(OntologyClass c1:c.getCandidates()) {
                 for(OntologyClass c2:c.getCandidates()) {
+                    if(c1.equals(c2)){
+                        continue;
+                    }
                     mappingCandidatesBasedOnReconciliationCandidates.add(new PatternReconciliationCandidate(c1,c2));
                 }
             }
@@ -297,7 +300,7 @@ public class KB implements CandidateKB{
         refresh();
     }
 
-    public boolean isContainsReconciliationCandidate(PatternReconciliationCandidate s) {
+    public boolean isValidatedMapping(PatternReconciliationCandidate s) {
         return mappings.containsReconciliationCandidate(s);
     }
 

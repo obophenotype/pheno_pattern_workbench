@@ -11,7 +11,7 @@ import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.Candidat
 import monarch.ontology.phenoworkbench.browser.basic.LabelManager;
 import monarch.ontology.phenoworkbench.util.KB;
 
-class CandidentLayoutPanel extends VerticalLayout {
+public class CandidentLayoutPanel extends VerticalLayout {
 
 	private static final long serialVersionUID = -8301978468694076930L;
     private final OntologySearchBoxContainer searchBoxContainer;
@@ -26,7 +26,7 @@ class CandidentLayoutPanel extends VerticalLayout {
     private final KB kb = KB.getInstance();
 
     
-    CandidentLayoutPanel(CandidateIdentifierApp p) {
+    public CandidentLayoutPanel(CandidateIdentifierApp p) {
         setSizeFull();
         setMargin(false);
         currentCandidateGridPanel = new CurrentCandidateGridPanel(kb);

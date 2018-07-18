@@ -11,7 +11,7 @@ public class CandidateIdentifierApp extends PhenoAnalysisRunner  {
     private Map<String,OntologyTermSet> ontologyTermSets = new HashMap<>();
 
 
-    public CandidateIdentifierApp(Set<OntologyEntry> corpus) {
+    public CandidateIdentifierApp(Collection<OntologyEntry> corpus) {
         super(corpus);
     }
 

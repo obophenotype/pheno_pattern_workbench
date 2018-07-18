@@ -38,7 +38,15 @@ public class UberOntology {
 
 
     public void reset() {
-        instance = new UberOntology();
+        render.clear();
+        oid_axioms.clear();
+        axioms_oid.clear();
+        oid_signature.clear();
+        signature_oid.clear();
+        oid_reasoner.clear();
+        oid_branches.clear();
+        oid_name.clear();
+        ontologyEntries.clear();
     }
 
     private void processOntology(Imports imports, OWLOntology o, OntologyEntry e) {
@@ -91,7 +99,11 @@ public class UberOntology {
         return oid_name;
     }
 
-    public void processOntologies(Set<OntologyEntry> iris, Imports imports) {
+    public void processOntologies(Collection<OntologyEntry> iris, Imports imports) {
+        if(!iris.containsAll(ontologyEntries)) {
+            System.out.println("At least one ontology removed from selection, reloading all ontologies");
+            reset();
+        }
         iris.forEach(entry->processOntology(entry,imports));
     }
 
@@ -147,7 +159,7 @@ public class UberOntology {
         return new HashSet<>();
     }
 
-    public Collection<? extends OntologyEntry> getOntologyEntries() {
+    public Collection<OntologyEntry> getOntologyEntries() {
         return ontologyEntries;
     }
 

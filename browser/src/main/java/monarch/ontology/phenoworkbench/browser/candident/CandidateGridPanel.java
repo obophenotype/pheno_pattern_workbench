@@ -1,12 +1,9 @@
 package monarch.ontology.phenoworkbench.browser.candident;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.vaadin.server.DownloadStream;
 import com.vaadin.server.Page;
 import com.vaadin.server.ResourceReference;
 import com.vaadin.server.StreamResource;
@@ -22,7 +19,6 @@ import monarch.ontology.phenoworkbench.util.CandidateKB;
 import monarch.ontology.phenoworkbench.util.KB;
 import monarch.ontology.phenoworkbench.util.OntologyClass;
 import monarch.ontology.phenoworkbench.util.Candidate;
-import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.CandidateIdentifierApp;
 import monarch.ontology.phenoworkbench.browser.basic.LabelManager;
 
 public class CandidateGridPanel extends VerticalLayout {

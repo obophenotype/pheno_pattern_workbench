@@ -34,7 +34,7 @@ public class PhenoUI extends UI {
 	public static String INFERENCEANALYTICSVIEW = "Inference Analysis";
 	public static String SUBCLASSREDUNDANCYVEIW = "Subclass Redundancy";
 	public static String QUICKCLASSIMPACT = "Pattern Browser";
-	public static String RECONCILIATION = "Mapping Validation";
+	public static String RECONCILIATION = "Candidate Identification";
 	public static String CANDIDENT = "Candidate Identification";
 	public static String KB = "Reconciliation Candidates";
 	Map<String, Layout> views = new HashMap<>();
@@ -66,7 +66,7 @@ public class PhenoUI extends UI {
 				}
 				else if (menuitem.equals(KB)) {
 					if (!views.containsKey(KB)) {
-						views.put(KB, new ReconciliationView());
+						views.put(KB, new VerticalLayout());
 					}
 					setNewView(views.get(KB));
 				}
@@ -120,8 +120,8 @@ public class PhenoUI extends UI {
 		barmenu.addItem(SUBCLASSREDUNDANCYVEIW, null, mycommand);
 		barmenu.addItem(QUICKCLASSIMPACT, null, mycommand);
 		barmenu.addItem(RECONCILIATION, null, mycommand);
-		barmenu.addItem(CANDIDENT, null, mycommand);
-		barmenu.addItem(KB, null, mycommand);
+		//barmenu.addItem(CANDIDENT, null, mycommand);
+		//barmenu.addItem(KB, null, mycommand);
 
 	}
 

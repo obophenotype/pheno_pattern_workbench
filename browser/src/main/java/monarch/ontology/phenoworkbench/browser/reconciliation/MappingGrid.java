@@ -23,15 +23,11 @@ class MappingGrid extends Grid<PatternReconciliationCandidate> {
 	private static final long serialVersionUID = -1503748580420486580L;
 	private final List<PatternReconciliationCandidate> reconciliations = new ArrayList<>();
 
-	MappingGrid(ReconciliationCandidateSet p) {
-		this(p, false,click-> Notification.show("No function!"),c-> Notification.show("No function!"),c-> Notification.show("No function!"));
-	}
-
 	MappingGrid(ReconciliationCandidateSet p, boolean small) {
 		this(p, small,click-> Notification.show("No function!"),c-> Notification.show("No function!"),c-> Notification.show("No function!"));
 	}
 
-	public MappingGrid(ReconciliationCandidateSet cset, boolean small, ReconciliationCandidateFunction infoListener, ReconciliationCandidateFunction multiFunctionListener, ReconciliationCandidateFunction removeListener) {
+	MappingGrid(ReconciliationCandidateSet cset, boolean small, ReconciliationCandidateFunction infoListener, ReconciliationCandidateFunction multiFunctionListener, ReconciliationCandidateFunction removeListener) {
 		setWidth("100%");
 		setHeight("100%");
 		Column<PatternReconciliationCandidate, String> p1 = addColumn(
@@ -60,7 +56,7 @@ class MappingGrid extends Grid<PatternReconciliationCandidate> {
 		});
 
 		Column<PatternReconciliationCandidate, Button> c_bt_candidate = addComponentColumn(recon -> {
-			Button button = new Button("F");
+			Button button = new Button("+");
 			button.addClickListener(click -> multiFunctionListener.handle(recon));
 			return button;
 		});

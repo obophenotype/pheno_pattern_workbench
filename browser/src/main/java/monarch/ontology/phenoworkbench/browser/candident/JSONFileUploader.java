@@ -12,14 +12,12 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.vaadin.ui.Upload.Receiver;
 import com.vaadin.ui.Upload.SucceededEvent;
-import com.vaadin.ui.Upload.SucceededListener;
 
-import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.CandidateIdentifierApp;
 import monarch.ontology.phenoworkbench.util.CandidateKB;
+import monarch.ontology.phenoworkbench.browser.basic.FileUploader;
 
-abstract class JSONFileUploader implements Receiver, SucceededListener {
+abstract class JSONFileUploader extends FileUploader {
 	private static final long serialVersionUID = -4499489112622747653L;
 	public File file;
 	CandidateKB kb;

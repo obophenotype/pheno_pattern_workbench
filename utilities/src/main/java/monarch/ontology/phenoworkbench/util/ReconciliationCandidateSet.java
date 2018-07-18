@@ -4,32 +4,20 @@ import java.util.*;
 import java.util.function.Predicate;
 
 public class ReconciliationCandidateSet {
-    private final Collection<PatternReconciliationCandidate> pcrs;
-    private float percentageReconciledGrammar = -1.0f;
-    private float percentageReconciledSyntax = -1.0f;
-    private float percentageReconciledLogical = -1.0f;
-    private long maxReconciliationImpact = 1;
+    private final Collection<PatternReconciliationCandidate> pcrs = new HashSet<>();
     private List<CandidateChangeListener> changeListeners = new ArrayList<>();
 
     public ReconciliationCandidateSet() {
         this(new HashSet<>());
     }
     public ReconciliationCandidateSet(Collection<PatternReconciliationCandidate> pcrs) {
-        this.pcrs = new HashSet<>(pcrs);
-        for(PatternReconciliationCandidate pr:pcrs) {
-            if(pr.getReconciliationEffect()>maxReconciliationImpact) {
-                maxReconciliationImpact = pr.getReconciliationEffect();
-            }
-        }
+       addCandidates(pcrs);
     }
 
-    public void addCandidate(PatternReconciliationCandidate c) {
-        pcrs.add(c);
-        if(c.getReconciliationEffect()>maxReconciliationImpact) {
-            maxReconciliationImpact = c.getReconciliationEffect();
-        }
-        changed();
+    public interface CandidateChangeListener {
+        void changed();
     }
+
     public Optional<PatternReconciliationCandidate> getClosestMatchCandidate() {
         double max = 0;
         PatternReconciliationCandidate p = null;
@@ -44,14 +32,11 @@ public class ReconciliationCandidateSet {
     }
 
     public Collection<PatternReconciliationCandidate> items() {
-        return pcrs;
+        return new HashSet(pcrs);
     }
 
     public float getPercentageReconciledGrammarEquivalence() {
-        if(percentageReconciledGrammar<0) {
-            percentageReconciledGrammar = calculateReconciledPercentage(PatternReconciliationCandidate::isGrammarEquivalent);
-        }
-        return percentageReconciledGrammar;
+        return calculateReconciledPercentage(PatternReconciliationCandidate::isGrammarEquivalent);
     }
 
     private float calculateReconciledPercentage(Predicate<PatternReconciliationCandidate> pred) {
@@ -61,20 +46,18 @@ public class ReconciliationCandidateSet {
     }
 
     public float getPercentageReconciledSyntaxEquivalence() {
-        if(percentageReconciledSyntax<0) {
-            percentageReconciledSyntax = calculateReconciledPercentage(PatternReconciliationCandidate::isSyntacticallyEquivalent);
-        }
-        return percentageReconciledSyntax;
+        return calculateReconciledPercentage(PatternReconciliationCandidate::isSyntacticallyEquivalent);
     }
 
     public float getPercentageReconciledLogicalEquivalence() {
-        if(percentageReconciledLogical<0) {
-            percentageReconciledLogical = calculateReconciledPercentage(PatternReconciliationCandidate::isLogicallyEquivalent);
-        }
-        return percentageReconciledLogical;
+        return calculateReconciledPercentage(PatternReconciliationCandidate::isLogicallyEquivalent);
     }
 
-    public long size() {
+    public long getMaxReconciliationImpact() {
+        return pcrs.stream().mapToLong(PatternReconciliationCandidate::getReconciliationEffect).max().orElse(0);
+    }
+
+    public int size() {
         return pcrs.size();
     }
 
@@ -84,12 +67,12 @@ public class ReconciliationCandidateSet {
         return new ReconciliationCandidateSet(candidateSet);
     }
 
-    public long getMaxReconciliationImpact() {
-        return maxReconciliationImpact;
-    }
-
     public void addCandidateChangeListener(CandidateChangeListener listener) {
         changeListeners.add(listener);
+    }
+
+    public void removeCandidateChangeListener(CandidateChangeListener listener) {
+        changeListeners.remove(listener);
     }
 
     private void changed() {
@@ -97,8 +80,11 @@ public class ReconciliationCandidateSet {
     }
 
 
-    public void removeCandidateChangeListener(CandidateChangeListener listener) {
-        changeListeners.remove(listener);
+
+
+    public void removeCandidate(PatternReconciliationCandidate c) {
+        pcrs.remove(c);
+        changed();
     }
 
     public void removeCandidates(Set<PatternReconciliationCandidate> remove) {
@@ -106,7 +92,12 @@ public class ReconciliationCandidateSet {
         changed();
     }
 
-    public void addCandidates(Set<PatternReconciliationCandidate> add) {
+    public void addCandidate(PatternReconciliationCandidate c) {
+        pcrs.add(c);
+        changed();
+    }
+
+    public void addCandidates(Collection<PatternReconciliationCandidate> add) {
         pcrs.addAll(add);
         changed();
     }
@@ -115,12 +106,6 @@ public class ReconciliationCandidateSet {
         return pcrs.contains(s);
     }
 
-    public void removeCandidate(PatternReconciliationCandidate c) {
-        pcrs.remove(c);
-        changed();
-    }
 
-    public interface CandidateChangeListener {
-        void changed();
-    }
+
 }

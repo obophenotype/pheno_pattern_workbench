@@ -19,11 +19,11 @@ public class ReconciliationTreePanel extends HorizontalLayout {
 	MappingGrid grid;
 	PatternReconciler p;
 
-	ReconciliationTreePanel(PatternProvider patternProvider, PatternReconciler p, VerticalLayout vl_reconcile) {
+	ReconciliationTreePanel(PatternReconciler p, ReconciliationCandidateSet cset, VerticalLayout vl_reconcile) {
 		setWidth("100%");
 		this.p = p;
-		PatternTree tree = new PatternTree(patternProvider.getTopOntologyClasses());
-		grid = new MappingGrid(p.getAllPatternReconciliations(),true);
+		PatternTree tree = new PatternTree(p.getPatternProvider().getTopOntologyClasses());
+		grid = new MappingGrid(cset,true);
 		Panel panel_tree = LayoutUtils.preparePanel(tree, "Browser");
 		Layout l_reconciliation = prepareReconciliationInfoPanel(p,vl_reconcile);
 		tree.addItemClickListener(e->update(e));

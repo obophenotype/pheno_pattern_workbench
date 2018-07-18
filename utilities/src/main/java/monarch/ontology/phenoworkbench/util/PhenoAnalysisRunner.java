@@ -4,16 +4,17 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.parameters.Imports;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
 public abstract class PhenoAnalysisRunner {
 
-    private final Set<OntologyEntry> corpus;
+    private final Collection<OntologyEntry> corpus;
     private Imports imports = Imports.INCLUDED;
     private UberOntology o;
 
-    public PhenoAnalysisRunner(Set<OntologyEntry> corpus) {
+    public PhenoAnalysisRunner(Collection<OntologyEntry> corpus) {
         this.corpus = corpus;
     }
 
@@ -42,7 +43,7 @@ public abstract class PhenoAnalysisRunner {
         return getO().createNewUberOntology();
     }
 
-    public Set<OntologyEntry> getCorpus() {
+    public Collection<OntologyEntry> getCorpus() {
         return corpus;
     }
 

@@ -38,11 +38,14 @@ public class OBOMappingFileParser {
     }
 
     private static IRI getIRI(String s) {
-        String v = s;
-        if (v.contains(":")) {
+        String v = s.trim();
+        if(v.startsWith("http://")||v.startsWith("https://")) {
+            //dont do anything
+        } else if (v.contains(":")) {
             String prefix = v.substring(0, v.indexOf(":"));
             v = v.replace(prefix + ":", "http://purl.obolibrary.org/obo/" + prefix + "_");
         }
+        System.out.println("IRI STring: "+v);
         return IRI.create(v);
     }
 

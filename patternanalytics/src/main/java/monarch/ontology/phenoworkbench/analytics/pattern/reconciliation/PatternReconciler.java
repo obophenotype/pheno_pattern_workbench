@@ -13,17 +13,14 @@ public class PatternReconciler extends PhenoAnalysisRunner implements GrammarPro
     private PatternManager patternManager;
     private Reasoner r;
     private Map<OntologyClass, Map<OntologyClass, PatternReconciliationCandidate>> patternReconciliation = new HashMap<>();
-    private Set<PatternReconciliationCandidate> reconciliations = new HashSet<>();
     private long maxReconciliationImpact = 0;
     private PatternProvider patternProvider;
     private ExplanationRenderProvider explanationProvider;
 
     private boolean bidirectionmapping = false;
-    private final List<IRIMapping> mapping;
 
-    public PatternReconciler(Set<OntologyEntry> corpus, List<IRIMapping> mapping) {
+    public PatternReconciler(Collection<OntologyEntry> corpus) {
         super(corpus);
-        this.mapping = mapping;
     }
 
     public void runAnalysis() {
@@ -41,7 +38,6 @@ public class PatternReconciler extends PhenoAnalysisRunner implements GrammarPro
 
             log("Preparing patterns", process);
             preparePatternManager(patternGenerator, all);
-            preparePatternMap();
             preparePatternProvider();
             prepareExplanationProvider();
             log("Done..", "PatternReconciler::runAnalysis()");
@@ -73,9 +69,10 @@ public class PatternReconciler extends PhenoAnalysisRunner implements GrammarPro
         return patternGenerator.extractDefinedClasses(axioms, true);
     }
 
-    private void preparePatternMap() {
+    public Set<PatternReconciliationCandidate> preparePatternMap(Collection<IRIMapping> mapping) {
 
         Map<IRI, OntologyClass> iriPatternMap = new HashMap<>();
+        Set<PatternReconciliationCandidate> reconciliations = new HashSet<>();
 
         patternManager.getAllClasses().forEach(p -> iriPatternMap.put(p.getOWLClass().getIRI(), p));
 
@@ -88,14 +85,15 @@ public class PatternReconciler extends PhenoAnalysisRunner implements GrammarPro
                 if(iriPatternMap.containsKey(to)) {
                     OntologyClass p = iriPatternMap.get(iri);
                     OntologyClass p2 = iriPatternMap.get(to);
-                    indexReconciliationCandidate(imap, p, p2);
+                    indexReconciliationCandidate(imap, p, p2,reconciliations);
                     if (isBidirectionmapping()) {
-                        indexReconciliationCandidate(imap, p2, p);
+                        indexReconciliationCandidate(imap, p2, p,reconciliations);
                     }
                 }
             }
         }
         reconciliations.forEach(r -> r.setReconciliationEffect(getReconciliationEffect(r)));
+        return reconciliations;
     }
 
     private long getReconciliationEffect(PatternReconciliationCandidate r) {
@@ -112,7 +110,7 @@ public class PatternReconciler extends PhenoAnalysisRunner implements GrammarPro
         return impact;
     }
 
-    private void indexReconciliationCandidate(IRIMapping imap, OntologyClass p, OntologyClass p2) {
+    private void indexReconciliationCandidate(IRIMapping imap, OntologyClass p, OntologyClass p2, Set<PatternReconciliationCandidate> reconciliations) {
         Timer.start("PatternReconciler::indexReconciliationCandidate()");
         if (!patternReconciliation.containsKey(p)) {
             patternReconciliation.put(p, new HashMap<>());
@@ -122,14 +120,10 @@ public class PatternReconciler extends PhenoAnalysisRunner implements GrammarPro
             pr.setSimiliarity(imap.getSimilarity());
             pr.setOtherMetrics(imap.getMetrics());
             patternReconciliation.get(p).put(p2, pr);
-            reconciliations.add(pr);
+
         }
-
+        reconciliations.add(patternReconciliation.get(p).get(p2));
         Timer.start("PatternReconciler::indexReconciliationCandidate()");
-    }
-
-    public ReconciliationCandidateSet getAllPatternReconciliations() {
-        return new ReconciliationCandidateSet(reconciliations);
     }
 
     @Override
@@ -147,9 +141,6 @@ public class PatternReconciler extends PhenoAnalysisRunner implements GrammarPro
         return Optional.empty();
     }
 
-    public long getMaxReconciliationImpact() {
-        return maxReconciliationImpact;
-    }
 
     public PatternProvider getPatternProvider() {
         return patternProvider;

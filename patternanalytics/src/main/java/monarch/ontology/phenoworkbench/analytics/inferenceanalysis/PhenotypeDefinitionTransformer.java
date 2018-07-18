@@ -41,7 +41,7 @@ public abstract class PhenotypeDefinitionTransformer implements DefinitionTransf
         return out;
     }
 
-    private DefinedClass transform(DefinedClass d) {
+    public DefinedClass transform(DefinedClass d) {
         DefinedClass tranformed = new DefinedClass(d.getOWLClass(), transformClassExpression(d.getDefiniton()));
         return tranformed;
     }

@@ -43,6 +43,10 @@ public class RenderManager {
         }
     }
 
+    public void clear() {
+        labels.clear();
+    }
+
     public String render(OWLObject ax) {
         String s = ren.render(ax);
         for (OWLEntity k : ax.getSignature()) {
