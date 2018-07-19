@@ -41,6 +41,14 @@ public class OntologyUtils {
         return labels;
     }
 
+    public static boolean isObsolete(OWLEntity c, OWLOntology o) {
+        Set<String> labels = getLabels(c,o,new HashSet<>(Collections.singleton(df.getOWLDeprecated())));
+        if(!labels.isEmpty()) {
+            return new ArrayList<>(labels).get(0).equals("true");
+        }
+        return false;
+    }
+
 
 
     private static Set<String> getLabels(OWLEntity c, OWLOntology o, Set<OWLAnnotationProperty> annops) {

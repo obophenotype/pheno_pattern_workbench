@@ -112,19 +112,22 @@ public class PatternReconciliationCandidate {
         new HashSet<>();
 
         Timer.start("PatternReconciliationCandidate::getMostSpecificAncestors()::parents");
-        Set<OntologyClass> commonParents = new HashSet<>(getP1().indirectParents());
-        commonParents.retainAll(getP2().indirectParents());
+        Set<Node> commonParents = new HashSet<>(getP1().getNode().indirectParents());
+        commonParents.retainAll(getP2().getNode().indirectParents());
         Timer.end("PatternReconciliationCandidate::getMostSpecificAncestors()::parents");
 
         Timer.start("PatternReconciliationCandidate::getMostSpecificAncestors()::owlclass");
-        Set<OWLClass> commonParentsOWL = commonParents.stream().map(OntologyClass::getOWLClass).collect(Collectors.toSet());
+        Set<OWLClass> commonParentsOWL = new HashSet<>();
+        commonParents.forEach(n->n.getEquivalenceGroup().forEach(e->commonParentsOWL.add(e.getOWLClass())));
         Timer.end("PatternReconciliationCandidate::getMostSpecificAncestors()::owlclass");
 
         Timer.start("PatternReconciliationCandidate::getMostSpecificAncestors()::commonparents");
 
-        for (OntologyClass c : commonParents) {
-            if (c.indirectChildren().stream().noneMatch(child -> commonParentsOWL.contains(child.getOWLClass()))) {
-                ancestors.add(c);
+        for (Node c : commonParents) {
+            Set<OWLClass> indirectChildren = new HashSet<>();
+            c.indirectChildren().forEach(n->n.getEquivalenceGroup().forEach(e->indirectChildren.add(e.getOWLClass())));
+            if (indirectChildren.stream().noneMatch(commonParentsOWL::contains)) {
+                ancestors.addAll(c.getEquivalenceGroup());
             }
         }
         Timer.end("PatternReconciliationCandidate::getMostSpecificAncestors()::commonparents");

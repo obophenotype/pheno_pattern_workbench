@@ -4,16 +4,13 @@ import java.util.*;
 
 import com.vaadin.ui.*;
 
-import monarch.ontology.phenoworkbench.util.OntologyClass;
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.PatternClass;
+import monarch.ontology.phenoworkbench.util.*;
+import monarch.ontology.phenoworkbench.util.PatternClass;
 import monarch.ontology.phenoworkbench.analytics.pattern.impact.ImpactMode;
 import monarch.ontology.phenoworkbench.analytics.quickimpact.QuickImpact;
 import monarch.ontology.phenoworkbench.browser.basic.BasicLayout;
 import monarch.ontology.phenoworkbench.browser.basic.LayoutUtils;
-import monarch.ontology.phenoworkbench.util.DefinedClass;
 import monarch.ontology.phenoworkbench.browser.basic.PatternTree;
-import monarch.ontology.phenoworkbench.browser.basic.PatternTreeItem;
-import monarch.ontology.phenoworkbench.util.OntologyEntry;
 import monarch.ontology.phenoworkbench.util.Timer;
 import org.semanticweb.owlapi.model.parameters.Imports;
 
@@ -58,7 +55,9 @@ public class QuickImpactView extends BasicLayout {
 
         System.out.println("Initialising tree" + Timer.getSecondsElapsed("QuickImpactView::runAnalysis()"));
         Timer.start("QuickImpactView::PatternTree()");
-        PatternTree tree = new PatternTree(p.getTopPatterns());
+        Set<Node> topnodes = new HashSet<>();
+        p.getTopPatterns().forEach(tp->topnodes.add(tp.getNode()));
+        PatternTree tree = new PatternTree(topnodes);
         Timer.end("QuickImpactView::PatternTree()");
 
         PatternInfoBox impactbox = new PatternInfoBox();
@@ -98,10 +97,10 @@ public class QuickImpactView extends BasicLayout {
 
 
     private void updateInfoBox(QuickImpact p, PatternInfoBox impactbox, Object pi, WeightedPatternGrid g, PatternTree tree) {
-        if (pi instanceof PatternTreeItem) {
-            OntologyClass pc = ((PatternTreeItem) pi).getPatternClass();
-            impactbox.setValue(pc, p.getExplanationProvider(),p,p);
-            selectPatternInWeightedGrid(g, pc);
+        if (pi instanceof Node) {
+            Node pc = ((Node) pi);
+            impactbox.setValue(pc.getRepresentativeElement(), p.getExplanationProvider(),p,p);
+            selectPatternInWeightedGrid(g, pc.getRepresentativeElement());
         } else if (pi instanceof WeightedPattern) {
             DefinedClass pc = ((WeightedPattern) pi).getPattern();
             impactbox.setValue(pc, p.getExplanationProvider(),p,p);

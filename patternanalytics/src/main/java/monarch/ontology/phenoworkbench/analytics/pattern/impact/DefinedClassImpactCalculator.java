@@ -72,9 +72,9 @@ public class DefinedClassImpactCalculator {
 
         Set<OWLClass> subcls = new HashSet<>();
         if(direct) {
-            pattern.directChildren().forEach(child->subcls.add(child.getOWLClass()));
+            pattern.getNode().directChildren().forEach(n->n.getEquivalenceGroup().forEach(child->subcls.add(child.getOWLClass())));
         } else {
-            pattern.indirectChildren().forEach(child->subcls.add(child.getOWLClass()));
+            pattern.getNode().indirectChildrenFlat().forEach(child->subcls.add(child.getOWLClass()));
         }
         subcls.removeAll(ignore);
         if(!restrict.isEmpty()) {

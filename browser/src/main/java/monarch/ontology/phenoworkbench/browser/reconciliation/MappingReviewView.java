@@ -20,7 +20,7 @@ public class MappingReviewView extends BasicLayout {
     private static final long serialVersionUID = 8440240868260139938L;
 
     public MappingReviewView() {
-        super("Mapping Validation");
+        super("Candidate Identification");
     }
 
     @Override

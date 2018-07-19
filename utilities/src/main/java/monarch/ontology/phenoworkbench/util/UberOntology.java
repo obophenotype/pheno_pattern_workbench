@@ -20,13 +20,23 @@ public class UberOntology {
     private final Map<String, Reasoner> oid_reasoner = new HashMap<>();
     private final Map<String, BranchLoader> oid_branches = new HashMap<>();
 
-
+    private final Set<OWLEntity> obsoleted = new HashSet<>();
     private final Map<String, String> oid_name = new HashMap<>();
     private final Set<OntologyEntry> ontologyEntries = new HashSet<>();
+    private final Set<OWLClass> patoterms = new HashSet<>();
+
 
     private static UberOntology instance = null;
 
     private UberOntology() {
+        OWLDataFactory df = OWLManager.getOWLDataFactory();
+        try {
+            patoterms.addAll(OWLManager.createOWLOntologyManager().loadOntologyFromOntologyDocument(IRI.create("http://purl.obolibrary.org/obo/pato.owl")).getClassesInSignature(Imports.INCLUDED));
+            patoterms.add(df.getOWLClass(IRI.create("http://purl.obolibrary.org/obo/BFO_0000019")));
+        } catch (OWLOntologyCreationException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public static UberOntology instance() {
@@ -47,6 +57,7 @@ public class UberOntology {
         oid_branches.clear();
         oid_name.clear();
         ontologyEntries.clear();
+        obsoleted.clear();
     }
 
     private void processOntology(Imports imports, OWLOntology o, OntologyEntry e) {
@@ -79,6 +90,9 @@ public class UberOntology {
                     signature_oid.put(ax, new HashSet<>());
                 }
                 signature_oid.get(ax).add(oid);
+                if(OntologyUtils.isObsolete(ax,o)) {
+                    obsoleted.add(ax);
+                }
             }
             getRender().addLabel(o);
         } catch (Exception ex) {
@@ -168,5 +182,22 @@ public class UberOntology {
             return oid_branches.get(oid).getAllClassesInBranches();
         }
         return new HashSet<>();
+    }
+
+    public boolean isObsolete(OWLEntity e) {
+        return obsoleted.contains(e);
+    }
+
+    public Set<OWLClass> getAllClassesInBranches(boolean excludeObsolete) {
+        Set<OWLClass> all = new HashSet<>();
+        getOids().forEach(oid->all.addAll(getBranches(oid)));
+        if(excludeObsolete) {
+            all.removeAll(obsoleted);
+        }
+        return all;
+    }
+
+    public Set<OWLClass> getPatoterms() {
+        return patoterms;
     }
 }

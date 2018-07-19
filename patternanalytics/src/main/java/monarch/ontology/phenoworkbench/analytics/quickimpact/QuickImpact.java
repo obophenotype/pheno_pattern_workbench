@@ -141,11 +141,15 @@ private GrammarIndex grammarIndex;
     }
 
     public Set<? extends OntologyClass> getTopPatterns() {
-        return getPatternProvider().getTopPatterns();
+        return getTopPatterns(true);
+    }
+
+    public Set<? extends OntologyClass> getTopPatterns(boolean excludeObsolete) {
+        return getPatternProvider().getTopPatterns(excludeObsolete);
     }
 
     public Set<PatternClass> getPatternsAmongDefinedClasses() {
-        return getPatternProvider().getPatternsAmongDefinedClasses();
+        return getPatternProvider().getPatternsAmongDefinedClasses(true);
     }
 
     public ExplanationRenderProvider getExplanationProvider() {

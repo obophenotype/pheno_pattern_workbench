@@ -7,13 +7,15 @@ import java.util.*;
 public class OntologyClass {
     private final OWLClass c;
     private String label;
+    private boolean deprecated = false;
+    private String description = "No description";
     private String iri;
     private Map<String,Set<String>> annotations = new HashMap<>();
-    private Set<OntologyClass> parents = new HashSet<>();
-    private Set<OntologyClass> children = new HashSet<>();
+    private Node node;
 
     public OntologyClass(OWLClass c) {
         this.c = c;
+        this.setNode(new Node(new HashSet<>(Collections.singleton(this)),this));
         this.label = c.toString();
         this.iri = c.getIRI().toString();
     }
@@ -48,22 +50,6 @@ public class OntologyClass {
         return annotations;
     }
 
-    public final void addChild(OntologyClass c) {
-        children.add(c);
-    }
-
-    public final void addParent(OntologyClass c) {
-        parents.add(c);
-    }
-
-    public final Set<OntologyClass> directChildren() {
-        return children;
-    }
-
-
-    public final Set<OntologyClass> directParents() {
-       return parents;
-    }
 
 
     public final OWLClass getOWLClass() {
@@ -83,37 +69,28 @@ public class OntologyClass {
         return label;
     }
 
-    public final Set<OntologyClass> indirectParents() {
-      Set<OntologyClass> indirect = new HashSet<>();
-      allParentsRecursive(this, indirect);
-      return indirect;
+    public Node getNode() {
+        return node;
     }
 
-    public final Set<OntologyClass> indirectChildren() {
-        Set<OntologyClass> indirect = new HashSet<>();
-        allChildrenRecursive(this, indirect);
-        return indirect;
+    public void setNode(Node n) {
+        this.node = n;
     }
 
-    private void allParentsRecursive(OntologyClass c, Set<OntologyClass> indirect) {
-        Timer.start("OntologyClass::allParentsRecursive");
-        for(OntologyClass p:c.directParents()) {
-            if(!indirect.contains(p)) {
-                indirect.add(p);
-                allParentsRecursive(p, indirect);
-            }
-        }
-        Timer.end("OntologyClass::allParentsRecursive");
+
+    public String getDescription() {
+        return description;
     }
 
-    private void allChildrenRecursive(OntologyClass c, Set<OntologyClass> indirect) {
-        Timer.start("OntologyClass::allChildrenRecursive");
-        for(OntologyClass p:c.directChildren()) {
-            if(!indirect.contains(p)) {
-                indirect.add(p);
-                allChildrenRecursive(p, indirect);
-            }
-        }
-        Timer.end("OntologyClass::allChildrenRecursive");
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public boolean isDeprecated() {
+        return deprecated;
+    }
+
+    public void setDeprecated(boolean deprecated) {
+        this.deprecated = deprecated;
     }
 }

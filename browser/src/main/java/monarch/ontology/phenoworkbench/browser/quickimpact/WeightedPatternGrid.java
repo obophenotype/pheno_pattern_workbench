@@ -4,7 +4,7 @@ import java.util.*;
 
 import com.vaadin.ui.Grid;
 
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.PatternClass;
+import monarch.ontology.phenoworkbench.util.PatternClass;
 import monarch.ontology.phenoworkbench.analytics.pattern.impact.OntologyClassImpact;
 import monarch.ontology.phenoworkbench.analytics.quickimpact.QuickImpact;
 

@@ -26,7 +26,7 @@ public class TermInfoWindow extends Window {
 		l.setWidth("100%");
 		l.setHeightUndefined();
 		
-		PatternTree pt = new PatternTree(Collections.singleton(p));
+		PatternTree pt = new PatternTree(Collections.singleton(p.getNode()));
 		pt.expandAll();
 		PatternInfoBox sc = new PatternInfoBox();
 		l.addComponent(sc);

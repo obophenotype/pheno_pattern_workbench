@@ -4,6 +4,7 @@ import monarch.ontology.phenoworkbench.analytics.pattern.impact.OntologyClassImp
 import monarch.ontology.phenoworkbench.util.BaseIRIs;
 import monarch.ontology.phenoworkbench.util.DefinedClass;
 import monarch.ontology.phenoworkbench.util.OntologyUtils;
+import monarch.ontology.phenoworkbench.util.PatternClass;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.model.parameters.Imports;

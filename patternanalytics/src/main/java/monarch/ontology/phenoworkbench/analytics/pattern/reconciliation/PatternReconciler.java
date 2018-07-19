@@ -156,7 +156,7 @@ public class PatternReconciler extends PhenoAnalysisRunner implements GrammarPro
         Timer.start("PatternReconciler::getReconciliationsRelatedToClassOrChildren");
         Set<PatternReconciliationCandidate> pcrs = new HashSet<>();
         addReconciliation(pc, pcrs);
-        pc.indirectChildren().forEach(c -> addReconciliation(c, pcrs));
+        pc.getNode().indirectChildren().forEach(n->n.getEquivalenceGroup().forEach(c -> addReconciliation(c, pcrs)));
         Timer.end("PatternReconciler::getReconciliationsRelatedToClassOrChildren");
         return new ReconciliationCandidateSet(pcrs);
     }

@@ -1,4 +1,4 @@
-package monarch.ontology.phenoworkbench.analytics.pattern.generation;
+package monarch.ontology.phenoworkbench.util;
 
 import monarch.ontology.phenoworkbench.util.DefinedClass;
 import org.semanticweb.owlapi.model.OWLClass;
@@ -6,7 +6,7 @@ import org.semanticweb.owlapi.model.OWLClassExpression;
 
 public class PatternClass extends DefinedClass {
 
-    PatternClass(OWLClass c, OWLClassExpression definition) {
+    public PatternClass(OWLClass c, OWLClassExpression definition) {
         super(c,definition);
     }
 

@@ -45,7 +45,7 @@ public class OBOMappingFileParser {
             String prefix = v.substring(0, v.indexOf(":"));
             v = v.replace(prefix + ":", "http://purl.obolibrary.org/obo/" + prefix + "_");
         }
-        System.out.println("IRI STring: "+v);
+        //System.out.println("IRI STring: "+v);
         return IRI.create(v);
     }
 

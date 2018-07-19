@@ -2,13 +2,14 @@ package monarch.ontology.phenoworkbench.browser.reconciliation;
 
 import com.vaadin.ui.*;
 
-import monarch.ontology.phenoworkbench.util.OntologyClass;
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.PatternProvider;
+import monarch.ontology.phenoworkbench.util.Node;
 import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.PatternReconciler;
 import monarch.ontology.phenoworkbench.util.ReconciliationCandidateSet;
 import monarch.ontology.phenoworkbench.browser.basic.LayoutUtils;
 import monarch.ontology.phenoworkbench.browser.basic.PatternTree;
-import monarch.ontology.phenoworkbench.browser.basic.PatternTreeItem;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class ReconciliationTreePanel extends HorizontalLayout {
 	/**
@@ -22,7 +23,9 @@ public class ReconciliationTreePanel extends HorizontalLayout {
 	ReconciliationTreePanel(PatternReconciler p, ReconciliationCandidateSet cset, VerticalLayout vl_reconcile) {
 		setWidth("100%");
 		this.p = p;
-		PatternTree tree = new PatternTree(p.getPatternProvider().getTopOntologyClasses());
+		Set<Node> nodes = new HashSet<>();
+        p.getPatternProvider().getTopOntologyClasses(true).forEach(n->nodes.add(n.getNode()));
+		PatternTree tree = new PatternTree(nodes);
 		grid = new MappingGrid(cset,true);
 		Panel panel_tree = LayoutUtils.preparePanel(tree, "Browser");
 		Layout l_reconciliation = prepareReconciliationInfoPanel(p,vl_reconcile);
@@ -40,9 +43,9 @@ public class ReconciliationTreePanel extends HorizontalLayout {
 		return vl;
 	}
 
-	private void update(Tree.ItemClick<PatternTreeItem> e) {
-		OntologyClass c  = e.getItem().getPatternClass();
-		ReconciliationCandidateSet candidateSet = p.getReconciliationsRelatedToClassOrChildren(c);
+	private void update(Tree.ItemClick<Node> e) {
+		Node c  = e.getItem();
+		ReconciliationCandidateSet candidateSet = p.getReconciliationsRelatedToClassOrChildren(c.getRepresentativeElement());
 		ib.update(candidateSet);
 		grid.restrict(candidateSet);
 	}

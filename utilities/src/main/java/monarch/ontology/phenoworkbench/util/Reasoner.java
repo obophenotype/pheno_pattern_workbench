@@ -175,6 +175,19 @@ public class Reasoner {
         return getSubclassesOf(c,direct,false);
     }
 
+    public Collection<? extends OWLClass> getStrictSubclassesOf(OWLClass c, boolean direct, boolean removeUnsatisfiable) {
+        Timer.start("Reasoner::getStrictSubclassesOf()");
+        Set<OWLClass> sbcl = r.getSubClasses(c,direct).getFlattened();
+        sbcl.removeAll(r.getEquivalentClasses(c).getEntities());
+        sbcl.remove(c);
+        sbcl.remove(df.getOWLNothing());
+        if(removeUnsatisfiable) {
+            sbcl.removeAll(getUnsatisfiableClasses());
+        }
+        Timer.end("Reasoner::getStrictSubclassesOf()");
+        return sbcl;
+    }
+
     public Collection<? extends OWLClass> getSubclassesOf(OWLClass c, boolean direct, boolean removeUnsatisfiable) {
         Timer.start("Reasoner::getSubclassesOf()");
         Set<OWLClass> sbcl = r.getSubClasses(c,direct).getFlattened();
@@ -201,6 +214,20 @@ public class Reasoner {
         return sbcl;
     }
 
+    public Collection<? extends OWLClass> getStrictSuperClassesOf(OWLClass c, boolean direct, boolean removeUnsatisfiable) {
+        Timer.start("Reasoner::getStrictSuperClassesOf()");
+        Set<OWLClass> sbcl = r.getSuperClasses(c,direct).getFlattened();
+        sbcl.removeAll(r.getEquivalentClasses(c).getEntities());
+        sbcl.remove(c);
+        sbcl.remove(df.getOWLThing());
+        if(removeUnsatisfiable) {
+            sbcl.removeAll(getUnsatisfiableClasses());
+        }
+        Timer.end("Reasoner::getStrictSuperClassesOf()");
+        return sbcl;
+    }
+
+
     public boolean equivalentClasses(OWLClass c1, OWLClass c2) {
         return r.getEquivalentClasses(c1).contains(c2);
     }
@@ -222,5 +249,11 @@ public class Reasoner {
             e.printStackTrace();
         }
         return Optional.empty();
+    }
+
+    public Set<OWLClass> getEquivalentClasses(OWLClass c) {
+        Set<OWLClass> sbcl = r.getEquivalentClasses(c).getEntities();
+        sbcl.add(c);
+        return sbcl;
     }
 }

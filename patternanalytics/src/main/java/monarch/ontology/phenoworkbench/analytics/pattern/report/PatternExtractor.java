@@ -1,6 +1,6 @@
 package monarch.ontology.phenoworkbench.analytics.pattern.report;
 
-import monarch.ontology.phenoworkbench.analytics.pattern.generation.PatternClass;
+import monarch.ontology.phenoworkbench.util.PatternClass;
 import monarch.ontology.phenoworkbench.analytics.pattern.impact.OntologyClassImpact;
 import monarch.ontology.phenoworkbench.util.BranchLoader;
 import monarch.ontology.phenoworkbench.analytics.pattern.generation.PatternGenerator;

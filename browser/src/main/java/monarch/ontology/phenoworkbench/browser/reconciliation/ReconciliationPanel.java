@@ -8,6 +8,7 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.Tree.ItemClick;
 import com.vaadin.ui.VerticalLayout;
 
+import monarch.ontology.phenoworkbench.util.Node;
 import monarch.ontology.phenoworkbench.util.OntologyClass;
 import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.PatternReconciler;
 import monarch.ontology.phenoworkbench.util.PatternReconciliationCandidate;
@@ -15,7 +16,6 @@ import monarch.ontology.phenoworkbench.util.ReconciliationCandidateSet;
 import monarch.ontology.phenoworkbench.browser.basic.LabelManager;
 import monarch.ontology.phenoworkbench.browser.basic.LayoutUtils;
 import monarch.ontology.phenoworkbench.browser.basic.PatternTree;
-import monarch.ontology.phenoworkbench.browser.basic.PatternTreeItem;
 import monarch.ontology.phenoworkbench.browser.quickimpact.PatternInfoBox;
 
 //Define a sub-window by inheritance
@@ -37,18 +37,17 @@ class ReconciliationPanel extends VerticalLayout {
 		setMargin(false);
 		this.r = r;
 		int height = 1000;
-		ReconciliationInfoBox l_reconciliationinfo = new ReconciliationInfoBox(recon);
-		Panel info = LayoutUtils.preparePanel(LayoutUtils.hlNoMarginNoSpacingNoSize(l_reconciliationinfo),
-				"Reconciliation Summary");
+		ReconciliationInfoBox info = new ReconciliationInfoBox(recon);
 
-		p1 = new PatternTree(Collections.singleton(recon.getP1()));
+
+		p1 = new PatternTree(Collections.singleton(recon.getP1().getNode()));
 		Panel panel_p1 = LayoutUtils.preparePanel(p1, "Hierarchy 1");
 		panel_p1.setHeight(height+"px");
 
 		
 		Panel info1 = LayoutUtils.preparePanel(LayoutUtils.hlNoMarginNoSpacingNoSize(ib1), "<- Selected");
 
-		p2 = new PatternTree(Collections.singleton(recon.getP2()));
+		p2 = new PatternTree(Collections.singleton(recon.getP2().getNode()));
 		Panel panel_p2 = LayoutUtils.preparePanel(p2, "Hierarchy 2");
 		panel_p2.setHeight(height+"px");
 
@@ -85,9 +84,9 @@ class ReconciliationPanel extends VerticalLayout {
 		updateClassInforBox(r, ib2, recon.getP2());
 	}
 
-	private void update(ItemClick<PatternTreeItem> e) {
+	private void update(ItemClick<Node> e) {
 		System.out.println(e);
-		OntologyClass pc = e.getItem().getPatternClass();
+		OntologyClass pc = e.getItem().getRepresentativeElement();
 		ReconciliationCandidateSet candidates = r.getReconciliationsRelatedTo(pc);
 		Optional<PatternReconciliationCandidate> cl = candidates.getClosestMatchCandidate();
 		if (cl.isPresent()) {
@@ -109,8 +108,8 @@ class ReconciliationPanel extends VerticalLayout {
 
 
 
-	private void updateInfoBox(PatternReconciler r, PatternInfoBox impactbox, PatternTreeItem pi, PatternTree tree) {
-		OntologyClass pc = pi.getPatternClass();
+	private void updateInfoBox(PatternReconciler r, PatternInfoBox impactbox, Node pi, PatternTree tree) {
+		OntologyClass pc = pi.getRepresentativeElement();
 		updateClassInforBox(r, impactbox, pc);
 		this.getUI().push();
 	}

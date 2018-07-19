@@ -97,7 +97,7 @@ public class CandidateIdentifierApp extends PhenoAnalysisRunner  {
     }
 
     private double jacc_super(OntologyClass c1, OntologyClass c2) {
-        return jacc(iris(c1.indirectParents()), iris(c2.indirectParents()));
+        return jacc(iris(c1.getNode().indirectParentsFlat()), iris(c2.getNode().indirectParentsFlat()));
     }
 
     private double jacc_bucketsim(OntologyClass c1, OntologyClass c2, Collection<Bucket> buckets) {

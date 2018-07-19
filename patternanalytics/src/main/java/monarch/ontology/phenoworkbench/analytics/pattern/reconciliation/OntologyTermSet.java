@@ -47,7 +47,7 @@ public class OntologyTermSet implements GrammarProvider, ImpactProvider,Explanat
         Set<OntologyClass> classesUnderRoots = new HashSet<>();
             for (String iri : roots) {
                 if(classes.containsKey(iri)) {
-                    classesUnderRoots.addAll(classes.get(iri).indirectChildren());
+                    classesUnderRoots.addAll(classes.get(iri).getNode().indirectChildrenFlat());
                 }
             }
         return classesUnderRoots;

@@ -19,6 +19,8 @@ public abstract class PhenotypeDefinitionTransformer implements DefinitionTransf
         this.renderManager = renderManager;
         this.pato = pato;
         this.phenotypes = phenotypes;
+        System.out.println("PATO size: "+pato.size());
+        System.out.println("PHENOTYPE size: "+phenotypes.size());
     }
 
     @Override
@@ -43,6 +45,8 @@ public abstract class PhenotypeDefinitionTransformer implements DefinitionTransf
 
     public DefinedClass transform(DefinedClass d) {
         DefinedClass tranformed = new DefinedClass(d.getOWLClass(), transformClassExpression(d.getDefiniton()));
+        tranformed.setPatternString(getRenderManager().renderForMarkdown(tranformed.getDefiniton()));
+        tranformed.setLabel(getRenderManager().getLabel(tranformed.getOWLClass()));
         return tranformed;
     }
 

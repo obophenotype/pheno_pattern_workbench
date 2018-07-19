@@ -36,7 +36,7 @@ class TermGrid extends Grid<OntologyClass> {
 		setStyleName("termgrid");
 		addColumn(rec -> "<strong>" + rec.getLabel() + "</strong>", new HtmlRenderer()).setCaption("Phenotype");
 
-		addColumn(c -> c.indirectChildren().size()).setCaption("Impact").setWidth(70.0);
+		addColumn(c -> c.getNode().indirectChildrenFlat().size()).setCaption("Impact").setWidth(70.0);
 
 		kb.addCandidateChangeListener(this::refreshFilter);
 		addComponentColumn(recon -> {

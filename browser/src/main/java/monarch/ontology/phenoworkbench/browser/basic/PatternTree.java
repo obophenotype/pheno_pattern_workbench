@@ -8,20 +8,21 @@ import com.vaadin.data.provider.TreeDataProvider;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Tree;
 
+import monarch.ontology.phenoworkbench.util.Node;
 import monarch.ontology.phenoworkbench.util.OntologyClass;
 import monarch.ontology.phenoworkbench.util.Timer;
 
-public class PatternTree extends Tree<PatternTreeItem> {
+public class PatternTree extends Tree<Node> {
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 7392609965462603849L;
-	private Map<String, Set<PatternTreeItem>> mapPatternTree = new HashMap<>();
-	TreeData<PatternTreeItem> treeData = new TreeData<>();
+	private Map<String, Set<Node>> mapPatternTree = new HashMap<>();
+	TreeData<Node> treeData = new TreeData<>();
 
 	
-	public PatternTree(Set<? extends OntologyClass> toppatterns) {
+	public PatternTree(Set<Node> toppatterns) {
 		Timer.start("PatternTree::PatternTree()");
 		// Couple of childless root items
 		Timer.start("PatternTree::PatternTree():constructTree");
@@ -29,7 +30,7 @@ public class PatternTree extends Tree<PatternTreeItem> {
 		Timer.end("PatternTree::PatternTree():constructTree");
 
 		Timer.start("PatternTree::PatternTree():treeDataProvider");
-		DataProvider<PatternTreeItem,?> inMemoryDataProvider = new TreeDataProvider<>(treeData);
+		DataProvider<Node,?> inMemoryDataProvider = new TreeDataProvider<>(treeData);
 		setDataProvider(inMemoryDataProvider);
 		Timer.end("PatternTree::PatternTree():treeDataProvider");
 		setHeight("100%");
@@ -38,14 +39,14 @@ public class PatternTree extends Tree<PatternTreeItem> {
 		addItemClickListener(e->expandLoad(e.getItem()));
 		Timer.end("PatternTree::PatternTree()");
 	}
-	private void addTopLevelItemToTree(OntologyClass pattern) {
+	private void addTopLevelItemToTree(Node pi) {
 		Timer.start("PatternTree::addTopLevelItemToTree");
-		PatternTreeItem pi = new PatternTreeItem(pattern);
-		addToMapPatternTree(pattern, pi);
+		addToMapPatternTree(pi);
 		addTreeData(treeData, null, pi);
 		//populateTreeRecursively(treeData, pi);
 		Timer.end("PatternTree::addTopLevelItemToTree");
 	}
+
 	@Override
 	public void setHeight(float height, Unit unit) {
 		getCompositionRoot().setHeight(height, unit);
@@ -59,13 +60,15 @@ public class PatternTree extends Tree<PatternTreeItem> {
 		getCompositionRoot().setHeightUndefined();
 	}
 	
-	private void addToMapPatternTree(OntologyClass pattern, PatternTreeItem pi) {
+	private void addToMapPatternTree(Node pi) {
 		Timer.start("PatternTree::addToMapPatternTree()");
-		String iri = pattern.getOWLClass().getIRI().toString();
-		if (!mapPatternTree.containsKey(iri)) {
-			mapPatternTree.put(iri, new HashSet<>());
+		for(OntologyClass c:pi.getEquivalenceGroup()) {
+			String iri = c.getOWLClass().getIRI().toString();
+			if (!mapPatternTree.containsKey(iri)) {
+				mapPatternTree.put(iri, new HashSet<>());
+			}
+			mapPatternTree.get(iri).add(pi);
 		}
-		mapPatternTree.get(iri).add(pi);
 		Timer.end("PatternTree::addToMapPatternTree()");
 	}
 	
@@ -83,26 +86,46 @@ public class PatternTree extends Tree<PatternTreeItem> {
 			mapPatternTree.get(iri).forEach(this::expandLoad);
 		}
 	}
+	
+	
 
-	private void loadSubTree(PatternTreeItem c) {
+	private void loadSubTree(Node c) {
 		Timer.start("PatternTree::loadSubTree()");
-		Timer.start("PatternTree::populateTreeRecursively():getDirectChildren()");
-		Set<OntologyClass> directchildren = c.getPatternClass().directChildren();
-		Timer.end("PatternTree::populateTreeRecursively():getDirectChildren()");
-		for(OntologyClass cs:directchildren) {
-			PatternTreeItem csub = new PatternTreeItem(cs);
-			addToMapPatternTree(cs, csub);
+		for(Node csub:c.directChildren()) {
+			addToMapPatternTree(csub);
 			addTreeData(treeData, c, csub);
 			Timer.end("PatternTree::loadSubTree()");
 		}
 	}
-	private void addTreeData(TreeData<PatternTreeItem> treeData, PatternTreeItem c, PatternTreeItem csub) {
+	
+	Map<Node,Set<Node>> td = new HashMap<>();
+	private void addTreeData(TreeData<Node> treeData, Node c, Node csub) {
 		Timer.start("PatternTree::addTreeData");
-		treeData.addItem(c, csub);
+		
+		if(c!=null) {
+			if(c.equals(csub)) {
+				System.out.println("Trying to add same node as parent and child. Equivalent nodes should not be directChildren");
+				return;
+			}
+		}
+		if(!td.containsKey(c)) {
+			td.put(c, new HashSet<>());
+		}
+		if(!td.get(c).contains(csub)) {
+			try {
+			treeData.addItem(c, csub);
+			} catch(Exception e) {
+				e.printStackTrace();
+				if(td.containsKey(csub)) {
+				System.out.println("Reverse: "+td.get(csub).contains(c));
+				}
+			}
+			td.get(c).add(csub);
+		}
 		Timer.end("PatternTree::addTreeData");
 	}
 
-	public Set<PatternTreeItem> getMapPatternTreeItem(OntologyClass pc) {
+	public Set<Node> getMapPatternTreeItem(OntologyClass pc) {
 		String iri = keyString(pc);
 		return mapPatternTree.containsKey(iri) ?mapPatternTree.get(iri) :Collections.emptySet();
 	}
@@ -110,7 +133,7 @@ public class PatternTree extends Tree<PatternTreeItem> {
 		return pc.getOWLClass().getIRI().toString();
 	}
 
-	public void expandLoad(PatternTreeItem pi) {
+	public void expandLoad(Node pi) {
 		loadSubTree(pi);
 		expand(pi);
 	}
@@ -118,8 +141,8 @@ public class PatternTree extends Tree<PatternTreeItem> {
 	public void expandSelect(OntologyClass pc) {
 		Timer.start("PatternTree::expandSelect");
 		//System.out.print("PatternTree::ExpandSelect");
-		addTreeItemsRecursively(pc,new HashSet<>());
-		 for (PatternTreeItem pp : getMapPatternTreeItem(pc)) {
+		addTreeItemsRecursively(pc.getNode(),new HashSet<>());
+		 for (Node pp : getMapPatternTreeItem(pc)) {
 			 expand(pp);
 			 select(pp);
 	         //TODO implement: 
@@ -128,16 +151,16 @@ public class PatternTree extends Tree<PatternTreeItem> {
 		 Timer.end("PatternTree::expandSelect");
 	}
 	
-	private void addTreeItemsRecursively(OntologyClass c, Set<String> done) {
-		String iri = keyString(c);
+	private void addTreeItemsRecursively(Node c, Set<String> done) {
+		String iri = keyString(c.getRepresentativeElement());
 		if(done.contains(iri)) {
 			return;
 		} else {
 			done.add(iri);
 		}
-		for(OntologyClass parent: c.directParents()) {
+		for(Node parent: c.directParents()) {
 			addTreeItemsRecursively(parent,done);
-			getMapPatternTreeItem(parent).forEach(this::expandLoad);
+			getMapPatternTreeItem(parent.getRepresentativeElement()).forEach(this::expandLoad);
 		}
 	}
 }

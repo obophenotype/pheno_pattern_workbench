@@ -29,7 +29,7 @@ public class SuperClassGrid extends Grid<OntologyClass>{
 	public void update(ExplanationRenderProvider qi,OntologyClass c) {
 		this.current = c;
 		this.qi = qi;
-		List<OntologyClass> weightedPatterns = new ArrayList<>(c.directParents());
+		List<OntologyClass> weightedPatterns = new ArrayList<>(c.getNode().directParentsFlat());
 		setItems(weightedPatterns);
 		updateHeight(weightedPatterns.size());
 	}

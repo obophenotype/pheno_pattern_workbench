@@ -26,9 +26,8 @@ class MappingLayoutPanel extends VerticalLayout {
     private final MappingGridPanel tab_grid;
     private final MappingGridPanel tab_grid_mappings;
     private final MappingGridPanel tab_grid_blacklist;
-    CandidentLayoutPanel l_rec;
+    private final CandidentLayoutPanel l_rec;
     private final TabSheet tabsheet = new TabSheet();
-    private final KB kb = KB.getInstance();
 
     MappingLayoutPanel(PatternReconciler p, ReconciliationCandidateSet cset) {
         CandidateIdentifierApp app = new CandidateIdentifierApp(UberOntology.instance().getOntologyEntries());
@@ -37,11 +36,12 @@ class MappingLayoutPanel extends VerticalLayout {
         l_rec = new CandidentLayoutPanel(app);
         setSizeFull();
         setMargin(false);
-        tab_grid = new MappingGridPanel(p,cset, c -> infoClick(c,p,tab_reconciliation), c -> kb.addMapping(c), c->kb.blacklistMapping(c),true);
+        KB kb = KB.getInstance();
+        tab_grid = new MappingGridPanel(p,cset, c -> infoClick(c,p,tab_reconciliation), kb::addMapping, kb::blacklistMapping,true);
         tab_tree = new ReconciliationTreePanel(p,cset,tab_reconciliation);
         tab_reconciliation.addListener(this::switchTabToReconciliation);
-        tab_grid_mappings = new MappingGridPanel(p,kb.getMappings(), c -> infoClick(c,p,tab_reconciliation), this::downloadDescription, kb::removeMapping,false);
-        tab_grid_blacklist = new MappingGridPanel(p,kb.getMappingBlacklist(), c -> infoClick(c,p,tab_reconciliation), this::downloadDescription, kb::whitelistMapping,false);
+        tab_grid_mappings = new MappingGridPanel(p, kb.getMappings(), c -> infoClick(c,p,tab_reconciliation), this::downloadDescription, kb::removeMapping,false);
+        tab_grid_blacklist = new MappingGridPanel(p, kb.getMappingBlacklist(), c -> infoClick(c,p,tab_reconciliation), this::downloadDescription, kb::whitelistMapping,false);
         addComponent(prepareTabs());    
     }
 
@@ -62,7 +62,7 @@ class MappingLayoutPanel extends VerticalLayout {
         tabsheet.addTab(tab_grid, "Reconciliation Candidates");
         tabsheet.addTab(tab_reconciliation, "Reconciliation Info");
         tabsheet.addTab(tab_tree, "Tree Browser");
-        tabsheet.addTab(tab_grid_blacklist, "Candidate Search");
+        tabsheet.addTab(l_rec, "Candidate Search");
         tabsheet.addTab(tab_grid_mappings, "Validated Mappings");
         tabsheet.addTab(tab_grid_blacklist, "Mapping Blacklist");
 

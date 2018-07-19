@@ -12,6 +12,7 @@ public class PatternManager {
     private final Reasoner r;
     private final RenderManager renderManager;
     private final Map<OWLClass, OntologyClass> patternClassCache = new HashMap<>();
+    private final Map<OWLClass, Node> nodeClassCache = new HashMap<>();
     private final Map<DefinedClass, Set<PatternGrammar>> patternSubsumedGrammarsMap = new HashMap<>();
     private final Set<DefinedClass> allDefinedClasses;
 
@@ -41,17 +42,37 @@ public class PatternManager {
         // Make sure all classes are registered before building  the taxonomy
         r.getOWLReasoner().getRootOntology().getClassesInSignature(Imports.INCLUDED).forEach(this::getPatternClass);
 
-        getAllClasses().forEach(this::setTaxonomy);
+        getAllClasses().forEach(n->setTaxonomy(getNodeForClass(n.getOWLClass(),r)));
+        for(OWLClass c:nodeClassCache.keySet()) {
+            getPatternClass(c).setNode(nodeClassCache.get(c));
+        }
         getAllDefinedClasses().forEach(this::setGrammar);
         System.out.println("Def: "+ct_defined+", nondef:"+ct_nondef);
         Timer.end("PatternManager::preparePatterns()");
     }
 
-    private void setTaxonomy(OntologyClass p) {
+    private void setTaxonomy(Node p) {
         Timer.start("PatternManager::setTaxonomy()");
-        r.getSubclassesOf(p.getOWLClass(),true,true).forEach(c->p.addChild(getPatternClass(c)));
-        r.getSuperClassesOf(p.getOWLClass(),true,true).forEach(c->p.addParent(getPatternClass(c)));
+        r.getStrictSubclassesOf(p.getRepresentativeElement().getOWLClass(),true,true).forEach(c->p.addChild(getNodeForClass(c,r)));
+        r.getStrictSuperClassesOf(p.getRepresentativeElement().getOWLClass(),true,true).forEach(c->p.addParent(getNodeForClass(c,r)));
         Timer.end("PatternManager::setTaxonomy()");
+    }
+
+    private Node getNodeForClass(OWLClass c, Reasoner r) {
+        Timer.start("PatternManager::getPatternClass()");
+        if (!nodeClassCache.containsKey(c)) {
+            Set<OntologyClass> eqs = getPatternClasses(r.getEquivalentClasses(c));
+            Node p = new Node(eqs,getPatternClass(c));
+            eqs.forEach(e->nodeClassCache.put(e.getOWLClass(), p));
+        }
+        Timer.end("PatternManager::getPatternClass()");
+        return nodeClassCache.get(c);
+    }
+
+    private Set<OntologyClass> getPatternClasses(Set<OWLClass> cls) {
+        Set<OntologyClass> s = new HashSet<>();
+        cls.forEach(e->s.add(getPatternClass(e)));
+        return s;
     }
 
     private void setGrammar(DefinedClass p) {
@@ -63,9 +84,11 @@ public class PatternManager {
     }
 
     private void indexGrammarsOfChildren(DefinedClass p) {
-        for(OntologyClass child:p.indirectParents()) {
-            if (child instanceof DefinedClass) {
-                patternSubsumedGrammarsMap.get(p).add(((DefinedClass) child).getGrammar());
+        for(Node n:p.getNode().indirectParents()) {
+            for(OntologyClass child:n.getEquivalenceGroup()) {
+                if (child instanceof DefinedClass) {
+                    patternSubsumedGrammarsMap.get(p).add(((DefinedClass) child).getGrammar());
+                }
             }
         }
     }
@@ -89,6 +112,7 @@ public class PatternManager {
         if (!patternClassCache.containsKey(c)) {
             OntologyClass p = new OntologyClass(c);
             p.setLabel(renderManager.getLabel(c));
+            p.setDeprecated(UberOntology.instance().isObsolete(c));
             patternClassCache.put(c, p);
         }
         Timer.end("PatternManager::getPatternClass()");
