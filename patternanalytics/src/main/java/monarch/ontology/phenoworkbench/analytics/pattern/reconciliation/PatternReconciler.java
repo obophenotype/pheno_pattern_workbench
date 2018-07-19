@@ -73,8 +73,17 @@ public class PatternReconciler extends PhenoAnalysisRunner implements GrammarPro
 
         Map<IRI, OntologyClass> iriPatternMap = new HashMap<>();
         Set<PatternReconciliationCandidate> reconciliations = new HashSet<>();
+System.out.println(patternManager);
+        System.out.println(patternManager.getAllClasses().size());
 
-        patternManager.getAllClasses().forEach(p -> iriPatternMap.put(p.getOWLClass().getIRI(), p));
+        for (OntologyClass ontologyClass : patternManager.getAllClasses()) {
+            try {
+                iriPatternMap.put(ontologyClass.getOWLClass().getIRI(), ontologyClass);
+            } catch(Exception e) {
+                e.printStackTrace();
+                System.out.println("Entity causing this: "+ontologyClass);
+            }
+        }
 
         log("QI: Computing alignments.." + Timer.getSecondsElapsed("PatternReconciler::PatternReconciler()"));
 

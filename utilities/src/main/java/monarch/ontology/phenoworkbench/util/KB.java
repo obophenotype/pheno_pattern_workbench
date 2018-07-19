@@ -315,7 +315,6 @@ public class KB implements CandidateKB{
 
     public void whitelistMapping(PatternReconciliationCandidate c) {
         mappingsBlacklist.removeCandidate(c);
-        mappings.addCandidate(c);
     }
 
     public boolean isBlacklistedMapping(PatternReconciliationCandidate s) {
