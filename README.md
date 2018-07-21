@@ -1,5 +1,5 @@
 # Pheno Pattern Workbench
-Workbench for Analysing and Reconciliation Support of Ontology Patterns (Definitions) in Phenotype Ontologies
+Workbench for Analysing and Reconciliation Support of Ontology Patterns (Definitions) in Phenotype Ontologies. The dockerised version of the workbench can be found here: https://github.com/matentzn/pheno-workbench-docker.
 
 # Acknowledgements
 ## Vaadin
@@ -11,7 +11,7 @@ We use the awesome [Vaadin](https://vaadin.com/) Framework for developing the We
 
 ## IntelliJ
 <div>
-<img width="50px" src="http://s18.postimg.org/6gcq0qtih/intellij_idea_logo_400x400.png"/>
+<img width="100px" src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/IntelliJ_IDEA_Logo.svg/2000px-IntelliJ_IDEA_Logo.svg.png"/>
 </div>
 
 We use [IntelliJ IDEA](http://www.jetbrains.com/idea) for most of the core modules of the pheno workbench (except UI).
