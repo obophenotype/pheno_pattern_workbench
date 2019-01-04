@@ -111,4 +111,61 @@ OWLDataFactory df = OWLManager.getOWLDataFactory();
         }
     }
 
+    public static class AssembleZP {
+        private BranchLoader branches = null;
+        private RenderManager render = RenderManager.getInstance();
+        OntologyDebugReport lines = new OntologyDebugReport();
+
+        private static String BASEIRI = "http://ebi.ac.uk/";
+
+
+        public static void main(String[] args) {
+            File f_zp = new File("/ws/ontologies/zp_analysis.owl");
+           IRI zpowl =  IRI.create("https://raw.githubusercontent.com/obophenotype/zebrafish-phenotype-ontology-build/master/zp.owl");
+           Set<IRI> imports = new HashSet<>();
+           imports.add(zpowl);
+           imports.add(IRI.create("http://purl.obolibrary.org/obo/upheno/imports/zfa_import.owl"));
+            imports.add(IRI.create("http://purl.obolibrary.org/obo/upheno/imports/go_import.owl"));
+            imports.add(IRI.create("http://purl.obolibrary.org/obo/upheno/imports/cl_import.owl"));
+            imports.add(IRI.create("http://purl.obolibrary.org/obo/upheno/imports/pato_import.owl"));
+            imports.add(IRI.create("http://purl.obolibrary.org/obo/upheno/imports/chebi_import.owl"));
+            imports.add(IRI.create("http://purl.obolibrary.org/obo/upheno/imports/uberon_import.owl"));
+            imports.add(IRI.create("http://purl.obolibrary.org/obo/uberon/bridge/uberon-bridge-to-zfa.owl"));
+            imports.add(IRI.create("http://purl.obolibrary.org/obo/uberon/bridge/cl-bridge-to-zfa.owl"));
+           imports.add(IRI.create("http://purl.obolibrary.org/obo/ro.owl"));
+           OWLOntologyManager man = OWLManager.createOWLOntologyManager();
+           OWLDataFactory df = man.getOWLDataFactory();
+           OWLClass upheno = df.getOWLClass(IRI.create("http://purl.obolibrary.org/obo/UPHENO_0001002"));
+           Set<OWLAxiom> axioms = new HashSet<>();
+            try {
+                OWLOntology zp = man.loadOntologyFromOntologyDocument(zpowl);
+                for(OWLAxiom ax:zp.getAxioms()) {
+                            if(ax instanceof OWLEquivalentClassesAxiom) {
+                                OWLEquivalentClassesAxiom eq = (OWLEquivalentClassesAxiom)ax;
+                                for(OWLClass ce:eq.getNamedClasses()) {
+                                    axioms.add(df.getOWLSubClassOfAxiom(ce,upheno));
+                                }
+                            }
+                }
+                OWLOntologyManager m = OWLManager.createOWLOntologyManager();
+                OWLOntology o = m.createOntology(axioms, IRI.create(BASEIRI+"zp_analysis.owl"));
+                for(IRI imp:imports) {
+                    OWLImportsDeclaration importDeclaration=m.getOWLDataFactory().getOWLImportsDeclaration(imp);
+                    m.applyChange(new AddImport(o, importDeclaration));
+                }
+                m.saveOntology(o,new FileOutputStream(f_zp));
+            } catch (OWLOntologyCreationException e) {
+                e.printStackTrace();
+            } catch (OWLOntologyStorageException e) {
+                e.printStackTrace();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        public List<String> getReportLines() {
+            return lines.getLines();
+        }
+    }
 }

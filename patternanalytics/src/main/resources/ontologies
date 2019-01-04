@@ -3,7 +3,7 @@ mp,http://purl.obolibrary.org/obo/mp.owl
 fbcv,https://raw.githubusercontent.com/FlyBase/flybase-controlled-vocabulary/master/releases/dpo.owl
 cl,http://purl.obolibrary.org/obo/cl.owl
 monarch,https://raw.githubusercontent.com/monarch-initiative/monarch-ontology/master/monarch.owl
-wbphenotype,http://purl.obolibrary.org/obo/wbphenotype.owl
+wbphenotype,https://raw.githubusercontent.com/obophenotype/upheno/master/wbphenotype/wbphenotype-importer.owl
 zfa,http://purl.obolibrary.org/obo/zfa.owl
 xao,http://purl.obolibrary.org/obo/xao.owl
 mfoem,http://purl.obolibrary.org/obo/MFOEM.owl

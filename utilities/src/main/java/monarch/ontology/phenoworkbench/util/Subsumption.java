@@ -2,6 +2,7 @@ package monarch.ontology.phenoworkbench.util;
 
 import org.semanticweb.owlapi.model.OWLClass;
 
+import java.util.Map;
 import java.util.Objects;
 
 public class Subsumption {
@@ -35,5 +36,17 @@ public class Subsumption {
 
     public OWLClass getSub_c() {
         return sub_c;
+    }
+
+    public String toString() {
+        return getShortName(getSub_c()) +" -> "+ getShortName(getSuper_c());
+    }
+
+    private String getShortName(OWLClass sub_c) {
+        return sub_c.getIRI().getRemainder().or("" + sub_c.getIRI());
+    }
+
+    public String getLabelledName(RenderManager r) {
+        return r.renderForMarkdown(getSub_c()) +" -> "+ r.renderForMarkdown(getSuper_c());
     }
 }

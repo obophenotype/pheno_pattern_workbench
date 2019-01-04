@@ -10,7 +10,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.CandidateIdentifierApp;
 import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.OntologyTermSet;
-import monarch.ontology.phenoworkbench.browser.basic.LabelManager;
+import monarch.ontology.phenoworkbench.uiutils.basic.LabelManager;
 import monarch.ontology.phenoworkbench.util.CandidateKB;
 
 public class OntologyTermWidget extends VerticalLayout{

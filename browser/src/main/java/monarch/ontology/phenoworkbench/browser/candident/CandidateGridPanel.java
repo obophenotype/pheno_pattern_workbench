@@ -15,11 +15,11 @@ import com.vaadin.ui.Upload;
 import com.vaadin.ui.VerticalLayout;
 
 import monarch.ontology.phenoworkbench.browser.basic.IOUtils;
+import monarch.ontology.phenoworkbench.uiutils.basic.LabelManager;
 import monarch.ontology.phenoworkbench.util.CandidateKB;
 import monarch.ontology.phenoworkbench.util.KB;
 import monarch.ontology.phenoworkbench.util.OntologyClass;
 import monarch.ontology.phenoworkbench.util.Candidate;
-import monarch.ontology.phenoworkbench.browser.basic.LabelManager;
 
 public class CandidateGridPanel extends VerticalLayout {
 	private static final long serialVersionUID = 3484502786500683355L;

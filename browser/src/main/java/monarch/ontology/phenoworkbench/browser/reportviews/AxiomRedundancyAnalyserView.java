@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import monarch.ontology.phenoworkbench.uiutils.basic.LabelManager;
 import monarch.ontology.phenoworkbench.util.OntologyEntry;
 import monarch.ontology.phenoworkbench.browser.basic.*;
 import monarch.ontology.phenoworkbench.analytics.subclassredundancy.SubClassRedundancy;

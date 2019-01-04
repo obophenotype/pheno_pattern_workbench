@@ -138,4 +138,14 @@ public class OntologyUtils {
     }
 
 
+    public static Set<String> getRDFSDescription(OWLEntity c, OWLOntology o) {
+        Set<OWLAnnotationProperty> annops = new HashSet<>();
+        annops.add(df.getOWLAnnotationProperty(IRI.create("http://purl.obolibrary.org/obo/IAO_0000115")));
+        Set<String> labels = getLabels(c, o, annops);
+        if(labels.isEmpty()) {
+            annops.add(df.getRDFSComment());
+            return getLabels(c,o,annops);
+        }
+        return labels;
+    }
 }

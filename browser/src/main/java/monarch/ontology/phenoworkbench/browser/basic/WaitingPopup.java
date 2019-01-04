@@ -4,7 +4,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import monarch.ontology.phenoworkbench.browser.basic.LabelManager;
+import monarch.ontology.phenoworkbench.uiutils.basic.LabelManager;
 
 //Define a sub-window by inheritance
 public class WaitingPopup extends Window {

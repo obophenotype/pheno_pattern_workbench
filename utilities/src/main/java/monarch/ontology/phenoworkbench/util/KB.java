@@ -45,6 +45,7 @@ public class KB implements CandidateKB{
 
     public Optional<OWLOntology> getOntology(String url) {
         if (!ontologyCache.containsKey(url)) {
+            System.out.println(IRI.create(url));
             try {
                 OWLOntology o = OWLManager.createOWLOntologyManager().loadOntologyFromOntologyDocument(IRI.create(url));
                 ontologyCache.put(url, o);

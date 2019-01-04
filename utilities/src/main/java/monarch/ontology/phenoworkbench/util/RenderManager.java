@@ -16,6 +16,7 @@ public class RenderManager {
     private OWLObjectRenderer renManchester = new ManchesterOWLSyntaxOWLObjectRendererImpl();
 
     private Map<OWLEntity, String> labels = new HashMap<>();
+    private Map<OWLEntity, String> descriptions = new HashMap<>();
     private OWLDataFactory df = OWLManager.getOWLDataFactory();
 
     private static RenderManager instance = null;
@@ -33,6 +34,7 @@ public class RenderManager {
 
     public void addLabel(OWLOntology o) {
         o.getSignature(Imports.INCLUDED).forEach(s -> OntologyUtils.getLabelsRDFSIfExistsElseOther(s, o).forEach(l -> labels.put(s, hackLabel(s,l))));
+        o.getSignature(Imports.INCLUDED).forEach(s -> OntologyUtils.getRDFSDescription(s, o).forEach(l -> descriptions.put(s, l)));
     }
 
     private String hackLabel(OWLEntity e,String l) {
@@ -115,5 +117,9 @@ public class RenderManager {
         s = s.replace("https://raw.githubusercontent.com/","");
         s = s.replaceAll("master/releases/","");
         return s;
+    }
+
+    public String getDescription(OWLClass k) {
+        return descriptions.get(k) == null ? "No description" : descriptions.get(k);
     }
 }

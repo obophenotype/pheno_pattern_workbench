@@ -1,0 +1,13 @@
+version: '3.2'
+
+services:
+  inferencereview:
+    build:
+      context: .
+    ports:
+      - "8080:8080"
+    environment:
+      - ONTOLOGY=test.owl
+      - ROOT=http://purl.obolibrary.org/obo/HP_0000118
+    volumes:
+      - /data/irtest:/data

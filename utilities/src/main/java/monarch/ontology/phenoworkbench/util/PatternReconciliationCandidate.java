@@ -2,9 +2,9 @@ package monarch.ontology.phenoworkbench.util;
 
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLClassExpression;
+import org.semanticweb.owlapi.model.OWLEntity;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 public class PatternReconciliationCandidate {
@@ -21,36 +21,43 @@ public class PatternReconciliationCandidate {
     private double reconciliationComplexity;
     private long reconciliationEffect = -1;
     private double jaccardSimiliarity = -1;
+    private double signatureOverlap;
     private String reconciliationclass;
     private Map<String, Double> otherMetrics = new HashMap<>();
 
-    public PatternReconciliationCandidate(OntologyClass p1, OntologyClass p2, Reasoner r) {
+    public PatternReconciliationCandidate(OntologyClass p1, OntologyClass p2, Optional<Reasoner> ro) {
         this.p1 = p1;
         this.p2 = p2;
         this.id = p1.getOWLClass().getIRI().toString() + p2.getOWLClass().getIRI().toString();
-        prepareLogicalEquivalence(p1, p2, r);
+
+        ro.ifPresent(r->prepareLogicalEquivalence(p1, p2, r));
         prepareSyntacticEquivalence(p1, p2);
         prepareGrammarEquivalence(p1, p2);
-        //this.rightDiff = new LogicalDiff(p1.getDefiniton(),p2.getDefiniton(),renderManager);
-        //this.leftDiff = new LogicalDiff(p2.getDefiniton(),p1.getDefiniton(),renderManager);
         prepareReconciliationComplexity();
+        prepareSignatureOverlap();
         prepareReconciliationClass();
     }
 
     public PatternReconciliationCandidate(OntologyClass p1, OntologyClass p2) {
-        this.p1 = p1;
-        this.p2 = p2;
-        this.id = p1.getOWLClass().getIRI().toString() + p2.getOWLClass().getIRI().toString();
-        prepareSyntacticEquivalence(p1, p2);
-        prepareGrammarEquivalence(p1, p2);
-        logicallyEquivalent = false;
-        p1_sub_p2 = false;
-        p2_sub_p1 = false;
-        //this.rightDiff = new LogicalDiff(p1.getDefiniton(),p2.getDefiniton(),renderManager);
-        //this.leftDiff = new LogicalDiff(p2.getDefiniton(),p1.getDefiniton(),renderManager);
-        prepareReconciliationComplexity();
-        prepareReconciliationClass();
+        this(p1,p2,Optional.empty());
     }
+
+    private void prepareSignatureOverlap() {
+        Set<OWLEntity> union = new HashSet<>();
+        if (getP1() instanceof DefinedClass && getP2() instanceof DefinedClass) {
+            union.addAll(((DefinedClass) p1).getDefiniton().getSignature());
+            union.addAll(((DefinedClass) p2).getDefiniton().getSignature());
+            Set<OWLClassExpression> intersection = new HashSet<>(((DefinedClass) p1).getDefiniton().getNestedClassExpressions());
+            intersection.retainAll(((DefinedClass) p2).getDefiniton().getNestedClassExpressions());
+            setSignatureOverlap(((double) intersection.size() / (double) union.size()));
+
+        } else {
+            setSignatureOverlap(0.0);
+        }
+
+    }
+
+
 
     private void prepareGrammarEquivalence(OntologyClass p1, OntologyClass p2) {
 
@@ -94,15 +101,15 @@ public class PatternReconciliationCandidate {
             union.addAll(((DefinedClass) p2).getDefiniton().getNestedClassExpressions());
             Set<OWLClassExpression> intersection = new HashSet<>(((DefinedClass) p1).getDefiniton().getNestedClassExpressions());
             intersection.retainAll(((DefinedClass) p2).getDefiniton().getNestedClassExpressions());
-            setReconciliationComplexity(1.0 - ((double) intersection.size() / (double) union.size()));
+            setCommonExpressionRatio(((double) intersection.size() / (double) union.size()));
 
         } else {
-            setReconciliationComplexity(1.0);
+            setCommonExpressionRatio(0.0);
         }
 
     }
 
-    private void setReconciliationComplexity(Double complexity) {
+    private void setCommonExpressionRatio(Double complexity) {
         this.reconciliationComplexity = round(complexity, 2);
     }
 
@@ -230,29 +237,27 @@ public class PatternReconciliationCandidate {
         if (this == o) return true;
         if (!(o instanceof PatternReconciliationCandidate)) return false;
         PatternReconciliationCandidate that = (PatternReconciliationCandidate) o;
-        return logicallyEquivalent == that.logicallyEquivalent &&
-                p1_sub_p2 == that.p1_sub_p2 &&
-                p2_sub_p1 == that.p2_sub_p1 &&
-                syntacticallyEquivalent == that.syntacticallyEquivalent &&
-                grammarEquivalent == that.grammarEquivalent &&
-                Double.compare(that.reconciliationComplexity, reconciliationComplexity) == 0 &&
-                reconciliationEffect == that.reconciliationEffect &&
-                Double.compare(that.jaccardSimiliarity, jaccardSimiliarity) == 0 &&
-                Objects.equals(p1, that.p1) &&
+        return Objects.equals(p1, that.p1) &&
                 Objects.equals(p2, that.p2) &&
                 Objects.equals(id, that.id) &&
-                Objects.equals(commonAncestors, that.commonAncestors) &&
-                Objects.equals(reconciliationclass, that.reconciliationclass) &&
-                Objects.equals(otherMetrics, that.otherMetrics);
+                Objects.equals(reconciliationclass, that.reconciliationclass);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(p1, p2, id, commonAncestors, logicallyEquivalent, p1_sub_p2, p2_sub_p1, syntacticallyEquivalent, grammarEquivalent, reconciliationComplexity, reconciliationEffect, jaccardSimiliarity, reconciliationclass, otherMetrics);
+        return Objects.hash(p1, p2, id, reconciliationclass);
     }
 
     public boolean isBothDefinitionSet() {
         return ((getP1() instanceof DefinedClass) && (getP2() instanceof DefinedClass));
+    }
+
+    public double getSignatureOverlap() {
+        return signatureOverlap;
+    }
+
+    public void setSignatureOverlap(double signatureOverlap) {
+        this.signatureOverlap = signatureOverlap;
     }
 }

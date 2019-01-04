@@ -7,9 +7,8 @@ import java.util.Map;
 import java.util.Set;
 
 import monarch.ontology.phenoworkbench.browser.basic.BasicLayout;
-import monarch.ontology.phenoworkbench.analytics.inferenceanalysis.InferenceAnalyser;
+import monarch.ontology.phenoworkbench.analytics.inferenceanalysis.InferenceAnalyserOLD;
 
-import com.vaadin.ui.UI;
 import monarch.ontology.phenoworkbench.util.OntologyEntry;
 
 public class InferenceAnalyserView extends BasicLayout {
@@ -37,7 +36,7 @@ public class InferenceAnalyserView extends BasicLayout {
 		boolean imports = runOptionOrNull("imports").equals("yes");
 
 		File resultsdir = deleteMakeTmpDirectory("ia_results").get();
-		InferenceAnalyser p = new InferenceAnalyser(selectedItems, imports);
+		InferenceAnalyserOLD p = new InferenceAnalyserOLD(selectedItems, imports);
 		p.prepare();
 		try {
 			p.printResults(resultsdir);

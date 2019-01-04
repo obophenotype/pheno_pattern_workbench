@@ -125,7 +125,7 @@ System.out.println(patternManager);
             patternReconciliation.put(p, new HashMap<>());
         }
         if (!patternReconciliation.get(p).containsKey(p2)) {
-            PatternReconciliationCandidate pr = new PatternReconciliationCandidate(p, p2, r);
+            PatternReconciliationCandidate pr = new PatternReconciliationCandidate(p, p2, Optional.of(r));
             pr.setSimiliarity(imap.getSimilarity());
             pr.setOtherMetrics(imap.getMetrics());
             patternReconciliation.get(p).put(p2, pr);

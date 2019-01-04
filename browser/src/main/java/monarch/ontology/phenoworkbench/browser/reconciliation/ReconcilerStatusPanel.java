@@ -1,13 +1,10 @@
 package monarch.ontology.phenoworkbench.browser.reconciliation;
 
 import com.vaadin.ui.*;
+import monarch.ontology.phenoworkbench.uiutils.basic.LabelManager;
 import monarch.ontology.phenoworkbench.util.PatternReconciliationCandidate;
-import monarch.ontology.phenoworkbench.util.ReconciliationCandidateSet;
-import monarch.ontology.phenoworkbench.browser.basic.LabelManager;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
 
 public class ReconcilerStatusPanel extends VerticalLayout {
     /**

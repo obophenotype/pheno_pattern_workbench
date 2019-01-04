@@ -1,17 +1,15 @@
 package monarch.ontology.phenoworkbench.browser.reconciliation;
 
 import com.vaadin.data.HasValue;
-import com.vaadin.event.FieldEvents;
 import com.vaadin.ui.*;
 
 import monarch.ontology.phenoworkbench.analytics.inferenceanalysis.*;
 import monarch.ontology.phenoworkbench.browser.basic.LayoutUtils;
+import monarch.ontology.phenoworkbench.uiutils.basic.LabelManager;
 import monarch.ontology.phenoworkbench.util.DefinedClass;
 import monarch.ontology.phenoworkbench.util.OntologyClass;
-import monarch.ontology.phenoworkbench.util.PatternClass;
 import monarch.ontology.phenoworkbench.util.PatternReconciliationCandidate;
 import monarch.ontology.phenoworkbench.browser.basic.HTMLRenderUtils;
-import monarch.ontology.phenoworkbench.browser.basic.LabelManager;
 import monarch.ontology.phenoworkbench.util.UberOntology;
 
 public class ReconciliationInfoBox extends HorizontalLayout {

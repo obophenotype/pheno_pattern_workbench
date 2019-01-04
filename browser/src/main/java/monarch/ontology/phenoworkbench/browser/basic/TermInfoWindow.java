@@ -7,6 +7,7 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
+import monarch.ontology.phenoworkbench.uiutils.basic.LabelManager;
 import monarch.ontology.phenoworkbench.util.OntologyClass;
 import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.OntologyTermSet;
 import monarch.ontology.phenoworkbench.browser.quickimpact.PatternInfoBox;

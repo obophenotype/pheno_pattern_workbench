@@ -129,7 +129,7 @@ public class ExplantionAnalyserImpl implements ExplanationAnalyser {
     private boolean potentiallyPainfulAxiom(OWLAxiom ax) {
         if (ax instanceof OWLSubClassOfAxiom) {
             OWLSubClassOfAxiom sbcl = (OWLSubClassOfAxiom) ax;
-            return isHarmless(sbcl.getSubClass())&&isHarmless(sbcl.getSuperClass());
+            return !isHarmless(sbcl.getSubClass())||!isHarmless(sbcl.getSuperClass());
         } else if (ax instanceof OWLEquivalentClassesAxiom) {
             for (OWLClassExpression ce : ((OWLEquivalentClassesAxiom) ax).getClassExpressionsAsList()) {
                 if(!isHarmless(ce)) {

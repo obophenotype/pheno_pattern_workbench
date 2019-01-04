@@ -14,6 +14,7 @@ import com.vaadin.ui.CheckBoxGroup;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 import monarch.ontology.phenoworkbench.analytics.subclassredundancy.SubClassRedundancy;
+import monarch.ontology.phenoworkbench.uiutils.basic.LabelManager;
 import monarch.ontology.phenoworkbench.util.OntologyEntry;
 import monarch.ontology.phenoworkbench.util.OntologyRegistry;
 

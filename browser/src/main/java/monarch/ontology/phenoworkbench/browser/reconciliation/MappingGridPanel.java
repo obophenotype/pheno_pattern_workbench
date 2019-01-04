@@ -24,9 +24,10 @@ public class MappingGridPanel extends VerticalLayout {
 	
 	private final MappingGrid grid;
 	private final Set<PatternReconciliationCandidate> currentCandidates = new HashSet<>(); // TODO keeping track of those should not be necessary
-    private final Slider sl_jaccard = new Slider("Similarity", 0, 1);
-    private final Slider sl_complexity = new Slider("Complexity", 0, 1);
-    private final Slider sl_impact = new Slider("Impact", 0, 1);
+    private final Slider sl_jaccard = new Slider("Semantic similarity", 0, 1);
+    private final Slider sl_complexity = new Slider("Common subexpressions", 0, 1);
+    private final Slider sl_impact = new Slider("Defined subclasses", 0, 1);
+    private final Slider sl_signature = new Slider("Signature overlap", 0, 1);
     private final TextField tf_filter_patterns = new TextField("Filter");
 
     private final CheckBox cb_exclude_reconciled = new CheckBox("Same grammar");
@@ -101,14 +102,17 @@ public class MappingGridPanel extends VerticalLayout {
         sl_jaccard.setResolution(2);
         
         sl_complexity.setOrientation(SliderOrientation.HORIZONTAL);
-        sl_complexity.setValue(1.0);
         sl_complexity.setResolution(2);
-    
+
+        sl_signature.setOrientation(SliderOrientation.HORIZONTAL);
+        sl_signature.setResolution(2);
+
         sl_impact.setMin(0);
         sl_impact.setMax(MAX_IMPACT);
         
         sl_jaccard.addValueChangeListener(this::filter);
         sl_complexity.addValueChangeListener(this::filter);
+        sl_signature.addValueChangeListener(this::filter);
         sl_impact.addValueChangeListener(this::filter);
 
         //cb_both_def.setValue(true);
@@ -133,16 +137,17 @@ public class MappingGridPanel extends VerticalLayout {
         boolean excludep2p1 = !cb_exclude_p2_sub_p1.getValue();
         float jaccard = sl_jaccard.getValue().floatValue();
         float complexity = sl_complexity.getValue().floatValue();
+        float signatureOverlap = sl_signature.getValue().floatValue();
         float effect = sl_impact.getValue().floatValue();
         ListDataProvider<PatternReconciliationCandidate> dataProvider = (ListDataProvider<PatternReconciliationCandidate>) grid
                 .getDataProvider();
-        dataProvider.getItems().forEach(s -> filterOut(s, value, excludeReconciled, excludeEqual, jaccard, complexity, effect,excludep1p2,excludep2p1,excludeEquivalentValue,excludeIfNotBothDef));
+        dataProvider.getItems().forEach(s -> filterOut(s, value, excludeReconciled, excludeEqual, jaccard, complexity, effect,excludep1p2,excludep2p1,excludeEquivalentValue,excludeIfNotBothDef, signatureOverlap));
         dataProvider.setFilter(PatternReconciliationCandidate::getItself, currentCandidates::contains);
         reconcilerStatusPanel.updateProgress(currentCandidates); //todo Should not be necessary. Why cant I get a handle on the currently filtered items?
     }
 
     private boolean filterOut(PatternReconciliationCandidate s, String value, boolean excludeReconciled,
-                              boolean excludeEqual, float jaccard, float complexity, float effect, boolean excludep1p2, boolean excludep2p1, boolean excludeEquivalentValue, boolean excludeIfNotBothDef) {
+                              boolean excludeEqual, float jaccard, float complexity, float effect, boolean excludep1p2, boolean excludep2p1, boolean excludeEquivalentValue, boolean excludeIfNotBothDef, float signatureOverlap) {
         boolean filter = caseInsensitiveContains(s.stringForSearch(), value)
                 && minThreshold(s.getSimiliarity(), jaccard)
                 && and(s.isGrammarEquivalent(), excludeReconciled)
@@ -151,7 +156,8 @@ public class MappingGridPanel extends VerticalLayout {
                 && and(s.isP2SubclassOfP1(), excludep2p1)
                 && and(s.isLogicallyEquivalent(), excludeEquivalentValue)
                 && and(!s.isBothDefinitionSet(), excludeIfNotBothDef)
-                && maxThreshold(s.getReconciliationComplexity(), complexity)
+                && minThreshold(s.getReconciliationComplexity(), complexity)
+                && minThreshold(s.getSignatureOverlap(), signatureOverlap)
                 && notInKB(s)
                 && notBlacklisted(s)
                 && minThreshold(s.getReconciliationEffect(), effect);
@@ -237,6 +243,7 @@ public class MappingGridPanel extends VerticalLayout {
         hl_sliders.setWidth("100%");
         hl_sliders.addComponent(sl_jaccard);
         hl_sliders.addComponent(sl_complexity);
+        hl_sliders.addComponent(sl_signature);
         hl_sliders.addComponent(sl_impact);
         return hl_sliders;
     }

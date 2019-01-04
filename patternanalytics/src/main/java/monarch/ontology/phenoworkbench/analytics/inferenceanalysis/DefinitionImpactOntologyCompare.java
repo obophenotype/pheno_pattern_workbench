@@ -23,6 +23,15 @@ public class DefinitionImpactOntologyCompare extends OntologyCompare {
     private final DefinitionSet compare;
     private Reasoner r_bare;
 
+
+
+    Map<Subsumption,String> sub_bare_not_base = null;
+    Map<Subsumption,String> sub_base_not_bare = null;
+    Map<Subsumption,String> sub_bare_not_comp = null;
+    Map<Subsumption,String> sub_comp_not_bare = null;
+    Map<Subsumption,String> sub_base_not_comp = null;
+    Map<Subsumption,String> sub_comp_not_base = null;
+
     public DefinitionImpactOntologyCompare(DefinitionSet base, DefinitionSet compare, OWLReasonerFactory rf, OWLOntology o_bare, String baseId, String compId, String oid) {
         super();
         this.compare = compare;
@@ -52,12 +61,12 @@ public class DefinitionImpactOntologyCompare extends OntologyCompare {
 
                 DefinitionSet bare = new DefinitionSet();
 
-                Map<Subsumption,String> sub_bare_not_base = diff(r_bare,r_base,base.getDefinedClasses(),bare,base);
-                Map<Subsumption,String> sub_base_not_bare = diff(r_base,r_bare,base.getDefinedClasses(),base,bare);
-                Map<Subsumption,String> sub_bare_not_comp = diff(r_bare,r_comp,base.getDefinedClasses(),bare,compare);
-                Map<Subsumption,String> sub_comp_not_bare = diff(r_comp,r_bare,base.getDefinedClasses(),compare,bare);
-                Map<Subsumption,String> sub_base_not_comp = diff(r_base,r_comp,base.getDefinedClasses(),base,compare);
-                Map<Subsumption,String> sub_comp_not_base = diff(r_comp,r_base,base.getDefinedClasses(),compare,base);
+                sub_bare_not_base = diff(r_bare,r_base,base.getDefinedClasses(),bare,base);
+                sub_base_not_bare = diff(r_base,r_bare,base.getDefinedClasses(),base,bare);
+                sub_bare_not_comp = diff(r_bare,r_comp,base.getDefinedClasses(),bare,compare);
+                sub_comp_not_bare = diff(r_comp,r_bare,base.getDefinedClasses(),compare,bare);
+                sub_base_not_comp = diff(r_base,r_comp,base.getDefinedClasses(),base,compare);
+                sub_comp_not_base = diff(r_comp,r_base,base.getDefinedClasses(),compare,base);
 
                 log("Computing diffs, sub_bare_not_base: "+sub_bare_not_base.size(),process);
                 log("Computing diffs, sub_base_not_bare: "+sub_base_not_bare.size(),process);
@@ -185,6 +194,30 @@ public class DefinitionImpactOntologyCompare extends OntologyCompare {
 
     public List<String> getCsv() {
         return csv;
+    }
+
+    public Map<Subsumption, String> getSub_bare_not_base() {
+        return sub_bare_not_base;
+    }
+
+    public Map<Subsumption, String> getSub_base_not_bare() {
+        return sub_base_not_bare;
+    }
+
+    public Map<Subsumption, String> getSub_bare_not_comp() {
+        return sub_bare_not_comp;
+    }
+
+    public Map<Subsumption, String> getSub_comp_not_bare() {
+        return sub_comp_not_bare;
+    }
+
+    public Map<Subsumption, String> getSub_base_not_comp() {
+        return sub_base_not_comp;
+    }
+
+    public Map<Subsumption, String> getSub_comp_not_base() {
+        return sub_comp_not_base;
     }
 
     public boolean isHasPartPattern(OWLObjectSomeValuesFrom def1) {

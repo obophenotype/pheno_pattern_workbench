@@ -5,6 +5,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.components.grid.ItemClickListener;
 
+import monarch.ontology.phenoworkbench.uiutils.basic.LabelManager;
 import monarch.ontology.phenoworkbench.util.DefinedClass;
 import monarch.ontology.phenoworkbench.util.OntologyClass;
 import monarch.ontology.phenoworkbench.analytics.pattern.impact.OntologyClassImpact;
@@ -13,7 +14,6 @@ import monarch.ontology.phenoworkbench.analytics.pattern.generation.ExplanationR
 import monarch.ontology.phenoworkbench.analytics.pattern.generation.GrammarProvider;
 import monarch.ontology.phenoworkbench.analytics.pattern.generation.ImpactProvider;
 import monarch.ontology.phenoworkbench.browser.basic.HTMLRenderUtils;
-import monarch.ontology.phenoworkbench.browser.basic.LabelManager;
 
 import java.util.Optional;
 

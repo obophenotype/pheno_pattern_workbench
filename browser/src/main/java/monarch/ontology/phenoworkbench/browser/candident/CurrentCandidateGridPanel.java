@@ -6,10 +6,10 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
+import monarch.ontology.phenoworkbench.uiutils.basic.LabelManager;
 import monarch.ontology.phenoworkbench.util.CandidateKB;
 import monarch.ontology.phenoworkbench.util.OntologyClass;
 import monarch.ontology.phenoworkbench.util.Candidate;
-import monarch.ontology.phenoworkbench.browser.basic.LabelManager;
 
 class CurrentCandidateGridPanel extends VerticalLayout {
 

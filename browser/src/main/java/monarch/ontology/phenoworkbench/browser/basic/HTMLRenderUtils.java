@@ -36,11 +36,22 @@ public class HTMLRenderUtils {
 		return out;
 	}
 	private static String addKeywordClass(String patternString, String key) {
-		String out = patternString.replaceAll("(^)"+key+"([\\W])", "<span class=\"owlkey\">"+key+"</span> ");
-		out = patternString.replaceAll("(\\W)"+key+"([\\W])", " <span class=\"owlkey\">"+key+"</span> ");
+		String out = patternString.replaceAll("(\\W)"+key+"([\\W])", " <span class=\"owlkey\" style=\"color: blue\">"+key+"</span> ");
 		return out;
 	}
 	public static String renderOLSLinkout(OntologyClass p) {
 		return "<a href='"+ OLSLinkout.linkout(p.getOWLClass().getIRI().toString(),p.getLabel())+"' target='_blank'>"+p.getLabel()+"</a>";
+	}
+
+    public static String renderOntologyDefinition(OntologyClass p1) {
+		if(p1 instanceof DefinedClass) {
+			return colourKeywords(((DefinedClass) p1).getPatternString());
+		} else {
+			return "Not defined";
+		}
+    }
+
+	public static String checkBoxFake(String s) {
+	  	return s+" [ ]";
 	}
 }

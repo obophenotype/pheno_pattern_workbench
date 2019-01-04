@@ -21,6 +21,9 @@ public class OntologyRegistry {
         }
     }
 
+    public OntologyRegistry() {
+    }
+
     private void readOntologyFile(File f) {
 
         try {

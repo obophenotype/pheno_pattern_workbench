@@ -71,7 +71,7 @@ public class SubClassRedundancy {
             /*
             All asserted axioms disregarding those implied by the imports
              */
-            Set<OWLAxiom> before_asserted = r_all.getAssertedSubclassOfAxioms(branches.getAllClassesInBranches());
+            Set<OWLAxiom> before_asserted = new HashSet<>(r_all.getAssertedSubclassOfAxioms(branches.getAllClassesInBranches()));
             before_asserted.removeAll(impliedwobase);
 
             Set<OWLAxiom> stripped_sbcl_in_base = stripSubClassAxioms(base.getAxioms(Imports.EXCLUDED));

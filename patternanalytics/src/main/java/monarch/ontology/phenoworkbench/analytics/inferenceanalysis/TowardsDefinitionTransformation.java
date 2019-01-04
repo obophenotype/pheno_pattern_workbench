@@ -1,30 +1,40 @@
 package monarch.ontology.phenoworkbench.analytics.inferenceanalysis;
 
 import monarch.ontology.phenoworkbench.util.RenderManager;
+import org.apache.commons.io.FileUtils;
 import org.semanticweb.owlapi.model.*;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 public class TowardsDefinitionTransformation extends PhenotypeDefinitionTransformer {
     private Map<OWLClass, OWLObjectProperty> relationscreated = new HashMap<>();
-    private Set<OWLClass> qualityBlacklist = new HashSet<>();
+    private Set<OWLClass> qualityWhitelist = new HashSet<>();
 
     public TowardsDefinitionTransformation(RenderManager renderManager, Set<OWLClass> pato,Set<OWLClass> phenotypes) {
         super(renderManager, pato,phenotypes);
-        qualityBlacklist.add(df().getOWLClass(IRI.create("http://purl.obolibrary.org/obo/PATO_0000460")));
-        qualityBlacklist.add(df().getOWLClass(IRI.create("http://purl.obolibrary.org/obo/PATO_0000389")));
-        qualityBlacklist.add(df().getOWLClass(IRI.create("http://purl.obolibrary.org/obo/PATO_0000618")));
-        qualityBlacklist.add(df().getOWLClass(IRI.create("http://purl.obolibrary.org/obo/PATO_0001793")));
-        qualityBlacklist.add(df().getOWLClass(IRI.create("http://purl.obolibrary.org/obo/PATO_0002118")));
-        qualityBlacklist.add(df().getOWLClass(IRI.create("http://purl.obolibrary.org/obo/PATO_0000634")));
-        qualityBlacklist.add(df().getOWLClass(IRI.create("http://purl.obolibrary.org/obo/PATO_0000639")));
-        qualityBlacklist.add(df().getOWLClass(IRI.create("http://purl.obolibrary.org/obo/PATO_0001191")));
-        qualityBlacklist.add(df().getOWLClass(IRI.create("http://purl.obolibrary.org/obo/PATO_0001632")));
-        qualityBlacklist.add(df().getOWLClass(IRI.create("http://purl.obolibrary.org/obo/PATO_0001863")));
+        prepareRelationalQualityWhitelist();
+    }
 
+    private void prepareRelationalQualityWhitelist() {
+        ClassLoader classLoader = InferenceAnalyserOLD.class.getClassLoader();
+        File os = new File(classLoader.getResource("pato_relational_qualities").getFile());
+        List<String> pato_whitelistlines = new ArrayList<>();
+        try {
+            pato_whitelistlines.addAll(FileUtils.readLines(os,"utf-8"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        for(String s: pato_whitelistlines) {
+            if(s.trim().isEmpty() || s.startsWith("#")) {
+                continue;
+            }
+            String iri = s.split(",")[0].trim();
+            System.out.println("iri:::: "+iri);
+            qualityWhitelist.add(df().getOWLClass(IRI.create(iri)));
+        }
     }
 
     @Override
@@ -97,17 +107,17 @@ public class TowardsDefinitionTransformation extends PhenotypeDefinitionTransfor
                 }
 
             } else if (ce instanceof OWLClass) {
-                if (qualityBlacklist.contains(ce)) {
+                if (isPhenotype((OWLClass) ce)) {
                     newIntersection.add(ce);
                     continue;
-                } else if (isPhenotype((OWLClass) ce)) {
+                } else if (!containsAtLeastOnePatoTerm(ce)) {
+                    System.out.println("Non PATO quality in place where there should be one: " + ((OWLClass) ce).getIRI() + " .... " + getRenderManager().renderForMarkdown(cephen));
+                    return cephen;
+                } else if (!qualityWhitelist.contains(ce)) {
                     newIntersection.add(ce);
                     continue;
                 } else if (quality_class != null) {
                     System.out.println("Too many quality classes, aborting: " + ((OWLClass) ce).getIRI() + " .... " + getRenderManager().renderForMarkdown(cephen));
-                    return cephen;
-                } else if (!containsAtLeastOnePatoTerm(ce)) {
-                    System.out.println("Non PATO quality in place where there should be one: " + ((OWLClass) ce).getIRI() + " .... " + getRenderManager().renderForMarkdown(cephen));
                     return cephen;
                 } else {
                     quality_class = ce.asOWLClass();

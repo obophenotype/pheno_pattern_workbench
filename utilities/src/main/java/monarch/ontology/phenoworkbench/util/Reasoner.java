@@ -122,8 +122,8 @@ public class Reasoner {
     because it wont be clear if a one of the resulting axioms is redundant, that all are.
      */
 
-    public Set<OWLAxiom> getAssertedSubclassOfAxioms(Set<OWLClass> branch) {
-        Set<OWLAxiom> sbcl = new HashSet<>();
+    public Set<OWLSubClassOfAxiom> getAssertedSubclassOfAxioms(Set<OWLClass> branch) {
+        Set<OWLSubClassOfAxiom> sbcl = new HashSet<>();
         for(OWLAxiom ax:o.getAxioms(Imports.EXCLUDED)) {
             if(ax instanceof OWLSubClassOfAxiom) {
                 OWLSubClassOfAxiom sax = ((OWLSubClassOfAxiom)ax);
@@ -138,7 +138,7 @@ public class Reasoner {
         return sbcl;
     }
 
-    private void processSubClassAxiom(Set<OWLAxiom> sbcl, OWLSubClassOfAxiom sax, Set<OWLClass> branch) {
+    private void processSubClassAxiom(Set<OWLSubClassOfAxiom> sbcl, OWLSubClassOfAxiom sax, Set<OWLClass> branch) {
         OWLClassExpression rhs = sax.getSuperClass();
         OWLClassExpression lhs = sax.getSubClass();
 

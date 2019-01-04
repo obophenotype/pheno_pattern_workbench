@@ -162,11 +162,11 @@ public class CorpusDebugger {
             report.addLine("## Frequently used axioms across unsatisfiability explanations");
             for(Map.Entry e:map.entrySet()) {
                 report.addLine("* "+ render.renderManchester((OWLAxiom) e.getKey()) + " (" + e.getValue()+")");
-                report.addLine("  * Used in: ");
+                /*report.addLine("  * Used in: ");
                 report.addEmptyLine();
                 for(IRI iri:allOntologiesAcrossAxioms.get(e.getKey())) {
                     report.addLine("    * "+iri);
-                }
+                } */
             }
 
         } catch (OWLOntologyCreationException e) {

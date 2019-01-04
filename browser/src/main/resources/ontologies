@@ -1,7 +1,7 @@
 hp,http://purl.obolibrary.org/obo/hp.owl
 mp,http://purl.obolibrary.org/obo/mp.owl
 dpo,http://purl.obolibrary.org/obo/fbcv/dpo.owl
-wbphenotype,http://purl.obolibrary.org/obo/wbphenotype.owl
+wbphenotype,https://raw.githubusercontent.com/obophenotype/upheno/master/wbphenotype/wbphenotype-importer.owl
 nbo,http://purl.obolibrary.org/obo/nbo.owl
 pato,http://purl.obolibrary.org/obo/pato.owl
 uberon,http://purl.obolibrary.org/obo/uberon.owl

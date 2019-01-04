@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.vaadin.ui.Component;
+import monarch.ontology.phenoworkbench.uiutils.basic.LabelManager;
 import monarch.ontology.phenoworkbench.util.*;
 
 import com.vaadin.ui.Label;

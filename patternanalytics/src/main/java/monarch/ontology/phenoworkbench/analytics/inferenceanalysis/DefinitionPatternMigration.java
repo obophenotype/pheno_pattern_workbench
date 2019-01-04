@@ -115,6 +115,8 @@ public class DefinitionPatternMigration extends PhenoAnalysisRunner {
 
                 log("Create O..", sub);
                 Set<OWLAxiom> createNewAxioms = createDefinitionAxioms(towardsTransform.getNewEntitiesCreated());
+                OWLOntology pato_extension = OWLManager.createOWLOntologyManager().createOntology(createNewAxioms,IRI.create("http://purl.obofoundry.org/obo/pato_rq.owl"));
+                pato_extension.getOWLOntologyManager().saveOntology(pato_extension, new OWLXMLDocumentFormat(), new FileOutputStream(new File("/ws/phenotyp_ontology_survey/hp_patternvariants/pato_extension.owl")));
                 OWLOntology o = OWLManager.createOWLOntologyManager().createOntology(getO().getAxioms(oid));
                 o.getOWLOntologyManager().addAxioms(o,createNewAxioms);
                 stripDefinitions(o); //remove ALL definitions, including the ones that were blacklisted previously.

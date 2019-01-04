@@ -1,6 +1,5 @@
 package monarch.ontology.phenoworkbench.analytics.inferenceanalysis;
 
-import monarch.ontology.phenoworkbench.analytics.subclassredundancy.SubClassRedundancy;
 import monarch.ontology.phenoworkbench.util.*;
 import org.apache.commons.io.FileUtils;
 import org.semanticweb.HermiT.ReasonerFactory;
@@ -22,91 +21,84 @@ public class InferenceAnalyser {
     private OntologyDebugReport report = new OntologyDebugReport();
 
     private final long start = System.currentTimeMillis();
-    private final Set<OntologyEntry> pd;
+    private final File pd;
     private final Imports imports;
     private final Map<String, Set<OWLAxiom>> allAxiomsAcrossOntologies = new HashMap<>();
 
-    public InferenceAnalyser(Set<OntologyEntry> pd, boolean imports) {
-        this.pd = pd;
+    OWLOntology o = null;
+    OWLReasoner rel = null;
+
+    Set<Subsumption> subsSL = new HashSet<>();
+    Set<Subsumption> subsEL = new HashSet<>();
+    Set<Subsumption> subsSYN = new HashSet<>();
+    Map<OWLClass,Set<OWLClass>> superclassmapSL = new HashMap<>();
+    Map<OWLClass,Set<OWLClass>> superclassmapEL = new HashMap<>();
+    Map<OWLClass,Set<OWLClass>> superclassmapSYN = new HashMap<>();
+
+
+    public InferenceAnalyser(File ont, boolean imports) {
+        this.pd = ont;
         this.imports = imports ? Imports.INCLUDED : Imports.EXCLUDED;
     }
 
     public static void main(String[] args) throws IOException {
-        File pd = new File(args[0]);
-        boolean imports = args[1].contains("i");
-        File out = new File(args[2]);
-        ClassLoader classLoader = InferenceAnalyser.class.getClassLoader();
-        File os = new File(classLoader.getResource("ontologies").getFile());
-        File roots = new File(classLoader.getResource("phenotypeclasses").getFile());
-        OntologyRegistry phenotypeontologies = new OntologyRegistry(os,roots);
-
-        InferenceAnalyser p = new InferenceAnalyser(phenotypeontologies.getOntologies(), imports);
+        File ont = new File("/data/irtest/test.owl");
+        InferenceAnalyser p = new InferenceAnalyser(ont,false);
         p.prepare();
-        try {
-            p.printResults(out);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
     }
 
     public void prepare() {
-        for (OntologyEntry ourl : pd) {
-            //if(ourl.endsWith("hp.owl"))
-            processOntology(imports, ourl.getIri());
+        processOntology(imports, IRI.create(pd).toString());
+        try {
+            o = OWLManager.createOWLOntologyManager().createOntology(allAxiomsAcrossOntologies.get(IRI.create(pd).toString()));
+            OntologyUtils.p("Creating reasoners"+printTime());
+            rel = createELReasoner(o);
+            //OWLReasoner rdl = createDLReasoner(o);
+            OWLReasoner rsl = createStructuralReasoner(o);
+            OntologyUtils.p("Subs: EL"+printTime());
+            subsEL.addAll(SubsumptionUtils.getSubsumptions(rel, o,false));
+            OntologyUtils.p("Subs: Structural"+printTime());
+            subsSL.addAll(SubsumptionUtils.getSubsumptions(rsl, o,false));
+            OntologyUtils.p("Subs: Syntactic"+printTime());
+            subsSYN.addAll(SubsumptionUtils.getSubsumptions(null, o,false));
+
+            OntologyUtils.p("Super: EL"+printTime());
+            superclassmapEL.putAll(SubsumptionUtils.getSuperClassMap(rel, o));
+           OntologyUtils.p("Super: Structural"+printTime());
+            superclassmapSL.putAll(SubsumptionUtils.getSuperClassMap(rsl, o));
+            OntologyUtils.p("Super: Syntactic"+printTime());
+            superclassmapSYN.putAll(SubsumptionUtils.getSuperClassMap(null, o));
+
+
+        } catch (OWLOntologyCreationException e) {
+            e.printStackTrace();
         }
     }
 
-    public void printResults(File out) throws IOException {
+    public OntologyDebugReport getMarkdownReport() {
         report.addLine("# Analysing individual ontologies for inferences");
         for (String f: allAxiomsAcrossOntologies.keySet()) {
             report.addLine("## Ontology: " + f);
             report.addEmptyLine();
             OntologyUtils.p("#### ANALYSING ONTOLOGY: "+f);
             //...
-            try {
-                OWLOntology o = OWLManager.createOWLOntologyManager().createOntology(allAxiomsAcrossOntologies.get(f));
-                OntologyUtils.p("Creating reasoners"+printTime());
-                OWLReasoner rel = createELReasoner(o);
-                //OWLReasoner rdl = createDLReasoner(o);
-                OWLReasoner rsl = createStructuralReasoner(o);
-                OntologyUtils.p("Subs: EL"+printTime());
-                Set<Subsumption> subsEL = SubsumptionUtils.getSubsumptions(rel, o);
-                OntologyUtils.p("Subs: DL"+printTime());
-                //Set<Subsumption> subsDL = getSubsumptions(rdl, o);
-                OntologyUtils.p("Subs: Structural"+printTime());
-                Set<Subsumption> subsSL = SubsumptionUtils.getSubsumptions(rsl, o);
-                OntologyUtils.p("Subs: Syntactic"+printTime());
-                Set<Subsumption> subsSYN = SubsumptionUtils.getSubsumptions(null, o);
+            OntologyUtils.p("");
+            OntologyUtils.p("RESULTS:"+printTime());
+            //printSubsInfo(subsDL,"DL");
+            printSubsInfo(subsEL,"EL");
+            printSubsInfo(subsSL,"Structural");
+            printSubsInfo(subsSYN,"Syntactic");
 
-                OntologyUtils.p("Super: EL"+printTime());
-                Map<OWLClass,Set<OWLClass>> superclassmapEL = SubsumptionUtils.getSuperClassMap(rel, o);
-                OntologyUtils.p("Subs: DL"+printTime());
-                //Map<OWLClass,Set<OWLClass>> superclassmapDL = getSuperClassMap(rdl, o);
-                OntologyUtils.p("Super: Structural"+printTime());
-                Map<OWLClass,Set<OWLClass>> superclassmapSL = SubsumptionUtils.getSuperClassMap(rsl, o);
-                OntologyUtils.p("Super: Syntactic"+printTime());
-                Map<OWLClass,Set<OWLClass>> superclassmapSYN = SubsumptionUtils.getSuperClassMap(null, o);
-                OntologyUtils.p("");
-                OntologyUtils.p("RESULTS:"+printTime());
-                //printSubsInfo(subsDL,"DL");
-                printSubsInfo(subsEL,"EL");
-                printSubsInfo(subsSL,"Structural");
-                printSubsInfo(subsSYN,"Syntactic");
-
-                //printSuperInfo(superclassmapDL,"DL");
-                printSuperInfo(superclassmapEL,"EL");
-                printSuperInfo(superclassmapSL,"Structural");
-                printSuperInfo(superclassmapSYN,"Syntactic");
-
-            } catch (OWLOntologyCreationException e) {
-                e.printStackTrace();
-            }
+            //printSuperInfo(superclassmapDL,"DL");
+            printSuperInfo(superclassmapEL,"EL");
+            printSuperInfo(superclassmapSL,"Structural");
+            printSuperInfo(superclassmapSYN,"Syntactic");
 
             report.addEmptyLine();
         }
 
-        FileUtils.writeLines(new File(out,"report_inference_analysis.md"), report.getLines());
+        return report;
     }
 
     public List<String> getReportLines() {
@@ -167,5 +159,23 @@ public class InferenceAnalyser {
         long current = System.currentTimeMillis();
         long duration = current - start;
         return " ("+(duration/1000)+" sec)";
+    }
+
+    public Set<Subsumption> getInferredNotAsserted() {
+        Set<Subsumption> inferredNotAsserted = new HashSet<>(subsEL);
+        inferredNotAsserted.removeAll(subsSL);
+        return inferredNotAsserted;
+    }
+
+    InferenceExplainerMain explanationManager = null;
+    OWLDataFactory df = OWLManager.getOWLDataFactory();
+
+    public Set<Explanation> getExplanations(Subsumption s, int max_explanation) {
+        Set<Explanation> explanations = new HashSet<>();
+        if(explanationManager==null) {
+            explanationManager = new InferenceExplainerMain(o,rel);
+        }
+        explanationManager.getExplanations(df.getOWLSubClassOfAxiom(s.getSub_c(),s.getSuper_c()),max_explanation).forEach(e->explanations.add(new Explanation(e)));
+        return explanations;
     }
 }

@@ -16,25 +16,25 @@ public class ReconciliationTreePanel extends HorizontalLayout {
 	 * 
 	 */
 	private static final long serialVersionUID = -5640247323480000539L;
-	ReconciliationTreeSummaryInfoBox ib = new ReconciliationTreeSummaryInfoBox();
-	MappingGrid grid;
-	PatternReconciler p;
+	private ReconciliationTreeSummaryInfoBox ib = new ReconciliationTreeSummaryInfoBox();
+	private MappingGrid grid;
+	private PatternReconciler p;
 
-	ReconciliationTreePanel(PatternReconciler p, ReconciliationCandidateSet cset, VerticalLayout vl_reconcile) {
+	ReconciliationTreePanel(PatternReconciler p, ReconciliationCandidateSet cset, ReconciliationCandidateFunction infoFunctionListener, ReconciliationCandidateFunction multiFunctionListener, ReconciliationCandidateFunction removeListener) {
 		setWidth("100%");
 		this.p = p;
 		Set<Node> nodes = new HashSet<>();
         p.getPatternProvider().getTopOntologyClasses(true).forEach(n->nodes.add(n.getNode()));
 		PatternTree tree = new PatternTree(nodes);
-		grid = new MappingGrid(cset,true);
+		grid = new MappingGrid(cset,true,infoFunctionListener,multiFunctionListener,removeListener);
 		Panel panel_tree = LayoutUtils.preparePanel(tree, "Browser");
-		Layout l_reconciliation = prepareReconciliationInfoPanel(p,vl_reconcile);
-		tree.addItemClickListener(e->update(e));
+		Layout l_reconciliation = prepareReconciliationInfoPanel();
+		tree.addItemClickListener(this::update);
 
 		addComponent(LayoutUtils.prepareSplitPanel(l_reconciliation, panel_tree, 800));
 	}
 
-	private Layout prepareReconciliationInfoPanel(PatternReconciler p, VerticalLayout vl_reconcile) {
+	private Layout prepareReconciliationInfoPanel() {
 		VerticalLayout vl = new VerticalLayout();
 		vl.setMargin(false);
 		vl.setWidth("100%");

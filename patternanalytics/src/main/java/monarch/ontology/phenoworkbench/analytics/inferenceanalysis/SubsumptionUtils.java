@@ -42,11 +42,11 @@ public class SubsumptionUtils {
         return superclasses;
     }
 
-    public static Set<Subsumption> getSubsumptions(OWLReasoner r, OWLOntology o) {
+    public static Set<Subsumption> getSubsumptions(OWLReasoner r, OWLOntology o,boolean direct) {
         Set<Subsumption> subs = new HashSet<>();
         if(r!=null) {
             for(OWLClass c:r.getRootOntology().getClassesInSignature(Imports.INCLUDED)) {
-                for (OWLClass sub : r.getSubClasses(c, false).getFlattened()) {
+                for (OWLClass sub : r.getSubClasses(c, direct).getFlattened()) {
                     subs.add(new Subsumption(c, sub));
                 }
             } }
@@ -57,7 +57,7 @@ public class SubsumptionUtils {
                     OWLClassExpression subc = sbcl.getSubClass();
                     OWLClassExpression superc = sbcl.getSuperClass();
                     if(!subc.isAnonymous() && !superc.isAnonymous()) {
-                        subs.add(new Subsumption((OWLClass)subc,(OWLClass)superc));
+                        subs.add(new Subsumption((OWLClass)superc,(OWLClass)subc));
                     }
                 }
             }

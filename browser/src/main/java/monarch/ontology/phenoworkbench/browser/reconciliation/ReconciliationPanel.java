@@ -8,12 +8,12 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.Tree.ItemClick;
 import com.vaadin.ui.VerticalLayout;
 
+import monarch.ontology.phenoworkbench.uiutils.basic.LabelManager;
 import monarch.ontology.phenoworkbench.util.Node;
 import monarch.ontology.phenoworkbench.util.OntologyClass;
 import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.PatternReconciler;
 import monarch.ontology.phenoworkbench.util.PatternReconciliationCandidate;
 import monarch.ontology.phenoworkbench.util.ReconciliationCandidateSet;
-import monarch.ontology.phenoworkbench.browser.basic.LabelManager;
 import monarch.ontology.phenoworkbench.browser.basic.LayoutUtils;
 import monarch.ontology.phenoworkbench.browser.basic.PatternTree;
 import monarch.ontology.phenoworkbench.browser.quickimpact.PatternInfoBox;

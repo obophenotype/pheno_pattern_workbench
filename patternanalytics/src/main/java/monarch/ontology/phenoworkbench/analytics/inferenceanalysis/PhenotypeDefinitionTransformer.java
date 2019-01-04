@@ -47,6 +47,8 @@ public abstract class PhenotypeDefinitionTransformer implements DefinitionTransf
         DefinedClass tranformed = new DefinedClass(d.getOWLClass(), transformClassExpression(d.getDefiniton()));
         tranformed.setPatternString(getRenderManager().renderForMarkdown(tranformed.getDefiniton()));
         tranformed.setLabel(getRenderManager().getLabel(tranformed.getOWLClass()));
+        tranformed.setDescription(renderManager.getDescription(tranformed.getOWLClass()));
+
         return tranformed;
     }
 

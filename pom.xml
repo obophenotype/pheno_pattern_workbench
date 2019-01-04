@@ -12,6 +12,8 @@
         <module>patternanalytics</module>
         <module>browser</module>
         <module>utilities</module>
+        <module>inferencereview</module>
+        <module>uiutils</module>
     </modules>
 
 

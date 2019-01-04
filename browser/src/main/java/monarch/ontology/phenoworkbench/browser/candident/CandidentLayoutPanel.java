@@ -6,9 +6,9 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import monarch.ontology.phenoworkbench.uiutils.basic.LabelManager;
 import monarch.ontology.phenoworkbench.util.Bucket;
 import monarch.ontology.phenoworkbench.analytics.pattern.reconciliation.CandidateIdentifierApp;
-import monarch.ontology.phenoworkbench.browser.basic.LabelManager;
 import monarch.ontology.phenoworkbench.util.KB;
 
 public class CandidentLayoutPanel extends VerticalLayout {

@@ -36,13 +36,15 @@ public class PatternManager {
                 ct_nondef++;
             }
             p.setLabel(renderManager.getLabel(p.getOWLClass()));
+            p.setDescription(renderManager.getDescription(p.getOWLClass()));
+            p.setDeprecated(UberOntology.instance().isObsolete(p.getOWLClass()));
             p.setPatternString(renderPattern(p));
             patternClassCache.put(p.getOWLClass(), p);
         }
         // Make sure all classes are registered before building  the taxonomy
         r.getOWLReasoner().getRootOntology().getClassesInSignature(Imports.INCLUDED).forEach(this::getPatternClass);
 
-        getAllClasses().forEach(n->setTaxonomy(getNodeForClass(n.getOWLClass(),r)));
+        new HashSet<>(getAllClasses()).forEach(n->setTaxonomy(getNodeForClass(n.getOWLClass(),r)));
         for(OWLClass c:nodeClassCache.keySet()) {
             getPatternClass(c).setNode(nodeClassCache.get(c));
         }
@@ -112,6 +114,7 @@ public class PatternManager {
         if (!patternClassCache.containsKey(c)) {
             OntologyClass p = new OntologyClass(c);
             p.setLabel(renderManager.getLabel(c));
+            p.setDescription(renderManager.getDescription(p.getOWLClass()));
             p.setDeprecated(UberOntology.instance().isObsolete(c));
             patternClassCache.put(c, p);
         }
@@ -131,7 +134,11 @@ public class PatternManager {
     }
 
     public Collection<OntologyClass> getAllClasses() {
-        return patternClassCache.values();
+        Set<OntologyClass> classes = new HashSet<>();
+        if(patternClassCache!=null) {
+            classes.addAll(patternClassCache.values());
+        }
+        return classes;
     }
 
 }
