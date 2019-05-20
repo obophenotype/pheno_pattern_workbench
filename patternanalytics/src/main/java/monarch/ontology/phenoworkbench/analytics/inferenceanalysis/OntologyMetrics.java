@@ -38,12 +38,13 @@ public class OntologyMetrics {
             String axiomcode = ax.hashCode() + "";
             String axiomtype = ax.getAxiomType().getName();
             Map<String, String> rec = new HashMap<>();
-            rec.put("o", f_o.getAbsolutePath());
+            rec.put("o", f_o.getName());
+            rec.put("o_path", f_o.getAbsolutePath());
             rec.put("axiomid", axiomcode);
             rec.put("axiomtype", axiomtype);
             data.add(rec);
         }
-        Export.writeCSV(data, new File(out, "rosurvey_allaxiomdata_" + f_o.getName() + ".csv"));
+        Export.writeCSV(data, new File(out, "patosurvey_allaxiomdata_" + f_o.getName() + ".csv"));
         System.out.println("Axiomdata gathering finished for "+f_o.getName());
     }
 

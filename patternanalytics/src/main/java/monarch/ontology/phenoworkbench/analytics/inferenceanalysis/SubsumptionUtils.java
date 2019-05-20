@@ -51,18 +51,32 @@ public class SubsumptionUtils {
                 }
             } }
         else {
-            for(OWLAxiom ax:o.getAxioms(Imports.INCLUDED)) {
-                if(ax instanceof OWLSubClassOfAxiom){
-                    OWLSubClassOfAxiom sbcl = (OWLSubClassOfAxiom)ax;
-                    OWLClassExpression subc = sbcl.getSubClass();
-                    OWLClassExpression superc = sbcl.getSuperClass();
-                    if(!subc.isAnonymous() && !superc.isAnonymous()) {
-                        subs.add(new Subsumption((OWLClass)superc,(OWLClass)subc));
-                    }
+            return getAssertedSubsumptions(o);
+        }
+        return subs;
+    }
+
+    public static Set<Subsumption> getAssertedSubsumptions(OWLOntology o) {
+        Set<Subsumption> subs = new HashSet<>();
+        for(OWLAxiom ax:o.getAxioms(Imports.INCLUDED)) {
+            if(ax instanceof OWLSubClassOfAxiom){
+                OWLSubClassOfAxiom sbcl = (OWLSubClassOfAxiom)ax;
+                addSubClassOfIfNamedClass(subs, sbcl);
+            } else if(ax instanceof OWLEquivalentClassesAxiom){
+                OWLEquivalentClassesAxiom eq = (OWLEquivalentClassesAxiom)ax;
+                for(OWLSubClassOfAxiom sbcl:eq.asOWLSubClassOfAxioms()) {
+                    addSubClassOfIfNamedClass(subs, sbcl);
                 }
             }
         }
-
         return subs;
+    }
+
+    private static void addSubClassOfIfNamedClass(Set<Subsumption> subs, OWLSubClassOfAxiom sbcl) {
+        OWLClassExpression subc = sbcl.getSubClass();
+        OWLClassExpression superc = sbcl.getSuperClass();
+        if(!subc.isAnonymous() && !superc.isAnonymous()) {
+            subs.add(new Subsumption((OWLClass)superc,(OWLClass)subc));
+        }
     }
 }
