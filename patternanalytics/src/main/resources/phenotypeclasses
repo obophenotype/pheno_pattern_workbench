@@ -33,3 +33,4 @@ bdo,http://www.w3.org/2002/07/owl#Thing
 spto,http://www.w3.org/2002/07/owl#Thing
 repo,http://www.w3.org/2002/07/owl#Thing
 zp,http://www.w3.org/2002/07/owl#Thing
+go,http://purl.obolibrary.org/obo/GO_0008150

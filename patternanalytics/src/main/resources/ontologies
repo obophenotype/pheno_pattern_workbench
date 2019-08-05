@@ -1,4 +1,5 @@
 hp,http://purl.obolibrary.org/obo/hp.owl
+go,http://purl.obolibrary.org/obo/go.owl
 mp,http://purl.obolibrary.org/obo/mp.owl
 fbcv,https://raw.githubusercontent.com/FlyBase/flybase-controlled-vocabulary/master/releases/dpo.owl
 cl,http://purl.obolibrary.org/obo/cl.owl
