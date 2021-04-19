@@ -12,7 +12,7 @@
     <artifactId>ui-utils</artifactId>
 
     <properties>
-        <vaadin.version>8.3.1</vaadin.version>
+        <vaadin.version>8.12.3</vaadin.version>
         <vaadin.plugin.version>8.3.1</vaadin.plugin.version>
         <jetty.plugin.version>9.3.22.v20171030</jetty.plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
